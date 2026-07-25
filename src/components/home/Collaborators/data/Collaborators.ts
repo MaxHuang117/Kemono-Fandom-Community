@@ -63,10 +63,24 @@ export const collaborators: Collaborator[] = [
 
   {
     id: 3,
+    name: "Holi",
+    avatar: "/Collaborators/Holi.png",
+    banner: "/Collaborators/Holi.png",
+    color: "#08eb00",
+    twitch: "",
+    discord: "",
+
+    bio:
+      "Amigo mexicano, de los primeros en aparecer dentro del circulo.",
+
+  },
+
+  {
+    id: 4,
     name: "Haise",
     avatar: "/Collaborators/Haise.jpg",
     banner: "/Collaborators/Haise.jpg",
-    color: "#58ff2e",
+    color: "#3620ff",
     twitch: "",
     discord: "",
 
@@ -76,7 +90,7 @@ export const collaborators: Collaborator[] = [
   },
 
   {
-    id: 4,
+    id: 5,
     name: "Toshi",
     avatar: "/Collaborators/Toshi.jpg",
     banner: "/Collaborators/Toshi.jpg",
@@ -90,7 +104,7 @@ export const collaborators: Collaborator[] = [
   },
 
   {
-    id: 5,
+    id: 6,
     name: "Thiz",
     avatar: "/Collaborators/Thiz.jpg",
     banner: "/Collaborators/Thiz.jpg",
