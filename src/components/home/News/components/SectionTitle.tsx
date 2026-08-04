@@ -3,7 +3,6 @@
 | Título de sección
 |--------------------------------------------------------------------------
 */
-console.log("SectionTitle: Novedades cargado");
 
 interface Props {
 

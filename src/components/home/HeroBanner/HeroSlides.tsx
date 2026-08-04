@@ -24,7 +24,7 @@ export interface HeroSlide {
 
 export const heroSlides: HeroSlide[] = [
   {
-    title: "Comuindad de Discord",
+    title: "Comunidad de Discord",
 
     subtitle: "Interactúa con los seguidores, enterate de los anuncios y habla con los creadores.",
 

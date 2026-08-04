@@ -42,21 +42,11 @@ export default function CollaboratorStack({
 
 }: Props) {
 
-    const collapsedSpacing = 70;   // separación cuando están apiladas
-
-    const expandedSpacing = 270;   // separación cuando se abren
-
-    // Centro de la baraja
-    const center =
-    ((collaborators.length - 1) * expandedSpacing) / 2;
-
     const {
 
         mobile,
         
         getX,
-
-        getY,
 
         getRotation,
 

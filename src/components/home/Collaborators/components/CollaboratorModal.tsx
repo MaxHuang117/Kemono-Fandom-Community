@@ -3,6 +3,8 @@
 import { useEffect } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { Collaborator } from "../data/Collaborators";
+// CORREGIDO: Importación estándar de Next.js
+import Image from "next/image";
 
 interface Props {
   collaborator: Collaborator | null;
@@ -43,6 +45,7 @@ export default function CollaboratorModal({
         <motion.div
           className="fixed inset-0 z-[999] flex items-center justify-center bg-black/70 backdrop-blur"
           initial={{ opacity: 0 }}
+
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
           onClick={onClose}
@@ -78,29 +81,37 @@ export default function CollaboratorModal({
             "
           >
             {/* Banner */}
-            <div
-              className="h-52 bg-cover bg-center"
-              style={{
-                backgroundImage: `url(${collaborator.banner})`,
-              }}
-            />
+            <div className="relative h-52 w-full overflow-hidden">
+              {collaborator.banner ? (
+                <Image
+                  src={collaborator.banner}
+                  alt={`Banner de ${collaborator.name}`}
+                  fill
+                  sizes="(max-width: 850px) 100vw, 850px"
+                  className="object-cover"
+                />
+              ) : (
+                <div className="h-full bg-gradient-to-r from-green-600 to-green-900" />
+              )}
+            </div>
 
             {/* Avatar */}
-            <img
-              src={collaborator.avatar}
-              alt={collaborator.name}
-              className="
-                absolute
-                left-10
-                top-36
-                h-32
-                w-32
-                rounded-full
-                border-6
-                border-[#111]
-                object-cover
-              "
-            />
+            <div className="absolute left-10 top-36 h-32 w-32 shrink-0">
+              <Image
+                src={collaborator.avatar}
+                alt={collaborator.name}
+                width={128}
+                height={128}
+                className="
+                  h-full
+                  w-full
+                  rounded-full
+                  border-[6px]
+                  border-[#111]
+                  object-cover
+                "
+              />
+            </div>
 
             {/* Contenido */}
             <div className="px-10 pb-10 pt-20">

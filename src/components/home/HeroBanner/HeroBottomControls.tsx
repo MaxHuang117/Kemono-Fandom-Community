@@ -27,8 +27,6 @@ export default function HeroBottomControls({
 
   current,
 
-  total,
-
   progress,
 
   previousSlide,

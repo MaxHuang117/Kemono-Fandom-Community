@@ -3,7 +3,6 @@
 | Título de sección
 |--------------------------------------------------------------------------
 */
-console.log("SectionTitle cargado");
 
 interface Props {
 

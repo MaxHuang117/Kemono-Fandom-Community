@@ -38,4 +38,18 @@ export const newsData: News[] = [
 
   },
 
+  {
+
+    id:2,
+
+    title:"Comentarios en las Novedades",
+
+    description:
+      "Registra tu cuenta para obtener beneficios en las proximas actualizaciones!",
+
+    image:"/News/Comment-b.png",
+
+    date:"4 Ago 2026",
+
+  },
 ];

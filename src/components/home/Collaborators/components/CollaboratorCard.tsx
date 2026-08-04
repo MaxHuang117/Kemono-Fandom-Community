@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { motion } from "framer-motion";
 import { Collaborator } from "../data/Collaborators";
 
@@ -53,17 +54,19 @@ export default function CollaboratorCard({
 
       {/* Carta */}
       <div
-        className="absolute inset-[2px] overflow-hidden"
+        className="relative top-[2px] left-[2px] w-[246px] h-[416px] overflow-hidden" 
         style={{
           clipPath:
             "polygon(0 0,100% 0,100% 92%,88% 100%,0 100%)",
         }}
       >
 
-      <img
+      <Image
         src={collaborator.avatar}
         alt={collaborator.name}
-        className="h-full w-full object-cover"
+        fill
+        className="object-cover"
+        sizes="250px"
       />
 
       <div className="absolute inset-0 bg-gradient-to-t from-black via-black/30 to-transparent"/>

@@ -10,6 +10,8 @@ import { newsData } from "./data/NewsData";
 
 import { useNews } from "./hooks/useNews";
 import { useNewsSlider } from "./hooks/useNewsSlider";
+import { useComments } from "./hooks/useComments";
+import NewsComments from "./components/comments/modal/NewsComments";
 
 /*
 |--------------------------------------------------------------------------
@@ -27,7 +29,15 @@ export default function NovedadesSection() {
 
     } = useNews();
 
-    console.log("opened:", opened);
+        const {
+
+        openedNews,
+
+        open,
+
+        close,
+
+    } = useComments();
 
     const {
 
@@ -85,21 +95,25 @@ export default function NovedadesSection() {
 
                 ? (
 
-                    <NewsMobile
+                <NewsMobile
 
-                        news={newsData}
+                    news={newsData}
 
-                        current={current}
+                    current={current}
 
-                        opened={opened}
+                    opened={opened}
 
-                        toggle={toggle}
+                    toggle={toggle}
 
-                        previous={previous}
+                    previous={previous}
 
-                        next={next}
+                    next={next}
 
-                    />
+                    onOpenComments={open}
+
+                    commentsCount={0}
+
+                />
 
                 )
 
@@ -113,11 +127,23 @@ export default function NovedadesSection() {
 
                         toggle={toggle}
 
+                        onOpenComments={open}
+
+                        
+
                     />
 
                 )
 
             }
+
+                        <NewsComments
+
+                            news={openedNews}
+
+                            onClose={close}
+
+                        />
 
         </section>
 

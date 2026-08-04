@@ -7,101 +7,82 @@ import { heroSlides } from "./HeroSlides";
 |--------------------------------------------------------------------------
 | Hook del Slider
 |--------------------------------------------------------------------------
-| Controla:
-|
-| ✔ Banner actual
-| ✔ Cambio automático
-| ✔ Barra de progreso
-|--------------------------------------------------------------------------
 */
 
 const DURATION = 7000;
 
 export function useHeroSlider() {
 
-  const [current, setCurrent] = useState(0);
+    const [current, setCurrent] = useState(0);
 
-  const [progress, setProgress] = useState(0);
+    const [progress, setProgress] = useState(() => 0);
 
-  /*---------------------------------------------------
-    Barra de progreso
-  ---------------------------------------------------*/
+    useEffect(() => {
 
-  useEffect(() => {
+        const start = Date.now();
 
-    setProgress(0);
+        const animation = setInterval(() => {
 
-    const start = Date.now();
+            const elapsed = Date.now() - start;
 
-    const animation = setInterval(() => {
+            setProgress(
+                Math.min((elapsed / DURATION) * 100, 100)
+            );
 
-      const elapsed = Date.now() - start;
+        }, 16);
 
-      const percent = Math.min(
-        (elapsed / DURATION) * 100,
-        100
-      );
+        const slider = setTimeout(() => {
 
-      setProgress(percent);
+            setCurrent(prev =>
+                prev === heroSlides.length - 1
+                    ? 0
+                    : prev + 1
+            );
 
-    }, 16);
+        }, DURATION);
 
-    const slider = setTimeout(() => {
+        return () => {
 
-      setCurrent(prev =>
-        prev === heroSlides.length - 1
-          ? 0
-          : prev + 1
-      );
+            clearInterval(animation);
 
-    }, DURATION);
+            clearTimeout(slider);
 
-    return () => {
+        };
 
-      clearTimeout(slider);
+    }, [current]);
 
-      clearInterval(animation);
+    function nextSlide() {
+
+        setCurrent(prev =>
+            prev === heroSlides.length - 1
+                ? 0
+                : prev + 1
+        );
+
+    }
+
+    function previousSlide() {
+
+        setCurrent(prev =>
+            prev === 0
+                ? heroSlides.length - 1
+                : prev - 1
+        );
+
+    }
+
+    return {
+
+        slide: heroSlides[current],
+
+        current,
+
+        progress,
+
+        nextSlide,
+
+        previousSlide,
 
     };
-
-  }, [current]);
-
-
-
-  function nextSlide() {
-
-    setCurrent(prev =>
-      prev === heroSlides.length - 1
-        ? 0
-        : prev + 1
-    );
-
-  }
-
-
-
-  function previousSlide() {
-
-    setCurrent(prev =>
-      prev === 0
-        ? heroSlides.length - 1
-        : prev - 1
-    );
-
-  }
-
-  return {
-
-    slide: heroSlides[current],
-
-    current,
-
-    progress,
-
-    nextSlide,
-
-    previousSlide,
-
-  };
 
 }

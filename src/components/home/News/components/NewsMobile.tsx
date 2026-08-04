@@ -18,6 +18,10 @@ interface Props {
 
     next: () => void;
 
+    onOpenComments: (news: News) => void;
+
+    commentsCount: number;
+
 }
 
 /*
@@ -32,13 +36,11 @@ export default function NewsMobile({
 
     current,
 
-    opened,
-
-    toggle,
-
     previous,
 
     next,
+    
+    onOpenComments,
 
 }: Props) {
 
@@ -49,10 +51,7 @@ export default function NewsMobile({
             <NewsCard
 
                 news={news[current]}
-
-                opened={opened === news[current].id}
-
-                onToggle={() => toggle(news[current].id)}
+                onOpenComments={() => onOpenComments(news[current])}
 
             />
 

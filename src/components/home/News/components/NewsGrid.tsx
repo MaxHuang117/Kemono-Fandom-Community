@@ -11,6 +11,8 @@ interface Props {
 
     toggle: (id: number) => void;
 
+    onOpenComments:(news:News)=>void
+
 }
 
 /*
@@ -25,9 +27,7 @@ export default function NewsGrid({
 
     news,
 
-    opened,
-
-    toggle,
+    onOpenComments,
 
 }: Props) {
 
@@ -57,8 +57,7 @@ export default function NewsGrid({
         >
             <NewsCard
                 news={item}
-                opened={opened === item.id}
-                onToggle={() => toggle(item.id)}
+                onOpenComments={() => onOpenComments(item)}
             />
         </div>
     ))}

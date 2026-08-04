@@ -4,12 +4,16 @@ import NovedadesSection from "@/components/home/News/News";
 
 export default function Home() {
   return (
+    
     <div className="min-h-screen bg-black text-white">
       <Hero />
 
       <ColaboradoresSection />
 
       <NovedadesSection />
+
+
+
     </div>
   );
 }
