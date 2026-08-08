@@ -10,7 +10,7 @@ export default async function AdminPage() {
   }
 
   // 2. Si la sesión existe pero el correo NO es el tuyo, al home (/)
-  if (session.user?.email !== "REDACTED_EMAIL ") {
+  if (session.user?.email !== process.env.ADMIN_EMAIL) {
     redirect("/inicio"); 
   }
 
