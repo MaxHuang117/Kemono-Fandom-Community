@@ -11,6 +11,7 @@ import {
     deleteComment,
     updateComment,
     assertCommentOwner,
+    getCommentsByNewsId,
 } from "../../lib/services/comments.service";
 
 export async function publicarComentarioAction(
@@ -63,6 +64,56 @@ export async function publicarComentarioAction(
     } catch {
         return { error: "Error interno del servidor" };
     }
+}
+
+export async function obtenerComentariosAction(
+    newsId: number,
+) {
+
+    const { data, error } =
+        await getCommentsByNewsId(newsId);
+
+    if (error) {
+
+        console.error(
+            "Error obteniendo comentarios:",
+            error,
+        );
+
+        return {
+            data: null,
+            error: error.message,
+        };
+
+    }
+
+    if (!data) {
+        return {
+            data: [],
+            error: null,
+        };
+    }
+
+    const normalizedData = data.map((comment) => {
+
+        const rawProfile = comment.profiles as unknown;
+
+        const profile = Array.isArray(rawProfile)
+            ? rawProfile[0] ?? null
+            : rawProfile ?? null;
+
+        return {
+            ...comment,
+            profiles: profile,
+        };
+
+    });
+
+    return {
+        data: normalizedData,
+        error: null,
+    };
+
 }
 
 export async function eliminarComentarioAction(

@@ -1,5 +1,7 @@
 "use server";
 
+import { getServerSession } from "next-auth/next";
+import { authOptions } from "@/lib/auth";
 import { createClient } from "@supabase/supabase-js";
 import { mapLike } from "../../lib/mappers/likeMapper";
 
@@ -70,38 +72,43 @@ return {
 
 }
 
-export async function darLike(
+export async function darLike(commentId: string) {
+    const session = await getServerSession(authOptions);
 
-    commentId: string,
-    userId: string,
+    const userId = session?.user?.discordId;
 
-) {
+    if (!userId) {
+        return {
+            error: new Error("No autorizado"),
+        };
+    }
 
     const { error } = await supabaseAdmin
-
         .from("comment_likes")
-
         .insert({
             comment_id: commentId,
             user_id: userId,
         });
 
-        if (error) {
-            console.error("LIKES ERROR:", error);
-        }
+    if (error) {
+        console.error("LIKES ERROR:", error);
+    }
 
     return {
-
         error,
-
     };
-
 }
 
-export async function quitarLike(
-    commentId: string,
-    userId: string,
-) {
+export async function quitarLike(commentId: string) {
+    const session = await getServerSession(authOptions);
+
+    const userId = session?.user?.discordId;
+
+    if (!userId) {
+        return {
+            error: new Error("No autorizado"),
+        };
+    }
 
     const { error } = await supabaseAdmin
         .from("comment_likes")

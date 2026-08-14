@@ -35,11 +35,11 @@ interface ModalProps {
 
     onClose: () => void;
 
-    onLoadComments: () => void;
+    onLoadComments: () => Promise<void>;
 
     onDeleteComment: (commentId: string) => void;
 
-    onCommentUpdated: () => void;
+    onCommentUpdated: () => Promise<void>;
 
     onSelectUser: (
         user: UserProfile | null

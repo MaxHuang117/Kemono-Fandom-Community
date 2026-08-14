@@ -83,7 +83,7 @@
 
         /*
         |--------------------------------------------------------------------------
-        | Toggle
+        | Toggle (like/dislike)
         |--------------------------------------------------------------------------
         */
 
@@ -97,31 +97,20 @@
 
             try {
 
-                if (liked) {
+                const result = liked
+                    ? await quitarLike(commentId)
+                    : await darLike(commentId);
 
-                    await quitarLike(
-                        commentId,
-                        discordId
-                    );
-
-                } else {
-
-                    await darLike(
-                        commentId,
-                        discordId
-                    );
-
+                if (result.error) {
+                    console.error("Error al actualizar like:", result.error);
+                    return;
                 }
-
-                // ← vuelve a consultar Supabase
                 await cargarLikes();
 
             } finally {
-
                 setLoading(false);
 
             }
-
         }
 
         return {

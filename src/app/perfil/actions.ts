@@ -1,5 +1,7 @@
 "use server";
 
+import { getServerSession } from "next-auth/next";
+import { authOptions } from "@/lib/auth";
 import { createClient } from "@supabase/supabase-js";
 
 // CLIENTE ADMINISTRADOR: Omite el RLS de forma segura únicamente en el entorno del servidor
@@ -14,20 +16,69 @@ const supabaseAdmin = createClient(
 |--------------------------------------------------------------------------
 */
 export async function guardarBiografiaAction(
-    discord_id: string,
     biografia: string
 ) {
-    // Aquí puedes seguir usando supabaseAdmin si no quieres depender de políticas complejas en el servidor
+    const session = await getServerSession(authOptions);
+
+    if (!session?.user?.discordId) {
+        return { error: "No autorizado." };
+    }
+
+    const discordId = session.user.discordId;
+
     const { error } = await supabaseAdmin
         .from("profiles")
         .update({
             biografia: biografia,
             updated_at: new Date().toISOString(),
         })
-        .eq("id", discord_id);
+        .eq("id", discordId);
 
-    if (error) return { error };
-    return { success: true };
+    if (error) {
+        console.error("Error guardando biografía:", error);
+
+        return {
+            error: error.message,
+        };
+    }
+
+    return {
+        success: true,
+    };
+}
+
+/*
+|--------------------------------------------------------------------------
+| Obtener biografía
+|--------------------------------------------------------------------------
+*/
+
+export async function obtenerBiografiaAction() {
+    const session = await getServerSession(authOptions);
+
+    if (!session?.user?.discordId) {
+        return {
+            error: "No autorizado.",
+        };
+    }
+
+    const { data, error } = await supabaseAdmin
+        .from("profiles")
+        .select("biografia")
+        .eq("discord_id", session.user.discordId)
+        .maybeSingle();
+
+    if (error) {
+        console.error("Error obteniendo biografía:", error);
+
+        return {
+            error: error.message,
+        };
+    }
+
+    return {
+        biografia: data?.biografia ?? "",
+    };
 }
 
 /*
@@ -36,47 +87,66 @@ export async function guardarBiografiaAction(
 |--------------------------------------------------------------------------
 */
 export async function sincronizarPerfilDiscordAction({
-    discordId,
     discordUsername,
-    email,
     avatarUrl,
-    bannerUrl,
 }: {
-    discordId: string;
     discordUsername: string;
-    email: string;
     avatarUrl: string;
-    bannerUrl: string | null;
 }) {
 
+    const session = await getServerSession(authOptions);
+
+    if (!session?.user?.discordId || !session.user.email) {
+        return {
+            error: "No autorizado.",
+        };
+    }
+
+    const discordId = session.user.discordId;
+    const email = session.user.email;
+
     /* Buscar perfil existente */
-    const { data: perfilExistente, error: errorBusqueda } = await supabaseAdmin
+    const {
+        data: perfilExistente,
+        error: errorBusqueda,
+    } = await supabaseAdmin
         .from("profiles")
         .select("id")
         .eq("discord_id", discordId)
         .maybeSingle();
 
-    if (errorBusqueda) return { error: errorBusqueda };
+    if (errorBusqueda) {
+        return {
+            error: errorBusqueda.message,
+        };
+    }
 
     /* Si ya existe → actualizar información de Discord */
     if (perfilExistente) {
+
         const { error } = await supabaseAdmin
             .from("profiles")
             .update({
                 discord_username: discordUsername,
                 email: email,
                 avatar_url: avatarUrl,
-                banner_url: bannerUrl,
                 updated_at: new Date().toISOString(),
             })
             .eq("discord_id", discordId);
 
-        if (error) return { error };
+        if (error) {
+            return {
+                error: error.message,
+            };
+        }
 
-        return { success: true, created: false };
+        return {
+            success: true,
+            created: false,
+        };
     }
 
-    /* Si no existe → crear perfil (Omitiendo RLS con service_role) */
+    /* Si no existe → crear perfil */
     const { error } = await supabaseAdmin
         .from("profiles")
         .insert({
@@ -85,13 +155,19 @@ export async function sincronizarPerfilDiscordAction({
             discord_username: discordUsername,
             email: email,
             avatar_url: avatarUrl,
-            banner_url: bannerUrl,
             nombre_publico: discordUsername,
             biografia: "",
             updated_at: new Date().toISOString(),
         });
 
-    if (error) return { error };
+    if (error) {
+        return {
+            error: error.message,
+        };
+    }
 
-    return { success: true, created: true };
+    return {
+        success: true,
+        created: true,
+    };
 }

@@ -71,6 +71,39 @@ export async function getCommentById(
 
 /*
 |--------------------------------------------------------------------------
+| Obtener comentarios de una noticia
+|--------------------------------------------------------------------------
+*/
+
+export async function getCommentsByNewsId(
+    newsId: number,
+) {
+
+    return await supabaseAdmin
+        .from("comments")
+        .select(`
+            id,
+            news_id,
+            user_id,
+            message,
+            created_at,
+            profiles (
+                nombre_publico,
+                avatar_url,
+                banner_url,
+                discord_username,
+                biografia
+            )
+        `)
+        .eq("news_id", newsId)
+        .order("created_at", {
+            ascending: false,
+        });
+
+}
+
+/*
+|--------------------------------------------------------------------------
 | Eliminar comentario
 |--------------------------------------------------------------------------
 */

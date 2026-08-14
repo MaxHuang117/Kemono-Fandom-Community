@@ -1,12 +1,14 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { supabase } from "@/lib/supabase";
 import { News } from "../../../data/NewsData";
 import type { UserProfile } from "../../lib/types/profile";
 import NewsCommentsModal from "../modal/NewsCommentsModal";
 import { useCurrentProfile } from "@/hooks/useCurrentProfile";
-import { eliminarComentarioAction } from "../actions/commentsAction";
+import {
+    eliminarComentarioAction,
+    obtenerComentariosAction,
+} from "../actions/commentsAction";
 import {
     mapComments,
     type CommentUI,
@@ -17,10 +19,46 @@ interface Props {
     onClose: () => void;
 }
 
+async function obtenerComentarios(newsId: number): Promise<CommentUI[]> {
+
+    const result = await obtenerComentariosAction(newsId);
+
+    if (result.error) {
+
+        console.error(
+            "Error cargando comentarios:",
+            result.error
+        );
+
+        return [];
+    }
+
+    if (!result.data) {
+        return [];
+    }
+
+    return mapComments(result.data);
+}
+
 export default function NewsComments({ news, onClose }: Props) {
+
     const { profile } = useCurrentProfile();
-    const [comments, setComments] = useState<CommentUI[]>([]);
-    const [selectedUser, setSelectedUser] = useState<UserProfile | null>(null);
+
+    const [comments, setComments] =
+        useState<CommentUI[]>([]);
+
+    const [selectedUser, setSelectedUser] =
+        useState<UserProfile | null>(null);
+
+    async function loadComments() {
+
+        if (!news) return;
+
+        const comments =
+            await obtenerComentarios(news.id);
+
+        setComments(comments);
+    }
 
     async function handleDeleteComment(
         commentId: string,
@@ -40,40 +78,25 @@ export default function NewsComments({ news, onClose }: Props) {
             alert(result.error);
 
             return;
-
         }
 
         await loadComments();
-
-    }
-
-    async function loadComments() {
-        if (!news) return;
-
-        const { data } = await supabase
-            .from("comments")
-            .select(`
-                *,
-                profiles (
-                    nombre_publico,
-                    avatar_url,
-                    banner_url, 
-                    discord_username,
-                    biografia
-                )
-            `)
-            .eq("news_id", news.id)
-            .order("created_at", { ascending: false });
-
-        if (data) {
-            setComments(mapComments(data));
-        }
     }
 
     useEffect(() => {
-        if (!news) return;
 
-        loadComments();
+        async function cargarComentarios() {
+
+            if (!news) return;
+
+            const comments =
+                await obtenerComentarios(news.id);
+
+            setComments(comments);
+        }
+
+        cargarComentarios();
+
     }, [news]);
 
     if (!news) return null;

@@ -1,36 +1,185 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Max Hub
 
-## Getting Started
+Plataforma web desarrollada con Next.js para centralizar contenido, perfiles de usuario, noticias y funcionalidades de comunidad.
 
-First, run the development server:
+El proyecto forma parte del proceso de formación en Análisis y Desarrollo de Software (ADSO) y está siendo desarrollado con una arquitectura orientada a separar la interfaz, la lógica del servidor y el acceso a datos.
 
-```bash
+---
+
+## 🚀 Tecnologías utilizadas
+
+### Frontend
+
+- **Next.js 16.2.10** — Framework principal de la aplicación.
+- **React 19.2.4** — Construcción de la interfaz mediante componentes.
+- **TypeScript 5** — Tipado estático y seguridad durante el desarrollo.
+- **Tailwind CSS 4** — Estilos y diseño de la interfaz.
+- **Framer Motion 12** — Animaciones y transiciones de la interfaz.
+
+### Backend y autenticación
+
+- **Next.js Server Actions** — Ejecución de lógica del servidor desde la aplicación.
+- **NextAuth 4** — Gestión de sesiones y autenticación.
+- **Discord OAuth** — Inicio de sesión mediante Discord.
+- **Supabase JS 2** — Comunicación con la base de datos y servicios de Supabase.
+- **Supabase Auth Helpers** — Utilidades de integración con Supabase.
+
+### Base de datos
+
+- **Supabase**
+- **PostgreSQL**
+- **Row Level Security (RLS)** — Control de acceso a los datos mediante políticas de PostgreSQL.
+
+### Herramientas de desarrollo
+
+- **Node.js**
+- **npm**
+- **ESLint 9** — Análisis estático y detección de problemas en el código.
+- **TypeScript**
+- **Turbopack** — Bundler utilizado por Next.js durante el desarrollo/build.
+- **Git**
+- **GitHub**
+
+---
+
+## ✨ Características
+
+- 🔐 Autenticación mediante Discord.
+- 👤 Perfiles de usuario.
+- 🖼️ Avatares y banners de Discord.
+- 📝 Biografía personal.
+- 📰 Sistema de noticias.
+- 💬 Sistema de comentarios.
+- ❤️ Likes en comentarios.
+- 👥 Visualización de usuarios que dieron like.
+- ✏️ Edición de comentarios propios.
+- 🗑️ Eliminación de comentarios propios.
+- 👤 Visualización de perfiles desde los comentarios.
+- 🎞️ Animaciones mediante Framer Motion.
+- 📱 Interfaz responsive.
+- 🛡️ Validación de comentarios.
+- 🔒 Protección de operaciones sensibles mediante Server Actions.
+- 🔑 Uso de Supabase Service Role exclusivamente desde el servidor.
+
+---
+
+## 🛡️ Seguridad
+
+El proyecto utiliza una arquitectura donde las operaciones sensibles se ejecutan exclusivamente en el servidor.
+
+Entre las medidas implementadas se encuentran:
+
+- Las claves privadas de Supabase no se exponen al cliente.
+- `SUPABASE_SERVICE_ROLE_KEY` se utiliza únicamente en código del servidor.
+- Las operaciones sensibles utilizan **Next.js Server Actions**.
+- Las acciones protegidas verifican la sesión mediante **NextAuth**.
+- Las operaciones sobre comentarios verifican la propiedad del comentario antes de permitir modificaciones o eliminaciones.
+- La identidad del usuario se obtiene desde la sesión autenticada.
+- Las políticas **RLS** de Supabase controlan el acceso a las tablas.
+- El token de acceso de Discord no se almacena ni se expone innecesariamente.
+- Las variables sensibles se mantienen fuera del repositorio mediante variables de entorno.
+
+---
+
+## 📁 Estructura general
+
+```text
+max-hub/
+├── src/
+│   ├── app/
+│   │   ├── admin/
+│   │   ├── api/
+│   │   │   └── auth/
+│   │   ├── inicio/
+│   │   ├── login/
+│   │   ├── perfil/
+│   │   └── signup/
+│   │
+│   ├── components/
+│   │   └── home/
+│   │       └── News/
+│   │           └── components/
+│   │
+│   ├── lib/
+│   │   ├── auth.ts
+│   │   ├── constants/
+│   │   ├── mappers/
+│   │   ├── services/
+│   │   ├── types/
+│   │   └── validators/
+│   │
+│   └── types/
+│       └── next-auth.d.ts
+│
+├── public/
+├── .env.local
+├── package.json
+├── tsconfig.json
+└── README.md
+
+⚙️ Instalación
+
+Clonar el repositorio:
+
+git clone https://github.com/MaxHuang117/Kemono-Fandom-Community.git
+cd max-hub
+
+Instalar las dependencias:
+
+npm install
+
+Crear un archivo .env.local con las variables necesarias:
+
+NEXT_PUBLIC_SUPABASE_URL=
+NEXT_PUBLIC_SUPABASE_ANON_KEY=
+SUPABASE_SERVICE_ROLE_KEY=
+ADMIN_EMAIL=
+
+DISCORD_CLIENT_ID=
+DISCORD_CLIENT_SECRET=
+
+NEXTAUTH_SECRET=
+NEXTAUTH_URL=
+
+Las claves privadas NO deben incluirse directamente en el código ni subirse al repositorio.
+
+🧑‍💻 Desarrollo
+
+Iniciar el servidor de desarrollo:
+
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+La aplicación estará disponible en:
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+http://localhost:3000
+🔍 Lint
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Ejecutar ESLint:
 
-## Learn More
+npm run lint
+🏗️ Build
 
-To learn more about Next.js, take a look at the following resources:
+Crear una compilación de producción:
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+npm run build
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+Iniciar la aplicación compilada:
 
-## Deploy on Vercel
+npm start
+📦 Scripts disponibles
+Comando	Descripción
+npm run dev	Inicia el servidor de desarrollo
+npm run build	Genera el build de producción
+npm start	Inicia la aplicación en producción
+npm run lint	Ejecuta ESLint
+📌 Estado del proyecto
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+En desarrollo.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Actualmente se encuentran implementadas las funcionalidades principales de autenticación, perfiles, noticias y sistema de comentarios.
+
+La arquitectura continúa evolucionando para mejorar la seguridad, organización del código, experiencia de usuario y escalabilidad del proyecto.
+
+📄 Licencia
+
+Este proyecto es privado y se encuentra actualmente en desarrollo.
