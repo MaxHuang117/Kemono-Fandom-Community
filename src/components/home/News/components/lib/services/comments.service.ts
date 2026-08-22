@@ -1,4 +1,4 @@
-import { createAdminClient } from "@/lib/supabase/admin";
+import { getAdminClient } from "@/lib/supabase/admin";
 
 /*
 |--------------------------------------------------------------------------
@@ -14,8 +14,6 @@ export interface CommentOwnerResult {
 
 }
 
-const supabaseAdmin = createAdminClient();
-
 /*
 |--------------------------------------------------------------------------
 | Crear comentario
@@ -30,7 +28,7 @@ export async function createComment(
 
 ) {
 
-    return await supabaseAdmin
+    return await getAdminClient()
         .from("comments")
         .insert({
 
@@ -52,7 +50,7 @@ export async function getCommentById(
     commentId: string,
 ) {
 
-    return await supabaseAdmin
+    return await getAdminClient()
         .from("comments")
         .select("*")
         .eq("id", commentId)
@@ -70,7 +68,7 @@ export async function getCommentsByNewsId(
     newsId: number,
 ) {
 
-    return await supabaseAdmin
+    return await getAdminClient()
         .from("comments")
         .select(`
             id,
@@ -103,7 +101,7 @@ export async function deleteComment(
     commentId: string,
 ) {
 
-    return await supabaseAdmin
+    return await getAdminClient()
         .from("comments")
         .delete()
         .eq("id", commentId);
@@ -123,7 +121,7 @@ export async function updateComment(
 
 ) {
 
-    return await supabaseAdmin
+    return await getAdminClient()
         .from("comments")
         .update({
 

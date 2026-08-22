@@ -1,11 +1,8 @@
 "use server";
 
-import { getServerSession } from "next-auth/next";
+import { getSessionProfile } from "@/lib/session";
 import { validateComment } from "../../lib/validators/commentValidator";
-import {
-    getProfileByEmail,
-    getProfileById,
-} from "../../lib/services/profiles.service";
+import { getProfileById } from "../../lib/services/profiles.service";
 import {
     createComment,
     deleteComment,
@@ -30,23 +27,15 @@ export async function publicarComentarioAction(
 
     }
 
-    // 1. Validamos la sesión desde el Servidor
-    const session = await getServerSession();
-    
-    if (!session?.user?.email) {
+    // 1. Resolvemos el perfil autenticado desde el servidor
+    const perfil = await getSessionProfile();
+
+    if (!perfil) {
         return { error: "No autorizado" };
     }
 
     try {
-        // 2. Buscamos el perfil del usuario usando su email desde la sesión
-        const { data: perfil, error: errorPerfil } =
-        await getProfileByEmail(session.user.email);
-
-        if (errorPerfil || !perfil) {
-            return { error: "Perfil de usuario no encontrado" };
-        }
-
-        // 3. Insertamos el comentario con permisos de administrador
+        // 2. Insertamos el comentario con permisos de administrador
         const { error } = await createComment(
             newsId,
             perfil.id,
@@ -119,9 +108,10 @@ export async function obtenerComentariosAction(
 export async function eliminarComentarioAction(
     commentId: string
 ) {
-    const session = await getServerSession();
-    // 1. Validamos la sesión desde el Servidor
-    if (!session?.user?.email) {
+    // 1. Resolvemos el perfil autenticado desde el servidor
+    const perfil = await getSessionProfile();
+
+    if (!perfil) {
 
         return {
 
@@ -132,25 +122,6 @@ export async function eliminarComentarioAction(
     }
 
     try {
-        // 2. Obtenemos el perfil del usuario usando su email desde la sesión
-        const { data: perfil, error: errorPerfil } =
-            await getProfileByEmail(session.user.email);
-
-        if (errorPerfil) {
-
-            console.error(errorPerfil);
-
-        }
-
-        if (!perfil) {
-
-            return {
-
-                error: "Perfil de usuario no encontrado.",
-
-            };
-
-        }
 
         const owner =
             await assertCommentOwner(
@@ -159,7 +130,7 @@ export async function eliminarComentarioAction(
                 perfil.id,
 
             );
-            // 3. Verificamos que el comentario pertenezca al usuario autenticado
+            // 2. Verificamos que el comentario pertenezca al usuario autenticado
         if (!owner.success) {
 
             return {
@@ -169,7 +140,7 @@ export async function eliminarComentarioAction(
             };
 
         }
-        // 4. Eliminamos el comentario con permisos de administrador
+        // 3. Eliminamos el comentario con permisos de administrador
         const { error } =
             await deleteComment(commentId);
 
@@ -231,9 +202,9 @@ export async function editarComentarioAction(
     |--------------------------------------------------------------------------
     */
 
-    const session = await getServerSession();
+    const perfil = await getSessionProfile();
 
-    if (!session?.user?.email) {
+    if (!perfil) {
 
         return {
 
@@ -244,29 +215,6 @@ export async function editarComentarioAction(
     }
 
     try {
-
-        /*
-        |--------------------------------------------------------------------------
-        | Obtener perfil
-        |--------------------------------------------------------------------------
-        */
-
-        const {
-
-            data: perfil,
-            error: errorPerfil,
-
-        } = await getProfileByEmail(session.user.email);
-
-        if (errorPerfil || !perfil) {
-
-            return {
-
-                error: "Perfil no encontrado.",
-
-            };
-
-        }
 
         /*
         |--------------------------------------------------------------------------

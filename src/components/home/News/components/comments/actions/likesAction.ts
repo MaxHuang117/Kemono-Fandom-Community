@@ -1,11 +1,8 @@
 "use server";
 
-import { getServerSession } from "next-auth/next";
-import { authOptions } from "@/lib/auth";
-import { createAdminClient } from "@/lib/supabase/admin";
+import { getSessionProfile } from "@/lib/session";
+import { getAdminClient } from "@/lib/supabase/admin";
 import { mapLike } from "../../lib/mappers/likeMapper";
-
-const supabaseAdmin = createAdminClient();
 
 interface LikeProfile {
 
@@ -29,7 +26,7 @@ interface LikeRow {
 
 export async function obtenerLikes(commentId: string) {
 
-    const { data, error } = await supabaseAdmin
+    const { data, error } = await getAdminClient()
         .from("comment_likes")
         .select(`
             user_id,
@@ -71,21 +68,19 @@ return {
 }
 
 export async function darLike(commentId: string) {
-    const session = await getServerSession(authOptions);
+    const perfil = await getSessionProfile();
 
-    const userId = session?.user?.discordId;
-
-    if (!userId) {
+    if (!perfil) {
         return {
             error: new Error("No autorizado"),
         };
     }
 
-    const { error } = await supabaseAdmin
+    const { error } = await getAdminClient()
         .from("comment_likes")
         .insert({
             comment_id: commentId,
-            user_id: userId,
+            user_id: perfil.id,
         });
 
     if (error) {
@@ -98,21 +93,19 @@ export async function darLike(commentId: string) {
 }
 
 export async function quitarLike(commentId: string) {
-    const session = await getServerSession(authOptions);
+    const perfil = await getSessionProfile();
 
-    const userId = session?.user?.discordId;
-
-    if (!userId) {
+    if (!perfil) {
         return {
             error: new Error("No autorizado"),
         };
     }
 
-    const { error } = await supabaseAdmin
+    const { error } = await getAdminClient()
         .from("comment_likes")
         .delete()
         .eq("comment_id", commentId)
-        .eq("user_id", userId);
+        .eq("user_id", perfil.id);
 
     if (error) {
         console.error("LIKE DELETE ERROR:", error);

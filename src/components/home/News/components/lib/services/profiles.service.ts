@@ -1,24 +1,4 @@
-import { createAdminClient } from "@/lib/supabase/admin";
-
-const supabaseAdmin = createAdminClient();
-
-/*
-|--------------------------------------------------------------------------
-| Obtener perfil por email
-|--------------------------------------------------------------------------
-*/
-
-export async function getProfileByEmail(
-    email: string,
-) {
-
-    return await supabaseAdmin
-        .from("profiles")
-        .select("id")
-        .eq("email", email)
-        .single();
-
-}
+import { getAdminClient } from "@/lib/supabase/admin";
 
 /*
 |--------------------------------------------------------------------------
@@ -30,7 +10,7 @@ export async function getProfileById(
     userId: string,
 ) {
 
-    return await supabaseAdmin
+    return await getAdminClient()
         .from("profiles")
         .select(`
             id,

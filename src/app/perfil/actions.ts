@@ -2,9 +2,8 @@
 
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/lib/auth";
-import { createAdminClient } from "@/lib/supabase/admin";
-
-const supabaseAdmin = createAdminClient();
+import { getSessionProfile } from "@/lib/session";
+import { getAdminClient } from "@/lib/supabase/admin";
 
 /*
 |--------------------------------------------------------------------------
@@ -14,21 +13,19 @@ const supabaseAdmin = createAdminClient();
 export async function guardarBiografiaAction(
     biografia: string
 ) {
-    const session = await getServerSession(authOptions);
+    const perfil = await getSessionProfile();
 
-    if (!session?.user?.discordId) {
+    if (!perfil) {
         return { error: "No autorizado." };
     }
 
-    const discordId = session.user.discordId;
-
-    const { error } = await supabaseAdmin
+    const { error } = await getAdminClient()
         .from("profiles")
         .update({
             biografia: biografia,
             updated_at: new Date().toISOString(),
         })
-        .eq("id", discordId);
+        .eq("id", perfil.id);
 
     if (error) {
         console.error("Error guardando biografía:", error);
@@ -50,18 +47,18 @@ export async function guardarBiografiaAction(
 */
 
 export async function obtenerBiografiaAction() {
-    const session = await getServerSession(authOptions);
+    const perfil = await getSessionProfile();
 
-    if (!session?.user?.discordId) {
+    if (!perfil) {
         return {
             error: "No autorizado.",
         };
     }
 
-    const { data, error } = await supabaseAdmin
+    const { data, error } = await getAdminClient()
         .from("profiles")
         .select("biografia")
-        .eq("discord_id", session.user.discordId)
+        .eq("id", perfil.id)
         .maybeSingle();
 
     if (error) {
@@ -81,25 +78,29 @@ export async function obtenerBiografiaAction() {
 |--------------------------------------------------------------------------
 | Sincronizar perfil de Discord
 |--------------------------------------------------------------------------
+| El nombre y el avatar se toman de la sesión emitida por NextAuth, nunca
+| de datos enviados por el cliente.
+|--------------------------------------------------------------------------
 */
-export async function sincronizarPerfilDiscordAction({
-    discordUsername,
-    avatarUrl,
-}: {
-    discordUsername: string;
-    avatarUrl: string;
-}) {
-
+export async function sincronizarPerfilDiscordAction() {
     const session = await getServerSession(authOptions);
 
-    if (!session?.user?.discordId || !session.user.email) {
+    const discordId = session?.user?.discordId;
+    const email = session?.user?.email;
+
+    if (!discordId || !email) {
         return {
             error: "No autorizado.",
         };
     }
 
-    const discordId = session.user.discordId;
-    const email = session.user.email;
+    const discordUsername = session.user.name ?? "Usuario";
+
+    const avatarUrl =
+        session.user.image ??
+        "https://cdn.discordapp.com/embed/avatars/0.png";
+
+    const supabaseAdmin = getAdminClient();
 
     /* Buscar perfil existente */
     const {
@@ -108,7 +109,7 @@ export async function sincronizarPerfilDiscordAction({
     } = await supabaseAdmin
         .from("profiles")
         .select("id")
-        .eq("discord_id", discordId)
+        .eq("id", discordId)
         .maybeSingle();
 
     if (errorBusqueda) {
@@ -128,7 +129,7 @@ export async function sincronizarPerfilDiscordAction({
                 avatar_url: avatarUrl,
                 updated_at: new Date().toISOString(),
             })
-            .eq("discord_id", discordId);
+            .eq("id", discordId);
 
         if (error) {
             return {

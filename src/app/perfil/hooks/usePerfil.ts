@@ -30,22 +30,8 @@ export function usePerfil() {
 
                 if (!discordId) return;
 
-            const discordUsername =
-                session.user.name || "Usuario";
-
-            const avatarUrl =
-                session.user.image ||
-                "https://cdn.discordapp.com/embed/avatars/0.png";
-
-
             const result =
-                await sincronizarPerfilDiscordAction({
-
-                    discordUsername,
-
-                    avatarUrl,
-
-                });
+                await sincronizarPerfilDiscordAction();
 
             const perfil = await obtenerBiografiaAction();
 

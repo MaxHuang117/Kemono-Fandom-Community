@@ -7,7 +7,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "sub-types": "npx supabase gen types typescript --project-id hrvhilxijhrblcgkrlrd > src/lib/supabase/database.types.ts"
+    "typecheck": "tsc --noEmit",
+    "sub-types": "npx supabase gen types typescript --project-id hrvhilxijhrblcgkrlrd -o src/lib/supabase/database.types.ts"
   },
   "dependencies": {
     "@supabase/ssr": "^0.12.4",

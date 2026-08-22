@@ -9,12 +9,11 @@ export default function SignupPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const router = useRouter();
-  const supabase = createClient();
 
   const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    const { error } = await supabase.auth.signUp({ email, password });
+    const { error } = await createClient().auth.signUp({ email, password });
 
     if (error) {
       // error puede ser null; usamos optional chaining para seguridad

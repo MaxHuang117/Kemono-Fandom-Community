@@ -10,7 +10,8 @@ import { mapProfile } from "@/components/home/News/components/lib/mappers/profil
 export function useCurrentProfile() {
 
     const { data: session } = useSession();
-    const supabase = createClient();
+
+    const discordId = session?.user?.discordId;
 
     const [profile, setProfile] = useState<UserProfile | null>(null);
 
@@ -20,7 +21,7 @@ export function useCurrentProfile() {
 
         async function loadProfile() {
 
-            if (!session?.user?.email) {
+            if (!discordId) {
 
                 setProfile(null);
                 setLoading(false);
@@ -28,7 +29,7 @@ export function useCurrentProfile() {
 
             }
 
-            const { data } = await supabase
+            const { data } = await createClient()
                 .from("profiles")
                 .select(`
                     id,
@@ -38,8 +39,8 @@ export function useCurrentProfile() {
                     banner_url,
                     biografia
                 `)
-                .eq("email", session.user.email)
-                .single();
+                .eq("id", discordId)
+                .maybeSingle();
 
             if (data) {
 
@@ -53,7 +54,7 @@ export function useCurrentProfile() {
 
         loadProfile();
 
-    }, [session, supabase]);
+    }, [discordId]);
 
     return {
 

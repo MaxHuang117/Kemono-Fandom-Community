@@ -1,20 +1,17 @@
-import { getServerSession } from "next-auth/next";
 import { redirect } from "next/navigation";
+import { getSessionProfile } from "@/lib/session";
 
 export default async function AdminPage() {
-  const session = await getServerSession();
+  const perfil = await getSessionProfile();
 
-  // 1. Si no hay sesión, al login
-  if (!session) {
+  if (!perfil) {
     redirect("/login");
   }
 
-  // 2. Si la sesión existe pero el correo NO es el tuyo, al home (/)
-  if (session.user?.email !== process.env.ADMIN_EMAIL) {
-    redirect("/inicio"); 
+  if (!perfil.isAdmin) {
+    redirect("/inicio");
   }
 
-  // 3. Si llega aquí, es porque ERES tú
   return (
     <div>
       <h1>Bienvenido al Panel de Administración</h1>
