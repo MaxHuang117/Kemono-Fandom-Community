@@ -2,13 +2,10 @@
 
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/lib/auth";
-import { createClient } from "@supabase/supabase-js";
+import { createAdminClient } from "@/lib/supabase/admin";
 import { mapLike } from "../../lib/mappers/likeMapper";
 
-const supabaseAdmin = createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.SUPABASE_SERVICE_ROLE_KEY!
-);
+const supabaseAdmin = createAdminClient();
 
 interface LikeProfile {
 
@@ -24,7 +21,7 @@ interface LikeRow {
 
     user_id: string;
 
-    created_at: string;
+    created_at: string | null;
 
     profiles: LikeProfile | LikeProfile[] | null;
 
@@ -60,6 +57,7 @@ const likes = (data ?? []).map((item: LikeRow) => {
 
     return mapLike({
         ...item,
+        created_at: item.created_at ?? new Date(0).toISOString(),
         profiles: profile,
     });
 

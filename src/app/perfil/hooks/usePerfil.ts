@@ -54,7 +54,7 @@ export function usePerfil() {
                     return;
                 }
 
-                setBiografia(perfil.biografia);
+                setBiografia(perfil.biografia ?? "");
 
                 if (result.error) {
 

@@ -2,13 +2,9 @@
 
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/lib/auth";
-import { createClient } from "@supabase/supabase-js";
+import { createAdminClient } from "@/lib/supabase/admin";
 
-// CLIENTE ADMINISTRADOR: Omite el RLS de forma segura únicamente en el entorno del servidor
-const supabaseAdmin = createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.SUPABASE_SERVICE_ROLE_KEY! // Tu clave privada del archivo .env.local
-);
+const supabaseAdmin = createAdminClient();
 
 /*
 |--------------------------------------------------------------------------

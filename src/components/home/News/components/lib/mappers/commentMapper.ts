@@ -6,11 +6,11 @@ export interface CommentDB {
 
     id: string;
 
-    user_id: string;
+    user_id: string | null;
 
-    message: string;
+    message: string | null;
 
-    created_at: string;
+    created_at: string | null;
 
     profiles: {
 
@@ -48,13 +48,13 @@ export function mapComment(comment: CommentDB): CommentUI {
 
         id: comment.id,
 
-        userId: comment.user_id,
-        message: comment.message,
-        createdAt: comment.created_at,
+        userId: comment.user_id ?? "",
+        message: comment.message ?? "",
+        createdAt: comment.created_at ?? "",
 
         profile: mapProfile({
 
-            id: comment.user_id,
+            id: comment.user_id ?? "",
 
             nombre_publico: comment.profiles?.nombre_publico ?? null,
 

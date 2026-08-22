@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useSession } from "next-auth/react";
-import { supabase } from "@/lib/supabase";
+import { createClient } from "@/lib/supabase/client";
 
 import type { UserProfile } from "@/components/home/News/components/lib/types/profile";
 import { mapProfile } from "@/components/home/News/components/lib/mappers/profileMapper";
@@ -10,6 +10,7 @@ import { mapProfile } from "@/components/home/News/components/lib/mappers/profil
 export function useCurrentProfile() {
 
     const { data: session } = useSession();
+    const supabase = createClient();
 
     const [profile, setProfile] = useState<UserProfile | null>(null);
 
@@ -52,7 +53,7 @@ export function useCurrentProfile() {
 
         loadProfile();
 
-    }, [session]);
+    }, [session, supabase]);
 
     return {
 

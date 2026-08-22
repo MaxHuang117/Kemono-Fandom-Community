@@ -1,18 +1,19 @@
-"use client"; // Directiva necesaria para hooks de React[cite: 1]
-import { useState } from 'react'; // Hook para gestionar estados de entrada[cite: 1]
-import { supabase } from '@/lib/supabase'; // Cliente para comunicación con Supabase[cite: 1]
-import { useRouter } from 'next/navigation'; // Hook para navegación programática[cite: 1]
-import Link from 'next/link'; // Componente para enlaces optimizados[cite: 1]
+"use client";
+
+import { useState } from "react";
+import { createClient } from "@/lib/supabase/client";
+import { useRouter } from "next/navigation";
+import Link from "next/link";
 
 export default function SignupPage() {
-  const [email, setEmail] = useState(""); // Estado para el email[cite: 1]
-  const [password, setPassword] = useState(""); // Estado para el password[cite: 1]
-  const router = useRouter(); // Instancia para redirecciones[cite: 1]
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const router = useRouter();
+  const supabase = createClient();
 
   const handleSignup = async (e: React.FormEvent) => {
-    e.preventDefault(); // Evita recarga de página al enviar[cite: 1]
-    
-    // Registro mediante SDK de Supabase[cite: 1]
+    e.preventDefault();
+
     const { error } = await supabase.auth.signUp({ email, password });
 
     if (error) {
