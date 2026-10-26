@@ -1,4 +1,15 @@
 /* globals.css */
+
+@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Oswald:wght@400;700&display=swap');
+
+.font-bebas {
+    font-family: 'Bebas Neue', sans-serif;
+}
+
+.font-oswald {
+    font-family: 'Oswald', sans-serif;
+}
+
 @import "tailwindcss";
 
 :root {

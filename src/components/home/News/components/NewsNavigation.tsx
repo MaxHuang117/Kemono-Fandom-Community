@@ -1,9 +1,6 @@
 interface Props {
-
-    previous: () => void;
-
-    next: () => void;
-
+    direction: "previous" | "next";
+    onClick: () => void;
 }
 
 /*
@@ -13,68 +10,37 @@ interface Props {
 */
 
 export default function NewsNavigation({
-
-    previous,
-
-    next,
-
+    direction,
+    onClick,
 }: Props) {
 
     return (
-
-        <div
+        <button
+            onClick={onClick}
+            aria-label={
+                direction === "previous"
+                    ? "Noticia anterior"
+                    : "Siguiente noticia"
+            }
             className="
-                mt-8
                 flex
+                h-10
+                w-10
+                shrink-0
+                items-center
                 justify-center
-                gap-6
+                rounded-full
+                border
+                border-white/10
+                bg-[#181818]
+                text-sm
+                text-white
+                transition
+                hover:border-green-500
+                active:scale-95
             "
         >
-
-            <button
-
-                onClick={previous}
-
-                className="
-                    rounded-full
-                    border
-                    border-white/10
-                    bg-[#181818]
-                    px-5
-                    py-3
-                    transition
-                    hover:border-green-500
-                "
-
-            >
-
-                ◀
-
-            </button>
-
-            <button
-
-                onClick={next}
-
-                className="
-                    rounded-full
-                    border
-                    border-white/10
-                    bg-[#181818]
-                    px-5
-                    py-3
-                    transition
-                    hover:border-green-500
-                "
-
-            >
-
-                ▶
-
-            </button>
-
-        </div>
-
+            {direction === "previous" ? "◀" : "▶"}
+        </button>
     );
-
 }

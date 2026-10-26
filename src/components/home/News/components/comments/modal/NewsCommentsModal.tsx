@@ -8,7 +8,7 @@ import CommentCard from "../cards/CommentCard"
 import CommentInput from "../modal/CommentInput";
 
 import type { UserProfile } from "../../lib/types/profile";
-import UserProfileModal from "../popups/UserProfileModal";
+import UserProfileModal from "../../../../../modals/UserProfileModal";
 import { CommentUI } from "../../lib/mappers/commentMapper";
 
 interface ModalProps {

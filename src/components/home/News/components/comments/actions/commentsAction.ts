@@ -5,7 +5,7 @@ import { validateComment } from "../../lib/validators/commentValidator";
 import {
     getProfileByEmail,
     getProfileById,
-} from "../../lib/services/profiles.service";
+} from "../../../../../../lib/services/profiles.service";
 import {
     createComment,
     deleteComment,
@@ -273,21 +273,22 @@ export async function editarComentarioAction(
         | Verificar propietario
         |--------------------------------------------------------------------------
         */
+        if (!(perfil.is_admin)) {
 
-        const owner = await assertCommentOwner(
+            const owner = await assertCommentOwner(
+                commentId,
+                perfil.id,
 
-            commentId,
-            perfil.id,
+            );
 
-        );
+            if (!owner.success) {
 
-        if (!owner.success) {
+                return {
+                    error: owner.error,
 
-            return {
+                };
 
-                error: owner.error,
-
-            };
+            }
 
         }
 

@@ -5,23 +5,14 @@ import NewsCard from "./NewsCard";
 import NewsNavigation from "./NewsNavigation";
 
 interface Props {
-
     news: News[];
-
     current: number;
-
     opened: number | null;
-
     toggle: (id: number) => void;
-
     previous: () => void;
-
     next: () => void;
-
     onOpenComments: (news: News) => void;
-
     commentsCount: number;
-
 }
 
 /*
@@ -31,40 +22,39 @@ interface Props {
 */
 
 export default function NewsMobile({
-
     news,
-
     current,
-
     previous,
-
     next,
-    
     onOpenComments,
-
 }: Props) {
 
+    const currentNews = news[current];
+
+    if (!currentNews) {
+        return null;
+    }
+
     return (
-
-        <div className="mx-auto mt-16 max-w-md px-6">
-
-            <NewsCard
-
-                news={news[current]}
-                onOpenComments={() => onOpenComments(news[current])}
-
-            />
+        <div className="mx-auto mt-16 flex max-w-md items-center gap-3 px-3">
 
             <NewsNavigation
+                direction="previous"
+                onClick={previous}
+            />
 
-                previous={previous}
+            <div className="min-w-0 flex-1">
+                <NewsCard
+                    news={currentNews}
+                    onOpenComments={() => onOpenComments(currentNews)}
+                />
+            </div>
 
-                next={next}
-
+            <NewsNavigation
+                direction="next"
+                onClick={next}
             />
 
         </div>
-
     );
-
 }

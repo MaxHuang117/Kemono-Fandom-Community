@@ -16,36 +16,29 @@ export function useNewsSlider(total: number) {
 
     function next() {
 
-        setCurrent((prev) =>
+        if (total === 0) return;
 
+        setCurrent((prev) =>
             prev === total - 1
                 ? 0
                 : prev + 1
-
         );
-
     }
 
     function previous() {
 
-        setCurrent((prev) =>
+        if (total === 0) return;
 
+        setCurrent((prev) =>
             prev === 0
                 ? total - 1
                 : prev - 1
-
         );
-
     }
 
     return {
-
         current,
-
         next,
-
         previous,
-
     };
-
 }

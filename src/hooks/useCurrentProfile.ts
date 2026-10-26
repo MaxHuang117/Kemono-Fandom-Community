@@ -8,24 +8,18 @@ import type { UserProfile } from "@/components/home/News/components/lib/types/pr
 import { mapProfile } from "@/components/home/News/components/lib/mappers/profileMapper";
 
 export function useCurrentProfile() {
-
     const { data: session } = useSession();
     const supabase = createClient();
 
     const [profile, setProfile] = useState<UserProfile | null>(null);
-
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-
         async function loadProfile() {
-
             if (!session?.user?.email) {
-
                 setProfile(null);
                 setLoading(false);
                 return;
-
             }
 
             const { data } = await supabase
@@ -36,31 +30,25 @@ export function useCurrentProfile() {
                     discord_username,
                     avatar_url,
                     banner_url,
-                    biografia
+                    biografia,
+                    tier_level,
+                    social_links,
+                    name_color_gradient,
+                    custom_badge,
+                    allow_gifs
                 `)
                 .eq("email", session.user.email)
                 .single();
 
             if (data) {
-
                 setProfile(mapProfile(data));
-
             }
 
             setLoading(false);
-
         }
 
         loadProfile();
-
     }, [session, supabase]);
 
-    return {
-
-        profile,
-
-        loading,
-
-    };
-
+    return { profile, loading };
 }

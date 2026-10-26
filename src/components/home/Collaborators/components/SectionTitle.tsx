@@ -37,7 +37,7 @@ export default function SectionTitle({
       <p
         className="
           mx-auto
-          mt-5
+          mt-3
           max-w-2xl
           text-gray-400
           text-lg

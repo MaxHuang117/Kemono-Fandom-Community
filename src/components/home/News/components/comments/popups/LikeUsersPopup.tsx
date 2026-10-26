@@ -98,7 +98,7 @@ export default function LikeUsersPopup({
         if (error || !data) return;
 
         onOpenProfile?.(
-            mapProfile(data)
+            mapProfile(data as Parameters<typeof mapProfile>[0])
         );
 
         setOpen(false);

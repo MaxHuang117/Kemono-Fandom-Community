@@ -6,6 +6,7 @@ export const authOptions: NextAuthOptions = {
         DiscordProvider({
             clientId: process.env.DISCORD_CLIENT_ID!,
             clientSecret: process.env.DISCORD_CLIENT_SECRET!,
+            issuer: "https://discord.com", // Esto es necesario para evitar el error de "Issuer mismatch" al usar Discord como proveedor de autenticación
         }),
     ],
 

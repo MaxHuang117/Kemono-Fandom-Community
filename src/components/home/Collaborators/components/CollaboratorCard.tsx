@@ -19,6 +19,7 @@ interface Props {
 
 export default function CollaboratorCard({
   collaborator,
+  index,
   onClick,
 }: Props) {
   return (
@@ -67,6 +68,7 @@ export default function CollaboratorCard({
         fill
         className="object-cover"
         sizes="250px"
+        priority={index < 4} 
       />
 
       <div className="absolute inset-0 bg-gradient-to-t from-black via-black/30 to-transparent"/>
