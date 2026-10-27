@@ -5,21 +5,41 @@ import { createAdminClient } from "@/lib/supabase/admin";
 
 const supabaseAdmin = createAdminClient();
 
+// Whitelist estricta del identificador de ruta /u/:id
+// (Next.js ya decodifica params.id; no volver a decodificar — FASE2-12).
+const MAX_IDENTIFIER_LENGTH = 32;
+const SNOWFLAKE_PATTERN = /^[0-9]{1,20}$/;          // Discord ID numérico
+const USERNAME_PATTERN = /^[a-z0-9._-]{1,32}$/i;    // Alfabeto válido de Discord
+
 export async function obtenerPerfilPublicoAction(identifier: string) {
-    if (!identifier) {
+    if (
+        typeof identifier !== "string" ||
+        identifier.length === 0 ||
+        identifier.length > MAX_IDENTIFIER_LENGTH
+    ) {
         return { success: false, error: "ID de nodo no válido." };
     }
 
     try {
-        const cleanIdentifier = decodeURIComponent(identifier);
-
-        // 1. Buscamos el perfil usando maybeSingle para evitar que el servidor colapse
-        // Usamos .or para permitir que el link funcione tanto con el ID como con el username
-        const { data: profile, error } = await supabaseAdmin
+        // 1. Separar los casos de búsqueda y pasar el valor como parámetro
+        // (Supabase escapa el valor; nunca interpolar en cadenas de filtro — FASE2-02).
+        let query = supabaseAdmin
             .from("profiles")
-            .select("id, discord_username, biografia, tier_level, social_links, banner_url, name_color_gradient, likes_count, avatar_url, discord_id")
-            .or(`discord_username.ilike.${cleanIdentifier},discord_id.eq.${cleanIdentifier}`)
-            .maybeSingle();
+            .select("id, discord_username, biografia, tier_level, social_links, banner_url, name_color_gradient, likes_count, avatar_url, discord_id");
+
+        if (SNOWFLAKE_PATTERN.test(identifier)) {
+            // Identificador numérico → buscar por discord_id.
+            query = query.eq("discord_id", identifier);
+        } else if (USERNAME_PATTERN.test(identifier)) {
+            // Identificador de usuario → buscar por discord_username.
+            query = query.eq("discord_username", identifier);
+        } else {
+            // Caracteres fuera de la whitelist ( % , ( ) y comodines incl. )
+            return { success: false, error: "ID de nodo no válido." };
+        }
+
+        // maybeSingle evita que el servidor colapse si hay más de una fila
+        const { data: profile, error } = await query.maybeSingle();
 
         if (error) {
             throw error;
