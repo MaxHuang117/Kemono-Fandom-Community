@@ -71,11 +71,15 @@ Supabase almacena los perfiles y los datos de la aplicación. La sesión de Next
 
 El cliente con `SUPABASE_SERVICE_ROLE_KEY` solo se usa en el servidor y puede omitir RLS. Por tanto, toda Server Action que lo utilice debe comprobar la sesión, la propiedad del recurso y los permisos aplicables antes de leer o modificar datos. Las políticas RLS siguen siendo necesarias para las operaciones que se hagan con la clave anon.
 
+> **Cliente público (29 de octubre de 2026):** `src/lib/supabase/public.ts` expone `createPublicClient()`, que usa `NEXT_PUBLIC_SUPABASE_ANON_KEY` y respeta RLS. Se emplea en `obtenerPerfilPublicoAction` para la lectura pública. FASE2-01 queda **parcial**: falta restringir por columna los privilegios del rol `anon` (GRANTs SQL) para excluir `email`, `is_admin`, `sub_expires_at`, `allow_gifs`, `custom_badge` y `custom_slides`.
+
 ### Administración
 
 El acceso administrativo se determina mediante `profiles.is_admin`, consultado para el perfil asociado a la sesión autenticada. Los permisos de administrador son independientes de `tier_level`.
 
 `ADMIN_EMAIL` no está referenciada por el código actual y no forma parte del mecanismo de autorización. No debe configurarse ni documentarse como requisito mientras el sistema utilice `profiles.is_admin`.
+
+> **Nota de revisión (29 de octubre de 2026):** las acciones de administración actuales (`src/app/admin/subs/actions/subsAction.ts`, `src/app/admin/news/actions/newsAction.ts` y `src/app/admin/comments/actions/commentsActions.ts`) resuelven el perfil por `session.user.email` y usan `getServerSession()` sin `authOptions`. Eso no coincide con el modelo de identidad por `discord_id` descrito arriba y queda pendiente de remediación en Fase 2.
 
 ## Inventario (cierre de Fase 1)
 
@@ -99,9 +103,9 @@ El acceso administrativo se determina mediante `profiles.is_admin`, consultado p
 
 | Archivo | Acciones | Identidad usada | Estado de revisión |
 | --- | --- | --- | --- |
-| `src/actions/publicProfile.action.ts` | `obtenerPerfilPublicoAction` | Identificador público (lectura) | Pendiente en Fase 2: el identificador se interpola en el filtro `.or(...)`. |
+| `src/actions/publicProfile.action.ts` | `obtenerPerfilPublicoAction` | Identificador público (lectura) | Remediado FASE2-02/FASE2-12. FASE2-01 **parcial**: la lectura pública de `profiles` y `user_slides` usa `createPublicClient()` (anon); pendiente restringir columnas sensibles con GRANTs SQL en Supabase. |
 | `src/actions/tier2.actions.ts` | `guardarSlideAction`, `eliminarSlideAction` | `getServerSession(authOptions)`; perfil resuelto por `discord_id` | Corregido en Paso 3: acciones limitadas al perfil de sesión y a Tier 2 vigente. |
-| `src/app/perfil/actions.ts` | `guardarBiografiaAction`, `obtenerBiografiaAction`, `sincronizarPerfilDiscordAction`, `obtenerPerfilCompletoAction`, `vincularRedSocialAction`, `guardarRedesAction`, `subirBannerAction`, `guardarCosmeticosVIPAction`, `toggleProfileReputationAction` | `getServerSession(authOptions)` | Pendiente en Fase 2. `guardarBiografiaAction` filtra por `profiles.id`; el resto usa `discord_id`. |
+| `src/app/perfil/actions.ts` | `guardarBiografiaAction`, `obtenerBiografiaAction`, `sincronizarPerfilDiscordAction`, `obtenerPerfilCompletoAction`, `vincularRedSocialAction`, `guardarRedesAction`, `subirBannerAction`, `guardarCosmeticosVIPAction`, `toggleProfileReputationAction` | `getServerSession(authOptions)` | Remediado parcialmente (FASE2-03/04/05/06/07/09/11): resolución por `discord_id` y validación server-side de entradas. Pendiente FASE2-08 (vigencia `sub_expires_at` en acciones de tier) y FASE2-10 (likes atómicos). |
 | `src/app/admin/subs/actions/subsAction.ts` | `getUsersListAction`, `updateUserTierAction` | `getServerSession()` sin `authOptions` | Pendiente en Fase 2: verificar que la sesión se resuelva correctamente. |
 | `src/app/admin/news/actions/newsAction.ts` | `getAdminNewsAction`, `saveNewsAction`, `deleteNewsAction` | Verificación de `is_admin` | Pendiente en Fase 2. |
 | `src/app/admin/comments/actions/commentsActions.ts` | `getAdminCommentsAction`, `deleteCommentAction` | Verificación de `is_admin` | Pendiente en Fase 2. |

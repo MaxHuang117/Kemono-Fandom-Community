@@ -1,9 +1,9 @@
 // src/actions/publicProfile.action.ts
 "use server";
 
-import { createAdminClient } from "@/lib/supabase/admin";
+import { createPublicClient } from "@/lib/supabase/public";
 
-const supabaseAdmin = createAdminClient();
+const supabasePublic = createPublicClient();
 
 // Whitelist estricta del identificador de ruta /u/:id
 // (Next.js ya decodifica params.id; no volver a decodificar — FASE2-12).
@@ -23,7 +23,7 @@ export async function obtenerPerfilPublicoAction(identifier: string) {
     try {
         // 1. Separar los casos de búsqueda y pasar el valor como parámetro
         // (Supabase escapa el valor; nunca interpolar en cadenas de filtro — FASE2-02).
-        let query = supabaseAdmin
+        let query = supabasePublic
             .from("profiles")
             .select("id, discord_username, biografia, tier_level, social_links, banner_url, name_color_gradient, likes_count, avatar_url, discord_id");
 
@@ -55,7 +55,7 @@ export async function obtenerPerfilPublicoAction(identifier: string) {
         const currentTier = profile.tier_level ?? 0;
 
         if (currentTier >= 2) {
-            const { data: slidesData, error: slidesError } = await supabaseAdmin
+            const { data: slidesData, error: slidesError } = await supabasePublic
                 .from("user_slides")
                 .select("*")
                 .eq("user_id", profile.id)

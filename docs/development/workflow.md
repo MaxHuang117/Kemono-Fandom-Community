@@ -71,4 +71,3 @@ Checklist para el revisor:
 
 - Definir pruebas automatizadas para permisos y acciones sensibles.
 - Configurar integración continua que ejecute lint y build en cada pull request.
-- Crear `.env.example` con las variables requeridas, sin valores.
