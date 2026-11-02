@@ -31,6 +31,7 @@
 - **Hallazgo nuevo:** en `toggleProfileReputationAction` (`src/app/perfil/actions.ts`), `giver_id` y `receiver_id` se escriben con `session.user.discordId`, pero `database.types.ts` declara las FKs hacia `profiles.id`. Funciona hoy por la convención `id = discord_id`, pero replica la fragilidad de FASE2-03 y queda pendiente resolver la semántica real.
 - **Verificación FASE2-01 (Paso 2, 1 de noviembre de 2026):** prueba REST con la clave `anon` confirmó que la lectura pública de perfiles y slides funciona (campos públicos → `200`). Antes de la corrección se detectó que `anon` podía leer las columnas sensibles `email`, `is_admin`, `sub_expires_at`, `allow_gifs`, `custom_badge` y `custom_slides` por falta de GRANTs específicos. Los GRANTs por columna se aplicaron **manualmente en Supabase** y se re-verificaron: `select=*` y las columnas sensibles ahora devuelven `401`, mientras los campos públicos siguen en `200`. Queda pendiente **versionar** esos GRANTs como migración reproducible en el repositorio.
 - Se incorpora a la bitácora la nota sobre las extensiones de redes sociales (X, YouTube, Twitch y GitHub) que apuntan a `localhost:3000` en producción.
+- **FASE2-08 implementado:** la verificación de `tier_level` + `sub_expires_at` se centralizó en `src/lib/tier.ts` (`hasActiveTier`) y se aplicó a las acciones de tier de perfil y a `tier2.actions.ts`; `npm run build` correcto.
 
 ## Verificación
 
@@ -50,7 +51,7 @@ Progreso parcial: los ítems marcados con `[x]` están implementados y verificad
 - [x] Implementar validación server-side de entradas en `src/app/perfil/actions.ts`: longitud de biografía (FASE2-04), esquema https y allowlist de dominio para `avatarUrl` (FASE2-05), MIME types, tamaño máximo y nombres aleatorios en `subirBannerAction` (FASE2-06), allowlist de `styleId` (FASE2-07) y allowlist de plataformas y valores en redes sociales (FASE2-09).
 - [x] Ocultar mensajes de error crudos de Supabase en las respuestas devueltas al cliente (FASE2-11).
 - [ ] Revisión de políticas RLS y pruebas de permisos; versionar como migración los GRANTs de FASE2-01 aplicados manualmente en Supabase.
-- [ ] Verificar la vigencia `sub_expires_at` en todas las acciones de tier (FASE2-08).
+- [x] Verificar la vigencia `sub_expires_at` en todas las acciones de tier (FASE2-08). Centralizado en `src/lib/tier.ts` (`hasActiveTier`) y aplicado en `vincularRedSocialAction`, `guardarRedesAction`, `subirBannerAction`, `guardarCosmeticosVIPAction`, `obtenerPerfilCompletoAction` y `tier2.actions.ts`. Limitación: `obtenerPerfilPublicoAction` (cliente anon) no puede leer `sub_expires_at` tras los GRANTs, por lo que el downgrade público sigue basado en `tier_level`.
 - [ ] Hacer atómica la operación de likes (FASE2-10) y resolver la semántica de `giver_id`/`receiver_id` (id vs `discord_id`).
 - [ ] Migrar la autorización de `/admin` a `getServerSession(authOptions)` + `profiles.is_admin` resuelto por `discord_id`; corregir `deleteNewsAction` para que verifique `is_admin`.
 
