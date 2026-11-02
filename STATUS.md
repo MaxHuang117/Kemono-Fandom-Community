@@ -29,7 +29,7 @@
 - Unificadas las dos bitácoras: `STATUS.md` (raíz) queda como fuente única de avances y `docs/STATUS.md` pasa a ser un puntero. Se deshizo un cambio staged que revertía `docs/STATUS.md` a la versión del 27 de octubre, eliminando la reconciliación anterior.
 - **Hallazgo nuevo (crítico):** `deleteNewsAction` (`src/app/admin/news/actions/newsAction.ts`) no verifica `is_admin`; solo comprueba `session.user.email` y luego borra `comments` y `news` con `service_role`. Cualquier usuario autenticado con email puede borrar noticias y comentarios.
 - **Hallazgo nuevo:** en `toggleProfileReputationAction` (`src/app/perfil/actions.ts`), `giver_id` y `receiver_id` se escriben con `session.user.discordId`, pero `database.types.ts` declara las FKs hacia `profiles.id`. Funciona hoy por la convención `id = discord_id`, pero replica la fragilidad de FASE2-03 y queda pendiente resolver la semántica real.
-- **Riesgo de regresión (FASE2-01):** falta verificar en Supabase que el rol `anon` tiene políticas `SELECT` para `profiles` y `user_slides`. Sin esas políticas, la migración a `anon` puede romper la lectura del perfil público o dejar de mostrar slides.
+- **Verificación FASE2-01 (Paso 2, 1 de noviembre de 2026):** prueba REST con la clave `anon` confirmó que la lectura pública de perfiles y slides funciona (campos públicos → `200`). Antes de la corrección se detectó que `anon` podía leer las columnas sensibles `email`, `is_admin`, `sub_expires_at`, `allow_gifs`, `custom_badge` y `custom_slides` por falta de GRANTs específicos. Los GRANTs por columna se aplicaron **manualmente en Supabase** y se re-verificaron: `select=*` y las columnas sensibles ahora devuelven `401`, mientras los campos públicos siguen en `200`. Queda pendiente **versionar** esos GRANTs como migración reproducible en el repositorio.
 - Se incorpora a la bitácora la nota sobre las extensiones de redes sociales (X, YouTube, Twitch y GitHub) que apuntan a `localhost:3000` en producción.
 
 ## Verificación
@@ -45,11 +45,11 @@ Progreso parcial: los ítems marcados con `[x]` están implementados y verificad
 
 - [x] Crear `.env.example` con las variables del proyecto, sin valores sensibles.
 - [x] Refactorizar `obtenerPerfilPublicoAction` (`src/actions/publicProfile.action.ts`): eliminar la interpolación en `.or(...)` (FASE2-02) y aplicar validación estricta del identificador (snowflake numérico o username con alfabeto restringido, con longitud máxima).
-- [ ] Restringir el uso de `service_role` e implementar cliente público/anon para lecturas no privilegiadas (FASE2-01). **Parcial:** `obtenerPerfilPublicoAction` ya usa `createPublicClient()` (anon); pendiente restringir columnas sensibles con GRANTs SQL en Supabase y verificar las políticas RLS `SELECT` para el rol `anon`.
+- [x] Restringir el uso de `service_role` e implementar cliente público/anon para lecturas no privilegiadas (FASE2-01). `obtenerPerfilPublicoAction` usa `createPublicClient()` (anon); GRANTs por columna aplicados manualmente en Supabase y verificados el 1 de noviembre (`select=*`/columnas sensibles → `401`; campos públicos → `200`).
 - [x] Unificar la resolución de perfiles por `profiles.discord_id` en `guardarBiografiaAction` en lugar de `.eq("id", discordId)`, verificando las filas afectadas (FASE2-03).
 - [x] Implementar validación server-side de entradas en `src/app/perfil/actions.ts`: longitud de biografía (FASE2-04), esquema https y allowlist de dominio para `avatarUrl` (FASE2-05), MIME types, tamaño máximo y nombres aleatorios en `subirBannerAction` (FASE2-06), allowlist de `styleId` (FASE2-07) y allowlist de plataformas y valores en redes sociales (FASE2-09).
 - [x] Ocultar mensajes de error crudos de Supabase en las respuestas devueltas al cliente (FASE2-11).
-- [ ] Revisión de políticas RLS y pruebas de permisos.
+- [ ] Revisión de políticas RLS y pruebas de permisos; versionar como migración los GRANTs de FASE2-01 aplicados manualmente en Supabase.
 - [ ] Verificar la vigencia `sub_expires_at` en todas las acciones de tier (FASE2-08).
 - [ ] Hacer atómica la operación de likes (FASE2-10) y resolver la semántica de `giver_id`/`receiver_id` (id vs `discord_id`).
 - [ ] Migrar la autorización de `/admin` a `getServerSession(authOptions)` + `profiles.is_admin` resuelto por `discord_id`; corregir `deleteNewsAction` para que verifique `is_admin`.
