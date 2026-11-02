@@ -682,60 +682,80 @@ export async function toggleProfileReputationAction(receiverId: string) {
     const session = await getServerSession(authOptions);
     if (!session?.user?.discordId) return { error: "Debes iniciar sesión para dar reputación." };
 
-    const giverId = session.user.discordId;
+    const discordId = session.user.discordId;
 
-    if (giverId === receiverId) {
-        return { error: "El sistema no permite otorgarse reputación a sí mismo." };
+    /* FASE2-10: `receiverId` es un selector no confiable del cliente (proviene de `comments.user_id`). */
+    if (typeof receiverId !== "string" || receiverId.length === 0 || receiverId.length > 64) {
+        return { error: "Perfil de destino no válido." };
     }
 
-    // 🛡️ ESCUDO ANTI-SYBIL
-    const { data: giverProfile } = await supabaseAdmin
+    // 🛡️ ESCUDO ANTI-SYBIL + resolución de identidad.
+    // FASE2-10: `giver_id` y `receiver_id` referencian `profiles.id`; se resuelve por `discord_id`
+    // y NO se asume `id === discord_id`.
+    const { data: giverProfile, error: giverError } = await supabaseAdmin
         .from("profiles")
-        .select("tier_level, created_at")
-        .eq("discord_id", giverId)
-        .single();
+        .select("id, tier_level, created_at")
+        .eq("discord_id", discordId)
+        .maybeSingle();
 
-    if (!giverProfile) return { error: "Perfil de origen no encontrado." };
+    if (giverError || !giverProfile) return { error: "Perfil de origen no encontrado." };
+
+    // Resolver el receptor para obtener su `profiles.id` real y validar que existe.
+    const { data: receiverProfile, error: receiverError } = await supabaseAdmin
+        .from("profiles")
+        .select("id")
+        .eq("id", receiverId)
+        .maybeSingle();
+
+    if (receiverError || !receiverProfile) return { error: "Perfil de destino no encontrado." };
+
+    const giverProfileId = giverProfile.id;
+    const receiverProfileId = receiverProfile.id;
+
+    if (giverProfileId === receiverProfileId) {
+        return { error: "El sistema no permite otorgarse reputación a sí mismo." };
+    }
 
     // Matemática exacta: Si no hay created_at (raro), asume 0 días.
     const creationDate = giverProfile.created_at ? new Date(giverProfile.created_at).getTime() : new Date().getTime();
     const accountAgeDays = (new Date().getTime() - creationDate) / (1000 * 3600 * 24);
-    
+
     const isPremium = (giverProfile.tier_level ?? 0) >= 1;
 
     // Bloqueo preciso
     if (!isPremium && accountAgeDays < 7) {
-        return { 
-            error: "⚠️ Prime Requerido: Para evitar spam, debes ser Tier 1+ o tener una cuenta con más de 7 días de antigüedad para dar likes." 
+        return {
+            error: "⚠️ Prime Requerido: Para evitar spam, debes ser Tier 1+ o tener una cuenta con más de 7 días de antigüedad para dar likes."
         };
     }
     // -----------------------------------------------------------
 
-    // Conexión a base de datos usando tabla en snake_case para que funcione con Supabase
-    
-    const { data: existingLike } = await supabaseAdmin
+    // Toggle: primero se intenta eliminar (unlike); si no había fila, se inserta (like).
+    // Con la restricción única (giver_id, receiver_id) este patrón evita likes duplicados.
+    const { data: deleted, error: deleteError } = await supabaseAdmin
         .from("profile_likes")
-        .select("id")
-        .match({ giver_id: giverId, receiver_id: receiverId })
-        .maybeSingle(); 
+        .delete()
+        .eq("giver_id", giverProfileId)
+        .eq("receiver_id", receiverProfileId)
+        .select("id");
 
-    if (existingLike) {
-        const { error } = await supabaseAdmin
-            .from("profile_likes")
-            .delete()
-            .match({ giver_id: giverId, receiver_id: receiverId });
-            
-        if (error) {
-            console.error("Error al quitar reputación:", error);
-            return { error: GENERIC_DB_ERROR };
-        }
-        return { success: true, action: "unliked" };
-    } else {
-        const { error } = await supabaseAdmin
-            .from("profile_likes")
-            .insert({ giver_id: giverId, receiver_id: receiverId });
-            
-        if (error) return { error: "Error al otorgar reputación." };
-        return { success: true, action: "liked" };
+    if (deleteError) {
+        console.error("Error al quitar reputación:", deleteError);
+        return { error: GENERIC_DB_ERROR };
     }
+
+    if (deleted && deleted.length > 0) {
+        return { success: true, action: "unliked" };
+    }
+
+    const { error: insertError } = await supabaseAdmin
+        .from("profile_likes")
+        .insert({ giver_id: giverProfileId, receiver_id: receiverProfileId });
+
+    if (insertError) {
+        console.error("Error al otorgar reputación:", insertError);
+        return { error: GENERIC_DB_ERROR };
+    }
+
+    return { success: true, action: "liked" };
 }
