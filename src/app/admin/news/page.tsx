@@ -2,17 +2,18 @@
 import { getServerSession } from "next-auth/next";
 import { redirect } from "next/navigation";
 import Link from "next/link";
-import { getProfileByEmail } from "@/lib/services/profiles.service";
+import { authOptions } from "@/lib/auth";
+import { getProfileByDiscordId } from "@/lib/services/profiles.service";
 import NewsModalClient from "./NewsModalClient";
 
 export default async function AdminNewsPage() {
-    const session = await getServerSession();
+    const session = await getServerSession(authOptions);
 
-    if (!session?.user?.email) {
+    if (!session?.user?.discordId) {
         redirect("/login");
     }
 
-    const { data: perfil, error } = await getProfileByEmail(session.user.email);
+    const { data: perfil, error } = await getProfileByDiscordId(session.user.discordId);
 
     if (error || !perfil || !perfil.is_admin) {
         redirect("/inicio");

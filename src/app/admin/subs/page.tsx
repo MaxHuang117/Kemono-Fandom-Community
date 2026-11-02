@@ -1,18 +1,19 @@
 import { getServerSession } from "next-auth/next";
 import { redirect } from "next/navigation";
-import { getProfileByEmail } from "@/lib/services/profiles.service";
+import { authOptions } from "@/lib/auth";
+import { getProfileByDiscordId } from "@/lib/services/profiles.service";
 import SubsAdminClient from "./SubsAdminClient";
 
 export default async function SubsAdminPage() {
-    const session = await getServerSession();
+    const session = await getServerSession(authOptions);
 
     // 1. Validar que el usuario tenga sesión activa
-    if (!session?.user?.email) {
+    if (!session?.user?.discordId) {
         redirect("/login");
     }
 
     // 2. Obtener su perfil desde Supabase
-    const { data: perfil, error } = await getProfileByEmail(session.user.email);
+    const { data: perfil, error } = await getProfileByDiscordId(session.user.discordId);
 
     // 3. Validar que exista y que sea Administrador
     if (error || !perfil || !perfil.is_admin) {

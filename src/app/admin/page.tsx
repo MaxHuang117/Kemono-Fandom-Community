@@ -1,18 +1,19 @@
 import { getServerSession } from "next-auth/next";
 import { redirect } from "next/navigation";
-import { getProfileByEmail } from "@/lib/services/profiles.service";
+import { authOptions } from "@/lib/auth";
+import { getProfileByDiscordId } from "@/lib/services/profiles.service";
 import AdminModuleCard from "./components/AdminModuleCard"; // Importamos la tarjeta
 
 export default async function AdminPage() {
-    const session = await getServerSession();
+    const session = await getServerSession(authOptions);
 
     // 1. Validar sesión
-    if (!session?.user?.email) {
+    if (!session?.user?.discordId) {
         redirect("/login");
     }
 
     // 2. Obtener perfil
-    const { data: perfil, error } = await getProfileByEmail(session.user.email);
+    const { data: perfil, error } = await getProfileByDiscordId(session.user.discordId);
 
     // 3. Validar perfil y permisos
     if (error || !perfil || !perfil.is_admin) {

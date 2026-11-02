@@ -17,6 +17,19 @@ export async function getProfileByEmail(email: string) {
 
 /*
 |--------------------------------------------------------------------------
+| Obtener perfil por Discord ID
+|--------------------------------------------------------------------------
+*/
+export async function getProfileByDiscordId(discordId: string) {
+    return await supabaseAdmin
+        .from("profiles")
+        .select("id, is_admin")
+        .eq("discord_id", discordId)
+        .single();
+}
+
+/*
+|--------------------------------------------------------------------------
 | Obtener perfil por ID
 |--------------------------------------------------------------------------
 */

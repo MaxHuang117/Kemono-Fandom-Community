@@ -32,14 +32,13 @@
 - **Verificación FASE2-01 (Paso 2, 1 de noviembre de 2026):** prueba REST con la clave `anon` confirmó que la lectura pública de perfiles y slides funciona (campos públicos → `200`). Antes de la corrección se detectó que `anon` podía leer las columnas sensibles `email`, `is_admin`, `sub_expires_at`, `allow_gifs`, `custom_badge` y `custom_slides` por falta de GRANTs específicos. Los GRANTs por columna se aplicaron **manualmente en Supabase** y se re-verificaron: `select=*` y las columnas sensibles ahora devuelven `401`, mientras los campos públicos siguen en `200`. Queda pendiente **versionar** esos GRANTs como migración reproducible en el repositorio.
 - Se incorpora a la bitácora la nota sobre las extensiones de redes sociales (X, YouTube, Twitch y GitHub) que apuntan a `localhost:3000` en producción.
 - **FASE2-08 implementado:** la verificación de `tier_level` + `sub_expires_at` se centralizó en `src/lib/tier.ts` (`hasActiveTier`) y se aplicó a las acciones de tier de perfil y a `tier2.actions.ts`; `npm run build` correcto.
-- **FASE2-10 (código):** `toggleProfileReputationAction` resuelve `giver_id`/`receiver_id` contra `profiles.id` (sin asumir `id === discord_id`) y usa toggle delete-then-insert sin `.match()`. La migración de unicidad quedó versionada en `supabase/migrations/` y pendiente de aplicar en Supabase (requiere autorización).
+- **FASE2-10 (código):** `toggleProfileReputationAction` resuelve `giver_id`/`receiver_id` contra `profiles.id` (sin asumir `id === discord_id`) y usa toggle delete-then-insert sin `.match()`. La migración de unicidad (`supabase/migrations/20261101000000_profile_likes_reputation_unique.sql`) se aplicó manualmente en el SQL Editor de Supabase.
+- **Paso 5 (autorización `/admin`):** creado `src/lib/admin.ts` (`requireAdmin`) que resuelve `profiles.is_admin` por `discord_id`; migrados `subsAction.ts`, `newsAction.ts` y `commentsActions.ts`, incluyendo la corrección crítica de `deleteNewsAction` (ahora verifica `is_admin`). Las 4 páginas de `/admin` usan `getServerSession(authOptions)` + `getProfileByDiscordId`. `npm run build` correcto.
 
 ## Verificación
 
-Última verificación de build y lint registrada el 29 de octubre de 2026; en esta sesión solo se modificó documentación.
-
-- `npm run build`: correcto (29 de octubre de 2026).
-- `npm run lint`: correcto (27 de octubre de 2026).
+- `npm run build`: correcto (1 de noviembre de 2026; FASE2-08, FASE2-10 y autorización `/admin`).
+- `npm run lint`: correcto (27 de octubre de 2026; no se reejecutó en esta sesión).
 
 ## En curso — Remediación Fase 2 (Seguridad y estabilidad)
 
@@ -53,8 +52,9 @@ Progreso parcial: los ítems marcados con `[x]` están implementados y verificad
 - [x] Ocultar mensajes de error crudos de Supabase en las respuestas devueltas al cliente (FASE2-11).
 - [ ] Revisión de políticas RLS y pruebas de permisos; versionar como migración los GRANTs de FASE2-01 aplicados manualmente en Supabase.
 - [x] Verificar la vigencia `sub_expires_at` en todas las acciones de tier (FASE2-08). Centralizado en `src/lib/tier.ts` (`hasActiveTier`) y aplicado en `vincularRedSocialAction`, `guardarRedesAction`, `subirBannerAction`, `guardarCosmeticosVIPAction`, `obtenerPerfilCompletoAction` y `tier2.actions.ts`. Limitación: `obtenerPerfilPublicoAction` (cliente anon) no puede leer `sub_expires_at` tras los GRANTs, por lo que el downgrade público sigue basado en `tier_level`.
-- [ ] Hacer atómica la operación de likes (FASE2-10) y resolver la semántica de `giver_id`/`receiver_id` (id vs `discord_id`). **Código listo:** `toggleProfileReputationAction` resuelve ambos contra `profiles.id` y usa toggle delete-then-insert sin `.match()`. **Pendiente:** aplicar la migración `supabase/migrations/20261101000000_profile_likes_reputation_unique.sql` (restricción única) — requiere autorización explícita.
-- [ ] Migrar la autorización de `/admin` a `getServerSession(authOptions)` + `profiles.is_admin` resuelto por `discord_id`; corregir `deleteNewsAction` para que verifique `is_admin`.
+- [x] Hacer atómica la operación de likes (FASE2-10) y resolver la semántica de `giver_id`/`receiver_id` (id vs `discord_id`). La acción resuelve ambos contra `profiles.id`, usa toggle delete-then-insert sin `.match()`, y la restricción única se aplicó en Supabase (migración versionada en `supabase/migrations/`).
+- [x] Migrar la autorización de `/admin` a `getServerSession(authOptions)` + `profiles.is_admin` resuelto por `discord_id`; corregido `deleteNewsAction` (ahora verifica `is_admin`). Centralizado en `src/lib/admin.ts` (`requireAdmin`) y aplicado en acciones y páginas de `/admin`.
+- [ ] Migrar la resolución de identidad de los comentarios (`src/components/home/News/components/comments/actions/commentsAction.ts`) de `getServerSession()` + `session.user.email` a `getServerSession(authOptions)` + `discord_id` (mismo patrón ya corregido en `/admin`).
 
 ## Notas del Desarrollador / Deuda Técnica Detectada
 

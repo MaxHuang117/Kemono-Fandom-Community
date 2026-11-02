@@ -1,9 +1,8 @@
 "use server";
 
-import { getServerSession } from "next-auth/next";
 import { createClient } from "@supabase/supabase-js";
-import { getProfileByEmail } from "@/lib/services/profiles.service";
 import { revalidatePath } from "next/cache";
+import { requireAdmin } from "@/lib/admin";
 
 // Usamos la clave de servicio para saltar el RLS de forma segura desde el servidor
 const supabaseAdmin = createClient(
@@ -12,11 +11,7 @@ const supabaseAdmin = createClient(
 );
 
 export async function saveNewsAction(formData: FormData) {
-    const session = await getServerSession();
-    if (!session?.user?.email) throw new Error("No autorizado");
-
-    const { data: perfil } = await getProfileByEmail(session.user.email);
-    if (!perfil?.is_admin) throw new Error("Permisos insuficientes");
+    await requireAdmin();
 
     const id = formData.get("id") as string;
     const title = formData.get("title") as string;
@@ -56,9 +51,8 @@ export async function saveNewsAction(formData: FormData) {
 }
 
 export async function deleteNewsAction(id: number) {
-    const session = await getServerSession();
-    if (!session?.user?.email) throw new Error("No autorizado");
-    
+    await requireAdmin();
+
     await supabaseAdmin.from("comments").delete().eq("news_id", id);
     await supabaseAdmin.from("news").delete().eq("id", id);
     
@@ -67,11 +61,7 @@ export async function deleteNewsAction(id: number) {
 }
 
 export async function getAdminNewsAction() {
-    const session = await getServerSession();
-    if (!session?.user?.email) throw new Error("No autorizado");
-
-    const { data: perfil } = await getProfileByEmail(session.user.email);
-    if (!perfil?.is_admin) throw new Error("Permisos insuficientes");
+    await requireAdmin();
 
     // Usa la clave maestra para traer todo saltando el RLS público
     const { data, error } = await supabaseAdmin
