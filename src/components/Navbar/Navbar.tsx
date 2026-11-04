@@ -1,139 +1,273 @@
 "use client";
 
-import { useState } from 'react';
-import { useSession, signOut } from 'next-auth/react';
-import { usePathname } from 'next/navigation';
-import Link from 'next/link';
-import Image from 'next/image';
+import { useEffect, useRef, useState } from "react";
+import { useSession, signOut } from "next-auth/react";
+import { usePathname } from "next/navigation";
+import Link from "next/link";
+import Image from "next/image";
+
+const navLinks = [
+  { id: "inicio", label: "Inicio" },
+  { id: "colaboradores", label: "Colaboradores" },
+  { id: "novedades", label: "Novedades" },
+];
 
 export default function Navbar() {
   const { data: session } = useSession();
-  const [isOpen, setIsOpen] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
+  const [userOpen, setUserOpen] = useState(false);
   const pathname = usePathname();
+  const mobileMenuRef = useRef<HTMLDivElement>(null);
+  const userMenuRef = useRef<HTMLDivElement>(null);
+  const mobileBtnRef = useRef<HTMLButtonElement>(null);
+
+  const isHome = pathname === "/";
 
   const scrollToSection = (id: string) => {
     const section = document.getElementById(id);
-
     if (!section) return;
-
-    section.scrollIntoView({
-      behavior: "smooth",
-      block: "start",
-    });
+    section.scrollIntoView({ behavior: "smooth", block: "start" });
+    setMenuOpen(false);
   };
 
+  // Cerrar menús al hacer clic fuera o presionar Escape
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      const target = event.target as Node;
+      if (
+        mobileMenuRef.current &&
+        !mobileMenuRef.current.contains(target) &&
+        mobileBtnRef.current &&
+        !mobileBtnRef.current.contains(target)
+      ) {
+        setMenuOpen(false);
+      }
+      if (userMenuRef.current && !userMenuRef.current.contains(target)) {
+        setUserOpen(false);
+      }
+    };
+
+    const handleEscape = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        setMenuOpen(false);
+        setUserOpen(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    document.addEventListener("keydown", handleEscape);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+      document.removeEventListener("keydown", handleEscape);
+    };
+  }, []);
+
+  // Bloquear scroll cuando el menú móvil está abierto
+  useEffect(() => {
+    if (menuOpen) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "";
+    }
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [menuOpen]);
+
   return (
-  <header
-    className="
-      fixed
-      top-0
-      left-0
-      right-0
-      z-50
-      flex
-      flex-wrap
-      items-center
-      justify-between
-      px-6
-      md:px-10
-      py-6
-      bg-black/90
-      backdrop-blur-md
-      border-b
-      border-green-500
-    "
-  >
-      <div className="flex items-center gap-4">
-        {/* En lugar de usar el img, mejor usamos next/image para optimizar el rendimiento */}
-        <Image 
-          src="/Logo.png" 
-          alt="Logo de Kemono Fandom Community" 
-          width={50} 
-          height={50} 
-          className="h-13 w-13" 
-        />
-        <span className="text-xl font-bold text-[#61ff61]">Kemono Fandom Community</span>
-      </div>
-      
-      {/* Navegación principal: Inicio, Colaboradores y Novedades */}
-      <nav className="flex flex-wrap items-center gap-4 text-sm" aria-label="Navegación principal">
-        {pathname === "/" ? (
-          <>
-            <button 
-              onClick={() => scrollToSection('inicio')} 
-              className="hover:text-green-500 transition-colors font-bold"
-              aria-label="Ir a la sección de inicio"
-            >
-              Inicio
-            </button>
-            <span className="text-gray-600 hidden sm:block">|</span>
-            
-            <button 
-              onClick={() => scrollToSection('colaboradores')} 
-              className="hover:text-green-500 transition-colors"
-              aria-label="Ir a la sección de colaboradores"
-            >
-              Colaboradores
-            </button>
-            <span className="text-gray-600 hidden sm:block">|</span>
-            
-            <button 
-              onClick={() => scrollToSection('novedades')} 
-              className="hover:text-green-500 transition-colors"
-              aria-label="Ir a la sección de novedades"
-            >
-              Novedades
-            </button>
-          </>
-        ) : (
-          <Link 
-            href="/" 
-            className="hover:text-green-500 transition-colors font-bold flex items-center gap-2"
-            aria-label="Volver al inicio"
-          >
-            ← Volver al Inicio
+    <header className="fixed top-0 left-0 right-0 z-50 bg-black/90 backdrop-blur-md border-b border-neon/30">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-10">
+        <div className="flex items-center justify-between h-20">
+          {/* Logo + marca */}
+          <Link href="/" className="flex items-center gap-3 min-w-0 focus:outline-none focus-visible:ring-2 focus-visible:ring-neon rounded">
+            <Image
+              src="/Logo.png"
+              alt=""
+              width={44}
+              height={44}
+              className="h-10 w-10 rounded-md object-contain"
+              priority
+            />
+            <span className="text-lg sm:text-xl font-bold text-neon truncate">
+              Kemono Fandom
+            </span>
           </Link>
-        )}
 
-        {session ? (
-          <div className="relative">
-            <button 
-              onClick={() => setIsOpen(!isOpen)} 
-              aria-expanded={isOpen}
-              aria-label="Abrir menú de usuario"
-              className="text-green-500 font-bold border border-green-500 px-4 py-2 rounded hover:bg-green-500 hover:text-black transition-all"
-            >
-              {session.user?.email} ▾
-            </button>
-
-            {isOpen && (
-              <div className="absolute right-0 mt-2 w-48 bg-[#1a1a1a] border border-gray-600 rounded-lg shadow-xl p-2 z-50">
-                <Link 
-                  href="/perfil" 
-                  className="block p-2 text-white hover:bg-green-500 hover:text-black rounded transition-colors"
-                  onClick={() => setIsOpen(false)}
-                >
-                  Configuración
-                </Link>
-                <button 
-                  onClick={() => { signOut(); setIsOpen(false); }} 
-                  className="block w-full text-left p-2 text-red-400 hover:bg-red-500 hover:text-white rounded transition-colors"
-                >
-                  Logout
-                </button>
-              </div>
+          {/* Navegación desktop */}
+          <nav className="hidden md:flex items-center gap-6" aria-label="Navegación principal">
+            {isHome ? (
+              <>
+                {navLinks.map((link, idx) => (
+                  <span key={link.id} className="flex items-center gap-6">
+                    <button
+                      onClick={() => scrollToSection(link.id)}
+                      className="text-sm font-medium text-zinc-300 hover:text-neon transition-colors focus:outline-none focus-visible:text-neon"
+                    >
+                      {link.label}
+                    </button>
+                    {idx < navLinks.length - 1 && (
+                      <span className="text-zinc-700" aria-hidden="true">|</span>
+                    )}
+                  </span>
+                ))}
+              </>
+            ) : (
+              <Link
+                href="/"
+                className="text-sm font-medium text-zinc-300 hover:text-neon transition-colors focus:outline-none focus-visible:text-neon"
+              >
+                ← Volver al Inicio
+              </Link>
             )}
-          </div>
-        ) : (
-          <Link 
-            href="/login" 
-            className="bg-green-500 text-black px-4 py-2 rounded font-bold hover:bg-green-400 transition-all"
-            aria-label="Iniciar sesión"
+
+            {session ? (
+              <div className="relative" ref={userMenuRef}>
+                <button
+                  onClick={() => setUserOpen(!userOpen)}
+                  aria-expanded={userOpen}
+                  aria-haspopup="menu"
+                  className="flex items-center gap-2 text-sm font-bold text-neon border border-neon/50 px-4 py-2 rounded hover:bg-neon hover:text-black transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-neon"
+                >
+                  <span className="max-w-[140px] truncate">
+                    {session.user?.name || "Mi cuenta"}
+                  </span>
+                  <span aria-hidden="true">▾</span>
+                </button>
+
+                {userOpen && (
+                  <div
+                    role="menu"
+                    className="absolute right-0 mt-2 w-48 bg-[#1a1a1a] border border-zinc-700 rounded-lg shadow-xl p-2 z-50"
+                  >
+                    <Link
+                      href="/perfil"
+                      role="menuitem"
+                      className="block p-2 text-sm text-white hover:bg-neon hover:text-black rounded transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-neon"
+                      onClick={() => setUserOpen(false)}
+                    >
+                      Mi perfil
+                    </Link>
+                    <button
+                      role="menuitem"
+                      onClick={() => {
+                        signOut();
+                        setUserOpen(false);
+                      }}
+                      className="block w-full text-left p-2 text-sm text-red-400 hover:bg-red-500 hover:text-white rounded transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-red-400"
+                    >
+                      Cerrar sesión
+                    </button>
+                  </div>
+                )}
+              </div>
+            ) : (
+              <Link
+                href="/login"
+                className="bg-neon text-black text-sm font-bold px-4 py-2 rounded hover:bg-neon-bright transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-neon-bright"
+              >
+                Iniciar sesión
+              </Link>
+            )}
+          </nav>
+
+          {/* Botón menú móvil */}
+          <button
+            ref={mobileBtnRef}
+            onClick={() => setMenuOpen(!menuOpen)}
+            aria-expanded={menuOpen}
+            aria-controls="mobile-menu"
+            aria-label={menuOpen ? "Cerrar menú" : "Abrir menú"}
+            className="md:hidden p-2 text-neon border border-neon/30 rounded hover:bg-neon/10 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-neon"
           >
-            Login
-          </Link>
-        )}
-      </nav>
+            <span className="sr-only">{menuOpen ? "Cerrar" : "Menú"}</span>
+            <svg
+              className="w-6 h-6"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+              aria-hidden="true"
+            >
+              {menuOpen ? (
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M6 18L18 6M6 6l12 12"
+                />
+              ) : (
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M4 6h16M4 12h16M4 18h16"
+                />
+              )}
+            </svg>
+          </button>
+        </div>
+      </div>
+
+      {/* Menú móvil */}
+      {menuOpen && (
+        <div
+          id="mobile-menu"
+          ref={mobileMenuRef}
+          className="md:hidden fixed inset-x-0 top-20 bottom-0 bg-black/95 backdrop-blur-lg border-t border-neon/20 overflow-y-auto"
+        >
+          <nav className="flex flex-col p-6 gap-4" aria-label="Navegación móvil">
+            {isHome ? (
+              navLinks.map((link) => (
+                <button
+                  key={link.id}
+                  onClick={() => scrollToSection(link.id)}
+                  className="text-left text-lg font-medium text-zinc-300 hover:text-neon transition-colors py-2 border-b border-zinc-800 focus:outline-none focus-visible:text-neon"
+                >
+                  {link.label}
+                </button>
+              ))
+            ) : (
+              <Link
+                href="/"
+                onClick={() => setMenuOpen(false)}
+                className="text-lg font-medium text-zinc-300 hover:text-neon transition-colors py-2 border-b border-zinc-800 focus:outline-none focus-visible:text-neon"
+              >
+                ← Volver al Inicio
+              </Link>
+            )}
+
+            <div className="mt-4">
+              {session ? (
+                <>
+                  <Link
+                    href="/perfil"
+                    onClick={() => setMenuOpen(false)}
+                    className="block w-full text-left text-lg font-medium text-neon py-3 border-b border-zinc-800 focus:outline-none focus-visible:text-neon-bright"
+                  >
+                    Mi perfil
+                  </Link>
+                  <button
+                    onClick={() => {
+                      signOut();
+                      setMenuOpen(false);
+                    }}
+                    className="block w-full text-left text-lg font-medium text-red-400 py-3 focus:outline-none focus-visible:text-red-300"
+                  >
+                    Cerrar sesión
+                  </button>
+                </>
+              ) : (
+                <Link
+                  href="/login"
+                  onClick={() => setMenuOpen(false)}
+                  className="block w-full text-center bg-neon text-black font-bold py-3 rounded hover:bg-neon-bright transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-neon-bright"
+                >
+                  Iniciar sesión
+                </Link>
+              )}
+            </div>
+          </nav>
+        </div>
+      )}
     </header>
   );
 }

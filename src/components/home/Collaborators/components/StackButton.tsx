@@ -30,14 +30,14 @@ export default function StackButton({
         mt-5
         rounded-xl
         border
-        border-green-500/30
-        bg-green-500/10
+        border-neon/30
+        bg-neon/10
         px-8
         py-3
-        text-green-400
+        text-neon-bright
         transition-all
         duration-300
-        hover:bg-green-500/20
+        hover:bg-neon/20
       "
 
     >

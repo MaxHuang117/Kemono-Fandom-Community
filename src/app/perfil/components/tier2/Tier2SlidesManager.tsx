@@ -37,10 +37,10 @@ export default function Tier2SlidesManager({ tierLevel, socialLinks, customSlide
         <div className="mt-10 border-t border-white/5 pt-8 font-sans relative">
             <div className="flex justify-between items-center mb-6">
                 <h4 className="text-xs font-mono uppercase tracking-widest text-blue-500">
-                    &gt; TIER 2: VIP_PROMO_SLIDES
+                    &gt; Tarjetas promocionales
                 </h4>
                 <span className="text-[9px] font-mono text-zinc-500 border border-zinc-800 px-2 py-1">
-                    TIER 2+ FEATURE
+                    Tier 2+
                 </span>
             </div>
 
@@ -52,8 +52,8 @@ export default function Tier2SlidesManager({ tierLevel, socialLinks, customSlide
                         <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
                     </svg>
                     <h5 className="text-zinc-400 font-bold uppercase tracking-wider text-sm mb-2">Módulo Bloqueado</h5>
-                    <p className="text-zinc-600 font-mono text-xs max-w-md">
-                        Desbloquea el Nivel VIP (Tier 2) para habilitar hasta 3 paneles promocionales personalizables en tu perfil público.
+                    <p className="text-zinc-500 font-mono text-xs max-w-md">
+                        Desbloquea el Tier 2 para habilitar hasta 3 paneles promocionales personalizables en tu perfil público.
                     </p>
                 </div>
             ) : (
@@ -62,8 +62,8 @@ export default function Tier2SlidesManager({ tierLevel, socialLinks, customSlide
                     {/* Alerta si es VIP pero no tiene redes conectadas para enlazar */}
                     {activeNetworks.length === 0 && (
                         <div className="bg-yellow-500/10 border border-yellow-500/30 p-3 mb-4 text-yellow-500/80 text-xs font-mono flex items-center gap-3">
-                            <span className="text-lg">⚠</span>
-                            <span>[WARNING] No tienes redes conectadas. Añade al menos una en el panel superior para poder configurar las redirecciones de tus slides.</span>
+                            <span>⚠</span>
+                            <span>No tienes redes conectadas. Añade al menos una en el panel superior para poder configurar las redirecciones de tus tarjetas.</span>
                         </div>
                     )}
                     

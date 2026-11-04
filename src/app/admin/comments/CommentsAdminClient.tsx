@@ -44,9 +44,9 @@ export default function CommentsAdminClient() {
     return (
         <div className="space-y-8 font-sans">
             {/* Cabecera */}
-            <div className="flex justify-between items-end border-b-2 border-emerald-500/20 pb-4">
+            <div className="flex justify-between items-end border-b-2 border-neon/20 pb-4">
                 <div>
-                    <h1 className="text-3xl font-black uppercase text-white tracking-widest">Database<span className="text-emerald-500">_Comms</span></h1>
+                    <h1 className="text-3xl font-black uppercase text-white tracking-widest">Comentarios</h1>
                     <p className="text-xs font-mono text-zinc-500 mt-1">&gt; MODERATION PROTOCOL ACTIVE (READ & PURGE ONLY)</p>
                 </div>
             </div>
@@ -54,7 +54,7 @@ export default function CommentsAdminClient() {
             {/* Grid de Comentarios */}
             <div className="grid gap-4">
                 {comments.length === 0 ? (
-                    <div className="text-center py-12 text-zinc-600 font-mono text-sm tracking-widest uppercase border border-white/5 bg-[#0a0a0a]">
+                    <div className="text-center py-12 text-zinc-500 font-mono text-sm tracking-widest uppercase border border-white/5 bg-[#0a0a0a]">
                         NO_COMMENTS_FOUND
                     </div>
                 ) : (
@@ -66,7 +66,7 @@ export default function CommentsAdminClient() {
                                         ID: {item.id.substring(0, 8)}
                                     </span>
                                     {item.news_id && (
-                                        <span className="text-[9px] font-mono px-2 py-0.5 bg-emerald-500/10 text-emerald-400 uppercase tracking-widest">
+                                        <span className="text-[9px] font-mono px-2 py-0.5 bg-neon/10 text-neon-bright uppercase tracking-widest">
                                             REF_NEWS: {item.news_id}
                                         </span>
                                     )}

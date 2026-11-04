@@ -22,7 +22,7 @@ export default async function SubsAdminPage() {
 
     // 4. Si pasó los controles de seguridad, renderizamos el panel
     return (
-        <main className="min-h-screen bg-[#050505] text-white p-6 selection:bg-emerald-500 selection:text-black">
+        <main className="min-h-screen bg-[#050505] text-white p-6 selection:bg-neon selection:text-black">
             {/* Contenedor principal con límite de ancho para mantener el diseño pulcro */}
             <div className="mx-auto max-w-7xl relative z-10">
                 <SubsAdminClient />

@@ -73,7 +73,7 @@ const NewsManager: React.FC = () => {
         {!isFormOpen && (
           <button
             onClick={handleCreate}
-            className="px-4 py-2 bg-emerald-500 hover:bg-emerald-400 text-black text-sm font-bold rounded-lg shadow-[0_0_15px_rgba(16,185,129,0.3)] transition flex items-center gap-2"
+            className="px-4 py-2 bg-neon hover:bg-neon-bright text-black text-sm font-bold rounded-lg shadow-[0_0_15px_rgba(97,255,97,0.3)] transition flex items-center gap-2"
           >
             <span>+</span> Nueva Noticia
           </button>
@@ -89,18 +89,18 @@ const NewsManager: React.FC = () => {
           {newsList.map((n) => (
             <div
               key={n.id}
-              className="group flex flex-col md:flex-row items-start md:items-center justify-between p-4 bg-zinc-950/70 border border-zinc-800/80 hover:border-emerald-500/50 rounded-xl transition duration-200 gap-4"
+              className="group flex flex-col md:flex-row items-start md:items-center justify-between p-4 bg-zinc-950/70 border border-zinc-800/80 hover:border-neon/50 rounded-xl transition duration-200 gap-4"
             >
               <div className="space-y-1">
                 <div className="flex items-center gap-2">
-                  <span className="text-xs font-bold px-2 py-0.5 rounded bg-zinc-800 text-emerald-400 border border-zinc-700">
+                  <span className="text-xs font-bold px-2 py-0.5 rounded bg-zinc-800 text-neon-bright border border-zinc-700">
                     {n.category || "General"}
                   </span>
-                  <span className={`text-[10px] uppercase font-bold px-2 py-0.5 rounded ${n.published ? "bg-emerald-950 text-emerald-400 border border-emerald-800" : "bg-amber-950 text-amber-400 border border-amber-800"}`}>
+                  <span className={`text-[10px] uppercase font-bold px-2 py-0.5 rounded ${n.published ? "bg-neon-deep text-neon-bright border border-neon-deep" : "bg-amber-950 text-amber-400 border border-amber-800"}`}>
                     {n.published ? "Publicado" : "Borrador"}
                   </span>
                 </div>
-                <h3 className="font-bold text-white text-lg group-hover:text-emerald-400 transition">{n.title}</h3>
+                <h3 className="font-bold text-white text-lg group-hover:text-neon-bright transition">{n.title}</h3>
                 <p className="text-xs text-zinc-400 line-clamp-1">{n.description || n.content}</p>
               </div>
 

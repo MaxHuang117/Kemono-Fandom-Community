@@ -124,7 +124,7 @@ const openCreateModal = () => {
                 <h1 className="text-2xl font-black uppercase text-white tracking-wider">Módulo de Noticias</h1>
                 <button 
                     onClick={openCreateModal}
-                    className="px-4 py-2 bg-emerald-500 hover:bg-emerald-400 text-black font-bold text-xs uppercase tracking-wider rounded-lg shadow-[0_0_15px_rgba(16,185,129,0.3)] transition"
+                    className="px-4 py-2 bg-neon hover:bg-neon-bright text-black font-bold text-xs uppercase tracking-wider rounded-lg shadow-[0_0_15px_rgba(97,255,97,0.3)] transition"
                 >
                     + Crear Noticia
                 </button>
@@ -132,7 +132,7 @@ const openCreateModal = () => {
 
             <div className="grid gap-4">
                 {news.map((item) => (
-                    <div key={item.id} className="flex flex-col md:flex-row justify-between items-start md:items-center p-4 bg-zinc-950/80 border border-zinc-800 rounded-xl hover:border-emerald-500/50 transition gap-4">
+                    <div key={item.id} className="flex flex-col md:flex-row justify-between items-start md:items-center p-4 bg-zinc-950/80 border border-zinc-800 rounded-xl hover:border-neon/50 transition gap-4">
                         <div className="flex items-center gap-4 w-full">
                             {item.image_url ? (
                                 <img src={item.image_url} alt="Portada" className="w-16 h-16 object-cover rounded-lg border border-zinc-800 shrink-0" />
@@ -140,10 +140,10 @@ const openCreateModal = () => {
                                 <div className="w-16 h-16 bg-zinc-900 rounded-lg border border-zinc-800 flex items-center justify-center text-zinc-700 text-xs shrink-0">Sin Img</div>
                             )}
                             <div className="min-w-0 flex-1">
-                                <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-zinc-800 text-emerald-400 border border-zinc-700 mr-2 inline-block mb-1">
+                                <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-zinc-800 text-neon-bright border border-zinc-700 mr-2 inline-block mb-1">
                                     {item.category || "GENERAL"}
                                 </span>
-                                <span className={`text-[10px] uppercase font-bold px-2 py-0.5 rounded ${item.published ? "bg-emerald-950 text-emerald-400 border-emerald-800" : "bg-amber-950 text-amber-400 border-amber-800"} border inline-block mb-1`}>
+                                <span className={`text-[10px] uppercase font-bold px-2 py-0.5 rounded ${item.published ? "bg-neon-deep text-neon-bright border-neon-deep" : "bg-amber-950 text-amber-400 border-amber-800"} border inline-block mb-1`}>
                                     {item.published ? "Publicado" : "Borrador"}
                                 </span>
                                 <h3 className="font-bold text-white text-sm md:text-base truncate">{item.title}</h3>
@@ -152,7 +152,7 @@ const openCreateModal = () => {
                         <div className="flex gap-2 w-full md:w-auto mt-2 md:mt-0 shrink-0">
                             <button
                                 onClick={() => openEditModal(item)}
-                                className="flex-1 md:flex-none px-4 py-2 rounded-lg bg-emerald-500/10 hover:bg-emerald-500 text-emerald-400 hover:text-black font-bold text-[10px] uppercase border border-emerald-500/30 transition shadow-[0_0_10px_rgba(16,185,129,0.2)]"
+                                className="flex-1 md:flex-none px-4 py-2 rounded-lg bg-neon/10 hover:bg-neon text-neon-bright hover:text-black font-bold text-[10px] uppercase border border-neon/30 transition shadow-[0_0_10px_rgba(97,255,97,0.2)]"
                             >
                                 Editar
                             </button>
@@ -169,9 +169,9 @@ const openCreateModal = () => {
 
             {activeModal && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4 overflow-y-auto">
-                    <div className="w-full max-w-2xl bg-zinc-950 border border-emerald-500/40 rounded-2xl p-6 shadow-[0_0_30px_rgba(16,185,129,0.2)] space-y-4 my-8 relative">
+                    <div className="w-full max-w-2xl bg-zinc-950 border border-neon/40 rounded-2xl p-6 shadow-[0_0_30px_rgba(97,255,97,0.2)] space-y-4 my-8 relative">
                         <div className="flex justify-between items-center border-b border-zinc-800 pb-3">
-                            <h2 className="text-lg font-bold text-emerald-400 uppercase tracking-wider">
+                            <h2 className="text-lg font-bold text-neon-bright uppercase tracking-wider">
                                 {isCreating ? "Desplegar Nueva Noticia" : `Editar Noticia #${activeModal.id}`}
                             </h2>
                             <button onClick={closeModal} className="text-zinc-500 hover:text-white font-mono text-xl">✕</button>
@@ -203,33 +203,33 @@ const openCreateModal = () => {
 
                             <div>
                                 <label className="block text-[10px] uppercase font-mono text-zinc-400 mb-1">Título</label>
-                                <input value={title} onChange={(e) => setTitle(e.target.value)} required className="w-full bg-zinc-900 border border-zinc-800 rounded-lg p-2.5 text-sm text-white focus:border-emerald-500 outline-none transition" />
+                                <input value={title} onChange={(e) => setTitle(e.target.value)} required className="w-full bg-zinc-900 border border-zinc-800 rounded-lg p-2.5 text-sm text-white focus:border-neon outline-none transition" />
                             </div>
                             
                             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                 <div>
                                     <label className="block text-[10px] uppercase font-mono text-zinc-400 mb-1">Categoría</label>
-                                    <input value={category} onChange={(e) => setCategory(e.target.value)} className="w-full bg-zinc-900 border border-zinc-800 rounded-lg p-2.5 text-sm text-white focus:border-emerald-500 outline-none transition" />
+                                    <input value={category} onChange={(e) => setCategory(e.target.value)} className="w-full bg-zinc-900 border border-zinc-800 rounded-lg p-2.5 text-sm text-white focus:border-neon outline-none transition" />
                                 </div>
                                 <div className="flex items-center gap-2 pt-1 sm:pt-6">
-                                    <input type="checkbox" id="pub" checked={published} onChange={(e) => setPublished(e.target.checked)} className="accent-emerald-500 h-4 w-4" />
+                                    <input type="checkbox" id="pub" checked={published} onChange={(e) => setPublished(e.target.checked)} className="accent-neon h-4 w-4" />
                                     <label htmlFor="pub" className="text-xs font-bold text-zinc-300 select-none cursor-pointer">Estado: Publicado</label>
                                 </div>
                             </div>
                             
                             <div>
                                 <label className="block text-[10px] uppercase font-mono text-zinc-400 mb-1">Descripción (Bajada)</label>
-                                <input value={description} onChange={(e) => setDescription(e.target.value)} className="w-full bg-zinc-900 border border-zinc-800 rounded-lg p-2.5 text-sm text-white focus:border-emerald-500 outline-none transition" />
+                                <input value={description} onChange={(e) => setDescription(e.target.value)} className="w-full bg-zinc-900 border border-zinc-800 rounded-lg p-2.5 text-sm text-white focus:border-neon outline-none transition" />
                             </div>
                             
                             <div>
                                 <label className="block text-[10px] uppercase font-mono text-zinc-400 mb-1">Contenido Principal</label>
-                                <textarea rows={5} value={content} onChange={(e) => setContent(e.target.value)} className="w-full bg-zinc-900 border border-zinc-800 rounded-lg p-2.5 text-sm text-white focus:border-emerald-500 outline-none resize-none transition" />
+                                <textarea rows={5} value={content} onChange={(e) => setContent(e.target.value)} className="w-full bg-zinc-900 border border-zinc-800 rounded-lg p-2.5 text-sm text-white focus:border-neon outline-none resize-none transition" />
                             </div>
                             
                             <div className="flex justify-end gap-3 pt-4 border-t border-zinc-800">
                                 <button type="button" onClick={closeModal} className="px-5 py-2 text-xs font-bold text-zinc-400 hover:text-white transition">Cancelar</button>
-                                <button disabled={loadingAction} type="submit" className="px-6 py-2 bg-emerald-500 hover:bg-emerald-400 text-black font-bold text-xs uppercase rounded-lg shadow-[0_0_15px_rgba(16,185,129,0.4)] disabled:opacity-50 transition">
+                                <button disabled={loadingAction} type="submit" className="px-6 py-2 bg-neon hover:bg-neon-bright text-black font-bold text-xs uppercase rounded-lg shadow-[0_0_15px_rgba(97,255,97,0.4)] disabled:opacity-50 transition">
                                     {loadingAction ? "Sincronizando..." : "Guardar en BD"}
                                 </button>
                             </div>

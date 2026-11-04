@@ -38,7 +38,7 @@ export default function LoginCard({
                     h-80
                     w-80
                     rounded-full
-                    bg-green-500/5
+                    bg-neon/5
                     blur-[120px]
                     pointer-events-none
                 "
@@ -80,7 +80,7 @@ export default function LoginCard({
                     className="
                         text-xs
                         font-mono
-                        text-green-500
+                        text-neon
                         tracking-[0.2em]
                         uppercase
                         mb-2

@@ -4,6 +4,7 @@ import Image from "next/image";
 import { useRef } from "react";
 import { motion } from "framer-motion";
 import type { SlideFormat, SlideStyleConfig } from "@/types/slides";
+import { esImagenAnimada } from "@/lib/image";
 
 interface Props {
     format: SlideFormat;
@@ -34,8 +35,8 @@ export default function PreviewCanvas({ format, previewUrl, title, description, 
     return (
         <div className="w-full md:w-[55%] h-[40vh] md:h-full border-b md:border-b-0 md:border-r border-zinc-800 bg-[url('/grid-pattern.svg')] bg-[#020202] relative p-4 sm:p-10 flex items-center justify-center">
             <div className="absolute top-4 left-4 flex gap-2">
-                <span className="bg-zinc-900 border border-zinc-700 text-zinc-500 font-mono text-[9px] px-2 py-1 rounded">VISTA EN VIVO</span>
-                {format === "A" && <span className="bg-emerald-500/10 border border-emerald-500/30 text-emerald-500 font-mono text-[9px] px-2 py-1 rounded animate-pulse">DRAG & DROP ACTIVO</span>}
+                <span className="bg-zinc-900 border border-zinc-700 text-zinc-500 font-mono text-[9px] px-2 py-1 rounded">Vista previa</span>
+                {format === "A" && <span className="bg-neon/10 border border-neon/30 text-neon font-mono text-[9px] px-2 py-1 rounded motion-safe:animate-pulse">Arrastra el título para colocarlo</span>}
             </div>
 
             <div 
@@ -50,9 +51,9 @@ export default function PreviewCanvas({ format, previewUrl, title, description, 
                     onClick={onImageClick}
                 >
                     {previewUrl ? (
-                        <Image src={previewUrl} alt="Preview" fill sizes="(max-width: 640px) 280px, 320px" className="object-cover" />
+                        <Image src={previewUrl} alt="Preview" fill sizes="(max-width: 640px) 280px, 320px" unoptimized={esImagenAnimada(previewUrl)} className="object-cover" />
                     ) : (
-                        <span className="text-zinc-600 font-mono text-xs">+ CLICK: SUBIR IMAGEN</span>
+                        <span className="text-zinc-500 font-mono text-xs">Haz clic para subir imagen</span>
                     )}
                     
                     <div className="absolute top-0 inset-x-0 h-32 bg-gradient-to-b from-black to-transparent pointer-events-none" style={{ opacity: styleConfig.gradientTopOpacity }} />
@@ -77,14 +78,14 @@ export default function PreviewCanvas({ format, previewUrl, title, description, 
                         style={{ color: styleConfig.textColor }}
                     >
                         <h4 className={`text-2xl font-black uppercase text-center drop-shadow-md whitespace-pre-wrap break-words leading-tight w-full ${styleConfig.fontFamily}`}>
-                            {title || "TÍTULO AQUÍ"}
+                            {title || "Título aquí"}
                         </h4>
                     </motion.div>
                 ) : (
                     // 🎨 FORMATO B: Alineación inteligente (Centrado si no hay desc., arriba si la hay)
                     <div className={`p-5 flex flex-col ${description ? 'justify-start text-left' : 'justify-center items-center text-center'} flex-1 relative z-10 w-full overflow-hidden`} style={{ color: styleConfig.textColor }}>
                         <h4 className={`text-xl font-black uppercase whitespace-pre-wrap break-words leading-tight w-full drop-shadow-md ${styleConfig.fontFamily} ${description ? 'mb-2' : 'mb-0'}`}>
-                            {title || "TÍTULO AQUÍ"}
+                            {title || "Título aquí"}
                         </h4>
                         {description && (
                             <p className={`text-xs opacity-80 whitespace-pre-wrap break-words leading-relaxed w-full ${styleConfig.fontFamily}`}>

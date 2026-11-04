@@ -48,7 +48,7 @@ className="relative z-20 flex h-full items-center"
 
 >
 
-    <div className="max-w-3xl px-16">
+    <div className="max-w-3xl px-6 sm:px-10 lg:px-16">
 
         <span
         className="
@@ -56,18 +56,18 @@ className="relative z-20 flex h-full items-center"
         inline-block
         rounded-full
         border
-        border-green-500/40
-        bg-green-500/10
+        border-neon/40
+        bg-neon/10
         px-4
         py-1
         text-sm
-        text-green-400
+        text-neon-bright
         "
         >
         Web Oficial
         </span>
 
-        <h1 className="mb-6 text-6xl font-black">
+        <h1 className="mb-6 text-4xl sm:text-5xl md:text-6xl font-black">
 
             {slide.title}
 
@@ -77,7 +77,8 @@ className="relative z-20 flex h-full items-center"
         className="
         mb-10
         max-w-xl
-        text-lg
+        text-base
+        sm:text-lg
         leading-8
         text-gray-300
         "

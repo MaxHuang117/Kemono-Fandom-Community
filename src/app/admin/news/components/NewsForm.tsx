@@ -41,9 +41,9 @@ const NewsForm: React.FC<NewsFormProps> = ({ news, onSave, onCancel }) => {
   };
 
   return (
-    <div className="rounded-xl border border-emerald-500/30 bg-black/80 p-6 backdrop-blur-md shadow-[0_0_20px_rgba(16,185,129,0.15)]">
-      <h3 className="text-xl font-bold tracking-wider text-emerald-400 mb-6 uppercase flex items-center gap-2">
-        <span className="inline-block w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+    <div className="rounded-xl border border-neon/30 bg-black/80 p-6 backdrop-blur-md shadow-[0_0_20px_rgba(97,255,97,0.15)]">
+      <h3 className="text-xl font-bold tracking-wider text-neon-bright mb-6 uppercase flex items-center gap-2">
+        <span className="inline-block w-2 h-2 rounded-full bg-neon motion-safe:animate-pulse" />
         {news ? "Editar Noticia" : "Nueva Noticia"}
       </h3>
 
@@ -55,7 +55,7 @@ const NewsForm: React.FC<NewsFormProps> = ({ news, onSave, onCancel }) => {
             required
             value={title}
             onChange={(e) => setTitle(e.target.value)}
-            className="w-full rounded-lg bg-zinc-900/90 border border-zinc-700 px-4 py-2 text-sm text-white focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 outline-none transition"
+            className="w-full rounded-lg bg-zinc-900/90 border border-zinc-700 px-4 py-2 text-sm text-white focus:border-neon focus:ring-1 focus:ring-neon outline-none transition"
             placeholder="Título de la noticia..."
           />
         </div>
@@ -67,7 +67,7 @@ const NewsForm: React.FC<NewsFormProps> = ({ news, onSave, onCancel }) => {
               type="text"
               value={category}
               onChange={(e) => setCategory(e.target.value)}
-              className="w-full rounded-lg bg-zinc-900/90 border border-zinc-700 px-4 py-2 text-sm text-white focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 outline-none transition"
+              className="w-full rounded-lg bg-zinc-900/90 border border-zinc-700 px-4 py-2 text-sm text-white focus:border-neon focus:ring-1 focus:ring-neon outline-none transition"
               placeholder="Ej. Gaming, Hardware..."
             />
           </div>
@@ -77,7 +77,7 @@ const NewsForm: React.FC<NewsFormProps> = ({ news, onSave, onCancel }) => {
               type="url"
               value={imageUrl}
               onChange={(e) => setImageUrl(e.target.value)}
-              className="w-full rounded-lg bg-zinc-900/90 border border-zinc-700 px-4 py-2 text-sm text-white focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 outline-none transition"
+              className="w-full rounded-lg bg-zinc-900/90 border border-zinc-700 px-4 py-2 text-sm text-white focus:border-neon focus:ring-1 focus:ring-neon outline-none transition"
               placeholder="https://..."
             />
           </div>
@@ -89,7 +89,7 @@ const NewsForm: React.FC<NewsFormProps> = ({ news, onSave, onCancel }) => {
             type="text"
             value={description}
             onChange={(e) => setDescription(e.target.value)}
-            className="w-full rounded-lg bg-zinc-900/90 border border-zinc-700 px-4 py-2 text-sm text-white focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 outline-none transition"
+            className="w-full rounded-lg bg-zinc-900/90 border border-zinc-700 px-4 py-2 text-sm text-white focus:border-neon focus:ring-1 focus:ring-neon outline-none transition"
             placeholder="Resumen o bajada..."
           />
         </div>
@@ -100,7 +100,7 @@ const NewsForm: React.FC<NewsFormProps> = ({ news, onSave, onCancel }) => {
             rows={5}
             value={content}
             onChange={(e) => setContent(e.target.value)}
-            className="w-full rounded-lg bg-zinc-900/90 border border-zinc-700 px-4 py-2 text-sm text-white focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 outline-none transition resize-none"
+            className="w-full rounded-lg bg-zinc-900/90 border border-zinc-700 px-4 py-2 text-sm text-white focus:border-neon focus:ring-1 focus:ring-neon outline-none transition resize-none"
             placeholder="Escribe todo el contenido aquí..."
           />
         </div>
@@ -111,7 +111,7 @@ const NewsForm: React.FC<NewsFormProps> = ({ news, onSave, onCancel }) => {
             id="published"
             checked={published}
             onChange={(e) => setPublished(e.target.checked)}
-            className="rounded bg-zinc-900 border-zinc-700 text-emerald-500 focus:ring-emerald-500 h-4 w-4"
+            className="rounded bg-zinc-900 border-zinc-700 text-neon focus:ring-neon h-4 w-4"
           />
           <label htmlFor="published" className="text-sm font-medium text-zinc-300">Publicar inmediatamente</label>
         </div>
@@ -127,7 +127,7 @@ const NewsForm: React.FC<NewsFormProps> = ({ news, onSave, onCancel }) => {
           <button
             type="submit"
             disabled={loading}
-            className="px-6 py-2 rounded-lg text-sm font-bold bg-emerald-500 hover:bg-emerald-400 text-black shadow-[0_0_15px_rgba(16,185,129,0.4)] transition disabled:opacity-50"
+            className="px-6 py-2 rounded-lg text-sm font-bold bg-neon hover:bg-neon-bright text-black shadow-[0_0_15px_rgba(97,255,97,0.4)] transition disabled:opacity-50"
           >
             {loading ? "Guardando..." : "Guardar Noticias"}
           </button>

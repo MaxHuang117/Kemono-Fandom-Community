@@ -25,6 +25,9 @@ interface ModalProps {
 
     currentUserId: string | null;
 
+    // 🔁 Indica si los comentarios están cargando (renderiza el skeleton).
+    loadingComments?: boolean;
+
     selectedUser: UserProfile | null;
 
     /*
@@ -47,9 +50,33 @@ interface ModalProps {
 
 }
 
+/*
+|--------------------------------------------------------------------------
+| Skeleton de comentario
+|--------------------------------------------------------------------------
+| Imita la forma de CommentCard (avatar + líneas de texto) para evitar
+| saltos visuales mientras se cargan los comentarios.
+|--------------------------------------------------------------------------
+*/
+function CommentSkeleton() {
+    return (
+        <div className="flex gap-4 px-8 py-5 border-b border-white/5" aria-hidden="true">
+            {/* Avatar */}
+            <div className="h-10 w-10 shrink-0 rounded-full bg-zinc-800 animate-pulse" />
+            {/* Líneas de texto */}
+            <div className="flex-1 space-y-2">
+                <div className="h-3 w-32 bg-zinc-800 animate-pulse" />
+                <div className="h-3 w-full bg-zinc-900 animate-pulse" />
+                <div className="h-3 w-3/4 bg-zinc-900 animate-pulse" />
+            </div>
+        </div>
+    );
+}
+
 export default function NewsCommentsModal({
     news,
     comments,
+    loadingComments = false,
     currentUserId,
     selectedUser,
     onClose,
@@ -107,8 +134,8 @@ export default function NewsCommentsModal({
                     </div>
 
                     {/* Contador de Comentarios */}
-                    <div className="px-8 py-4 border-b border-white/10 font-semibold text-white">
-                        💬 {comments.length} comentarios
+                    <div className="px-8 py-4 border-b border-white/10 font-semibold text-white" role="status">
+                        💬 {loadingComments ? "…" : comments.length} comentarios
                     </div>
 
                     {/* Caja de Input Fijo */}
@@ -118,7 +145,20 @@ export default function NewsCommentsModal({
 
                     {/* Lista Scrolleable de Comentarios */}
                     <div className="flex-1 overflow-y-auto">
-                        {comments.map((comment) => (
+                        {loadingComments ? (
+                            // 🎞️ Skeleton mientras cargan los comentarios
+                            <>
+                                <CommentSkeleton />
+                                <CommentSkeleton />
+                                <CommentSkeleton />
+                            </>
+                        ) : comments.length === 0 ? (
+                            // 🙂 Estado vacío
+                            <div className="px-8 py-16 text-center" role="status">
+                                <p className="text-xs font-mono uppercase tracking-widest text-zinc-500">Sin comentarios</p>
+                                <p className="mt-2 text-sm text-zinc-500">Sé el primero en comentar.</p>
+                            </div>
+                        ) : comments.map((comment) => (
 
                             <CommentCard
                                 key={comment.id}

@@ -3,10 +3,11 @@ import { motion, AnimatePresence } from "framer-motion";
 import Image from "next/image";
 import { useEffect, useState } from "react";
 import type { UserProfile } from "../home/News/components/lib/types/profile";
+import { esImagenAnimada } from "@/lib/image";
 
 // 🔌 CONEXIÓN AL BACKEND: Importamos las acciones seguras
 import { obtenerPerfilPublicoAction } from "@/actions/publicProfile.action"; 
-import { toggleProfileReputationAction } from "@/app/perfil/actions";
+import { toggleProfileReputationAction, obtenerEstadoReputacionAction } from "@/app/perfil/actions";
 
 // 🧩 COMPONENTES MODULARES: Reutilizamos piezas para mantener el código limpio
 import TierBadge from "@/components/profile/TierBadge"; 
@@ -29,6 +30,7 @@ export default function UserProfileModal({ user, onClose }: Props) {
     const [isLiking, setIsLiking] = useState(false);
     const [localLikes, setLocalLikes] = useState<number>(0);
     const [hasLikedLocal, setHasLikedLocal] = useState(false);
+    const [likeError, setLikeError] = useState<string | null>(null);
 
     // 🔌 FETCH INICIAL: Al abrir el modal, buscamos la info fresca de Supabase
     useEffect(() => {
@@ -38,6 +40,14 @@ export default function UserProfileModal({ user, onClose }: Props) {
             if (response.success && response.data) {
                 setDbData(response.data);
                 setLocalLikes(response.data.likes_count ?? 0); // Sincronizamos likes con la DB
+                
+                // Verificamos si el usuario actual ya dio like a este perfil
+                if (response.data.discord) {
+                    const reputationResponse = await obtenerEstadoReputacionAction(response.data.discord);
+                    if (reputationResponse && !('error' in reputationResponse)) {
+                        setHasLikedLocal(reputationResponse.hasLiked);
+                    }
+                }
             }
         };
         fetchFullProfile();
@@ -57,25 +67,27 @@ export default function UserProfileModal({ user, onClose }: Props) {
     // 3. Evaluamos si tiene permiso (Tier 1+). Si es Free, forzamos texto blanco y anillo gris.
     const isPremium = finalTier >= 1;
     const renderTextClass = isPremium ? `text-transparent bg-clip-text bg-gradient-to-r ${activeStyle.textClass} hover:brightness-125` : "text-white";
-    const renderRingClass = isPremium ? `bg-gradient-to-r ${activeStyle.ringClass} animate-[spin_4s_linear_infinite]` : "from-zinc-800 to-zinc-700";
+    const renderRingClass = isPremium ? `bg-gradient-to-r ${activeStyle.ringClass} motion-safe:animate-[spin_4s_linear_infinite]` : "from-zinc-800 to-zinc-700";
 
     // 🔌 SISTEMA DE REPUTACIÓN (Anti-Sybil)
     const handleToggleLike = async (e: React.MouseEvent) => {
         e.stopPropagation(); // Evita que un clic aquí cierre el modal por accidente
-        if (!user?.id) return;
+        if (!dbData?.discord) return;
         
         setIsLiking(true);
+        setLikeError(null); // Limpiamos errores previos
+        
         // Actualizamos la UI instantáneamente para el usuario
         setLocalLikes(prev => hasLikedLocal ? prev - 1 : prev + 1);
         setHasLikedLocal(!hasLikedLocal);
 
-        // Disparamos la acción segura al backend
-        const res = await toggleProfileReputationAction(user.id);
+        // Disparamos la acción segura al backend usando discord_id (más robusto que profiles.id)
+        const res = await toggleProfileReputationAction(dbData.discord);
         if (res.error) {
             // Si el backend lo bloquea (por ser cuenta nueva, etc), revertimos la UI
             setLocalLikes(prev => hasLikedLocal ? prev + 1 : prev - 1);
             setHasLikedLocal(!hasLikedLocal);
-            alert(res.error);
+            setLikeError(res.error);
         }
         setIsLiking(false);
     };
@@ -96,20 +108,20 @@ export default function UserProfileModal({ user, onClose }: Props) {
                         initial={{ opacity: 0, scale: 0.95, y: 20 }}
                         animate={{ opacity: 1, scale: 1, y: 0 }}
                         exit={{ opacity: 0, scale: 0.95, y: 20 }}
-                        className="fixed left-1/2 top-1/2 z-[101] w-[95%] max-w-lg -translate-x-1/2 -translate-y-1/2 overflow-hidden bg-[#050505] border border-emerald-500/30 shadow-[0_0_50px_rgba(16,185,129,0.15)] font-sans rounded-xl"
+                        className="fixed left-1/2 top-1/2 z-[101] w-[95%] max-w-lg -translate-x-1/2 -translate-y-1/2 overflow-hidden bg-[#050505] border border-neon/30 shadow-[0_0_50px_rgba(97,255,97,0.15)] font-sans rounded-xl"
                     >
                         {/* DECORACIÓN CYBERPUNK: Esquinas */}
-                        <div className="absolute top-0 left-0 w-6 h-6 border-t-2 border-l-2 border-emerald-500 z-20 pointer-events-none rounded-tl-xl" />
-                        <button onClick={onClose} className="absolute top-4 right-4 z-50 p-2 bg-black/70 hover:bg-red-500 text-zinc-300 hover:text-white rounded-full backdrop-blur-md transition-colors border border-white/10 hover:border-red-500">
+                        <div className="absolute top-0 left-0 w-6 h-6 border-t-2 border-l-2 border-neon z-20 pointer-events-none rounded-tl-xl" />
+                        <button onClick={onClose} aria-label="Cerrar perfil" className="absolute top-4 right-4 z-50 p-2 bg-black/70 hover:bg-red-500 text-zinc-300 hover:text-white rounded-full backdrop-blur-md transition-colors border border-white/10 hover:border-red-500">
                             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
                         </button>
 
                         {/* BANNER: Más corto (h-28) porque es solo un "Teaser" */}
                         <div className="relative h-28 sm:h-32 overflow-hidden bg-zinc-950 border-b border-white/10">
                             {finalBanner ? (
-                                <Image src={finalBanner} alt={user.username} fill sizes="(max-width: 768px) 100vw, 600px" className="object-cover opacity-80" priority />
+                                <Image src={finalBanner} alt={user.username} fill sizes="(max-width: 768px) 100vw, 600px" unoptimized={esImagenAnimada(finalBanner)} className="object-cover opacity-80" />
                             ) : (
-                                <div className="h-full w-full flex items-center justify-center bg-[url('/grid-pattern.svg')] opacity-20"><span className="text-zinc-600 font-mono text-[10px] uppercase tracking-widest">NO_ASSET</span></div>
+                                <div className="h-full w-full flex items-center justify-center bg-[url('/grid-pattern.svg')] opacity-20"><span className="text-zinc-500 font-mono text-[10px] uppercase tracking-widest">Sin imagen</span></div>
                             )}
                             <div className="absolute inset-0 bg-gradient-to-t from-[#050505] via-transparent to-transparent" />
                         </div>
@@ -121,8 +133,8 @@ export default function UserProfileModal({ user, onClose }: Props) {
                                 <div className="relative group/avatar shrink-0 mb-3">
                                     {/* Anillo de color (Calculado en la variable renderRingClass) */}
                                     <div className={`absolute inset-[-4px] rounded-full ${renderRingClass} opacity-60 group-hover/avatar:opacity-100 transition-opacity duration-500`} />
-                                    <div className="relative h-24 w-24 rounded-full border-[4px] border-[#050505] bg-[#0a0a0a] shadow-[0_0_20px_rgba(16,185,129,0.2)] overflow-hidden">
-                                        <Image src={user.avatar} alt={user.username} fill sizes="96px" className="object-cover" priority />
+                                    <div className="relative h-24 w-24 rounded-full border-[4px] border-[#050505] bg-[#0a0a0a] shadow-[0_0_20px_rgba(97,255,97,0.2)] overflow-hidden">
+                                        <Image src={user.avatar} alt={user.username} fill sizes="96px" unoptimized={esImagenAnimada(user.avatar)} className="object-cover" />
                                         {/* Hover Glow blanco: Solo se inyecta si es Premium */}
                                         {isPremium && (
                                             <div className="absolute inset-0 w-full h-[200%] bg-gradient-to-b from-transparent via-white/30 to-transparent -translate-y-full group-hover/avatar:translate-y-full transition-transform duration-700 ease-in-out pointer-events-none" />
@@ -139,11 +151,26 @@ export default function UserProfileModal({ user, onClose }: Props) {
                                     <div className="flex flex-wrap items-center justify-center gap-2 mt-2">
                                         <TierBadge tier={finalTier} />
                                         {/* BOTÓN DE LIKE: Dispara la función handleToggleLike */}
-                                        <button onClick={handleToggleLike} disabled={isLiking} className={`group flex items-center gap-1.5 px-2.5 py-0.5 rounded border transition-all duration-300 shadow-[0_0_10px_rgba(239,68,68,0.1)] ${hasLikedLocal ? "bg-red-500/10 border-red-500/50 text-red-400" : "bg-[#0a0a0a] border-white/10 hover:border-red-500/30 text-zinc-400 hover:text-red-400"}`} title="Dar Reputación">
+                                        <button 
+                                            onClick={handleToggleLike} 
+                                            disabled={isLiking}
+                                            aria-pressed={hasLikedLocal}
+                                            aria-disabled={isLiking}
+                                            aria-label={hasLikedLocal ? "Quitar reputación" : "Dar reputación"}
+                                            className={`group flex items-center gap-1.5 px-2.5 py-0.5 rounded border transition-all duration-300 shadow-[0_0_10px_rgba(239,68,68,0.1)] ${hasLikedLocal ? "bg-red-500/10 border-red-500/50 text-red-400" : "bg-[#0a0a0a] border-white/10 hover:border-red-500/30 text-zinc-400 hover:text-red-400"} ${isLiking ? "opacity-50 cursor-not-allowed" : ""}`} 
+                                            title={hasLikedLocal ? "Quitar reputación" : "Dar reputación"}
+                                        >
                                             <svg className={`w-3 h-3 transition-transform duration-300 ${hasLikedLocal ? "fill-red-400 scale-110" : "fill-transparent stroke-current stroke-2 group-hover:scale-110"}`} viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12z" /></svg>
                                             <span className="text-[10px] font-mono font-bold tracking-wider">{localLikes}</span>
                                         </button>
                                     </div>
+                                    
+                                    {/* FEEDBACK INLINE DE ERRORES */}
+                                    {likeError && (
+                                        <div className="w-full mt-2 px-3 py-2 bg-red-500/10 border border-red-500/30 rounded text-[10px] font-mono text-red-400 text-center" role="alert">
+                                            {likeError}
+                                        </div>
+                                    )}
                                 </div>
                             </div>
 
@@ -157,7 +184,7 @@ export default function UserProfileModal({ user, onClose }: Props) {
                                 <Link 
                                     href={`/u/${user.discord}`} 
                                     onClick={onClose} 
-                                    className="w-full group relative flex items-center justify-center gap-2 px-6 py-3 bg-emerald-500/10 text-emerald-400 font-mono text-xs font-bold uppercase tracking-widest border border-emerald-500/30 hover:bg-emerald-500 hover:text-black transition-all duration-300 rounded overflow-hidden"
+                                    className="w-full group relative flex items-center justify-center gap-2 px-6 py-3 bg-neon/10 text-neon-bright font-mono text-xs font-bold uppercase tracking-widest border border-neon/30 hover:bg-neon hover:text-black transition-all duration-300 rounded overflow-hidden"
                                 >
                                     {/* Efecto de luz pasando al hacer hover en el botón */}
                                     <div className="absolute inset-0 w-full h-full bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-500" />

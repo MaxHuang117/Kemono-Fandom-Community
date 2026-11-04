@@ -55,7 +55,7 @@ export default function NetworkCard({ config, value, onChange, onRemove }: Props
                         <button 
                             type="button" 
                             onClick={onRemove} 
-                            className="text-zinc-600 hover:text-red-400 transition-colors bg-zinc-900/50 hover:bg-red-950 rounded-full p-1 ml-1" 
+                            className="text-zinc-500 hover:text-red-400 transition-colors bg-zinc-900/50 hover:bg-red-950 rounded-full p-1 ml-1" 
                             title="Quitar esta red"
                         >
                             <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -74,7 +74,7 @@ export default function NetworkCard({ config, value, onChange, onRemove }: Props
                     onBlur={() => setIsFocused(false)}
                     onChange={(e) => onChange(e.target.value)}
                     placeholder={config.placeholder}
-                    className="w-full bg-transparent text-sm text-white placeholder:text-zinc-600 outline-none font-sans"
+                    className="w-full bg-transparent text-sm text-white placeholder:text-zinc-500 outline-none font-sans"
                 />
             </div>
         </div>

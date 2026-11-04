@@ -70,21 +70,23 @@ export default function Tier2Accordion({ tierLevel, socialLinks = {}, slides = [
         <div className="mt-4 font-sans relative">
             <button
                 onClick={() => tierLevel >= 2 && setIsOpen(!isOpen)}
+                disabled={tierLevel < 2}
+                aria-disabled={tierLevel < 2}
                 className={`w-full group relative flex justify-between items-center py-4 px-5 overflow-hidden transition-all duration-500 ${
                     tierLevel >= 2
-                        ? "bg-gradient-to-r from-[#0a0a0a] to-[#050505] border-y border-r border-white/5 border-l-2 border-l-emerald-500/70 hover:border-l-emerald-400 hover:bg-[#0c0c0c] cursor-pointer shadow-lg"
+                        ? "bg-gradient-to-r from-[#0a0a0a] to-[#050505] border-y border-r border-white/5 border-l-2 border-l-neon/70 hover:border-l-neon-bright hover:bg-[#0c0c0c] cursor-pointer shadow-lg"
                         : "bg-black border border-dashed border-zinc-900 cursor-not-allowed opacity-50"
                 }`}
             >
                 {/* Resplandor interno sutil en Hover */}
-                <div className="absolute inset-0 bg-gradient-to-r from-emerald-500/0 via-emerald-500/0 to-emerald-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none" />
+                <div className="absolute inset-0 bg-gradient-to-r from-neon/0 via-neon/0 to-neon/5 opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none" />
 
                 <div className="flex items-center gap-5 relative z-10">
                     <div className="flex items-center gap-3">
-                        <span className={`font-mono text-[10px] tracking-widest ${tierLevel >= 2 ? "text-emerald-500" : "text-zinc-600"}`}>
-                            MOD_02
+                        <span className={`font-mono text-[10px] tracking-widest ${tierLevel >= 2 ? "text-neon" : "text-zinc-500"}`}>
+                            Tarjetas
                         </span>
-                        <h4 className={`text-xs font-mono uppercase tracking-widest transition-colors ${tierLevel >= 2 ? "text-white group-hover:text-emerald-100" : "text-zinc-600"}`}>
+                        <h4 className={`text-xs font-mono uppercase tracking-widest transition-colors ${tierLevel >= 2 ? "text-white group-hover:text-neon-bright" : "text-zinc-500"}`}>
                             Tarjetas VIP
                         </h4>
                     </div>
@@ -98,7 +100,7 @@ export default function Tier2Accordion({ tierLevel, socialLinks = {}, slides = [
                                         key={i}
                                         className={`h-1.5 w-5 transition-all duration-500 ${
                                             hasSlide
-                                                ? "bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]"
+                                                ? "bg-neon shadow-[0_0_8px_rgba(97,255,97,0.5)]"
                                                 : "bg-zinc-800"
                                         }`}
                                     />
@@ -109,8 +111,8 @@ export default function Tier2Accordion({ tierLevel, socialLinks = {}, slides = [
                 </div>
 
                 <div className="flex items-center gap-3 relative z-10">
-                    <span className={`text-[10px] font-mono uppercase tracking-widest transition-colors ${isOpen ? "text-emerald-400" : "text-zinc-500 group-hover:text-emerald-500/50"}`}>
-                        {tierLevel < 2 ? "[ ACCESS_DENIED ]" : isOpen ? "[ DISCONNECT ]" : "[ CONNECT ]"}
+                    <span className={`text-[10px] font-mono uppercase tracking-widest transition-colors ${isOpen ? "text-neon-bright" : "text-zinc-500 group-hover:text-neon/50"}`}>
+                        {tierLevel < 2 ? "Requiere Tier 2" : isOpen ? "Cerrar" : "Abrir"}
                     </span>
                 </div>
             </button>
@@ -125,7 +127,7 @@ export default function Tier2Accordion({ tierLevel, socialLinks = {}, slides = [
                     >
                         <div className="mt-1 p-6 bg-[#020202] border-x border-b border-white/5 shadow-inner backdrop-blur-sm relative">
                             {/* Línea decorativa superior */}
-                            <div className="absolute top-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-emerald-500/20 to-transparent" />
+                            <div className="absolute top-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-neon/20 to-transparent" />
                             
                             <div className="flex flex-row gap-5 overflow-x-auto pb-2 snap-x snap-mandatory scrollbar-thin scrollbar-thumb-zinc-800 scrollbar-track-transparent">
                                 {availableSlots.map(slotId => (

@@ -3,6 +3,7 @@
 import { useState, useRef } from "react";
 import Image from "next/image";
 import type { CustomSlide, SlideFormat } from "@/types/slides";
+import { esImagenAnimada } from "@/lib/image";
 import { guardarSlideAction, eliminarSlideAction } from "@/actions/tier2.actions"; 
 
 interface Props {
@@ -82,20 +83,20 @@ export default function SlideEditorSlot({ slideId, existingSlide, activeNetworks
     // Vista de "Solo Lectura" (Cuando ya hay un slide guardado y no lo estamos editando)
     if (!isEditing && existingSlide) {
         return (
-            <div className="bg-[#050505] border border-emerald-500/30 p-4 relative group overflow-hidden h-48 flex items-center justify-center">
-                <Image src={existingSlide.image_url} alt={existingSlide.title || "Slide"} fill sizes="300px" className="object-cover opacity-50" />
+            <div className="bg-[#050505] border border-neon/30 p-4 relative group overflow-hidden h-48 flex items-center justify-center">
+                <Image src={existingSlide.image_url} alt={existingSlide.title || "Slide"} fill sizes="300px" unoptimized={esImagenAnimada(existingSlide.image_url)} className="object-cover opacity-50" />
                 <div className="relative z-10 text-center">
                     <h5 className="text-white font-black uppercase tracking-wider text-lg shadow-black drop-shadow-md">{existingSlide.title}</h5>
-                    <p className="text-emerald-400 font-mono text-[10px] mt-1 uppercase">DESTINO: {existingSlide.network_key}</p>
+                    <p className="text-neon-bright font-mono text-[10px] mt-1 uppercase">Enlace: {existingSlide.network_key}</p>
                 </div>
                 
                 {/* BOTONES HOVER: EDITAR Y BORRAR */}
                 <div className="absolute inset-0 bg-black/80 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center gap-3">
-                    <button onClick={() => setIsEditing(true)} disabled={isSaving} className="w-24 py-2 bg-zinc-800 hover:bg-emerald-500 text-white font-mono text-xs transition-colors border border-emerald-500/30">
-                        [ EDITAR ]
+                    <button onClick={() => setIsEditing(true)} disabled={isSaving} className="w-24 py-2 bg-zinc-800 hover:bg-neon text-white font-mono text-xs transition-colors border border-neon/30">
+                        Editar
                     </button>
                     <button onClick={handleDelete} disabled={isSaving} className="w-24 py-2 bg-zinc-900 hover:bg-red-600 text-red-500 hover:text-white font-mono text-xs transition-colors border border-red-900/50">
-                        {isSaving ? "..." : "[ BORRAR ]"}
+                        {isSaving ? "..." : "Borrar"}
                     </button>
                 </div>
             </div>
@@ -105,23 +106,23 @@ export default function SlideEditorSlot({ slideId, existingSlide, activeNetworks
     return (
         <form onSubmit={handleSave} className="bg-[#0a0a0a] border border-zinc-800 p-4 space-y-4">
             <div className="flex justify-between items-center border-b border-white/5 pb-2">
-                <span className="text-xs font-mono text-zinc-400">SLOT_{slideId}</span>
+                <span className="text-xs font-mono text-zinc-400">Tarjeta {slideId}</span>
                 {existingSlide && (
-                    <button type="button" onClick={() => setIsEditing(false)} className="text-[10px] text-zinc-500 hover:text-white">[ CANCELAR ]</button>
+                    <button type="button" onClick={() => setIsEditing(false)} className="text-[10px] text-zinc-500 hover:text-white">Cancelar</button>
                 )}
             </div>
 
             <div 
                 onClick={() => fileInputRef.current?.click()}
-                className="h-32 border-2 border-dashed border-zinc-700 hover:border-emerald-500 bg-black flex items-center justify-center cursor-pointer relative overflow-hidden transition-colors group"
+                className="h-32 border-2 border-dashed border-zinc-700 hover:border-neon bg-black flex items-center justify-center cursor-pointer relative overflow-hidden transition-colors group"
             >
                 {previewUrl ? (
                     <>
-                        <Image src={previewUrl} alt="Preview" fill sizes="300px" className="object-cover opacity-60 group-hover:opacity-40 transition-opacity" />
-                        <span className="absolute inset-0 flex items-center justify-center text-[10px] font-mono text-emerald-400 opacity-0 group-hover:opacity-100 bg-black/50 transition-all">CAMBIAR IMAGEN</span>
+                        <Image src={previewUrl} alt="Preview" fill sizes="300px" unoptimized={esImagenAnimada(previewUrl)} className="object-cover opacity-60 group-hover:opacity-40 transition-opacity" />
+                        <span className="absolute inset-0 flex items-center justify-center text-[10px] font-mono text-neon-bright opacity-0 group-hover:opacity-100 bg-black/50 transition-all">Cambiar imagen</span>
                     </>
                 ) : (
-                    <span className="text-[10px] font-mono text-zinc-500 text-center px-4">+ CLICK PARA SUBIR IMAGEN<br/>(Máx 2MB | JPG/PNG)</span>
+                    <span className="text-[10px] font-mono text-zinc-500 text-center px-4">Haz clic para subir una imagen<br/>(máx. 2 MB · JPG/PNG)</span>
                 )}
                 <input type="file" ref={fileInputRef} onChange={handleImageChange} accept="image/jpeg, image/png, image/webp" className="hidden" />
             </div>
@@ -129,16 +130,16 @@ export default function SlideEditorSlot({ slideId, existingSlide, activeNetworks
             <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-1">
                     <label className="text-[10px] font-mono text-zinc-500">FORMATO</label>
-                    <select value={format} onChange={(e) => setFormat(e.target.value as SlideFormat)} className="w-full bg-zinc-900 border border-zinc-800 text-xs text-white p-2 outline-none focus:border-emerald-500">
+                    <select value={format} onChange={(e) => setFormat(e.target.value as SlideFormat)} className="w-full bg-zinc-900 border border-zinc-800 text-xs text-white p-2 outline-none focus:border-neon">
                         <option value="A">FORMATO A (Cinematográfico)</option>
                         <option value="B">FORMATO B (Informativo)</option>
                     </select>
                 </div>
 
                 <div className="space-y-1">
-                    <label className="text-[10px] font-mono text-zinc-500">REDIRECCIÓN (Tus Redes)</label>
-                    <select value={networkKey} onChange={(e) => setNetworkKey(e.target.value)} className="w-full bg-zinc-900 border border-zinc-800 text-xs text-white p-2 outline-none uppercase focus:border-emerald-500" required>
-                        <option value="">-- SELECCIONAR --</option>
+                    <label className="text-[10px] font-mono text-zinc-500">Redirección</label>
+                    <select value={networkKey} onChange={(e) => setNetworkKey(e.target.value)} className="w-full bg-zinc-900 border border-zinc-800 text-xs text-white p-2 outline-none uppercase focus:border-neon" required>
+                        <option value="">Seleccionar</option>
                         {activeNetworks.map(net => (
                             <option key={net.key} value={net.key}>{net.label}</option>
                         ))}
@@ -149,16 +150,16 @@ export default function SlideEditorSlot({ slideId, existingSlide, activeNetworks
             {/* 👇 INPUT TÍTULO CON CONTADOR 👇 */}
             <div className="space-y-1 relative">
                 <label className="text-[10px] font-mono text-zinc-500 flex justify-between items-end">
-                    <span>TÍTULO</span>
-                    <span className={`${title.length >= 20 ? "text-red-400" : "text-zinc-600"} transition-colors`}>{title.length}/20</span>
+                    <span>Título</span>
+                    <span className={`${title.length >= 20 ? "text-red-400" : "text-zinc-500"} transition-colors`}>{title.length}/20</span>
                 </label>
                 <input 
                     value={title} 
                     onChange={(e) => setTitle(e.target.value)} 
                     maxLength={20} 
                     required 
-                    placeholder="EJ: ¡NUEVO VIDEO!" 
-                    className="w-full bg-zinc-900 border-b border-zinc-800 focus:border-emerald-500 p-2 text-xs text-white outline-none transition-colors" 
+                    placeholder="Ej: ¡Nuevo video!" 
+                    className="w-full bg-zinc-900 border-b border-zinc-800 focus:border-neon p-2 text-xs text-white outline-none transition-colors" 
                 />
             </div>
 
@@ -166,21 +167,21 @@ export default function SlideEditorSlot({ slideId, existingSlide, activeNetworks
             {format === "B" && (
                 <div className="space-y-1 relative">
                     <label className="text-[10px] font-mono text-zinc-500 flex justify-between items-end">
-                        <span>DESCRIPCIÓN</span>
-                        <span className={`${description.length >= 30 ? "text-red-400" : "text-zinc-600"} transition-colors`}>{description.length}/30</span>
+                        <span>Descripción</span>
+                        <span className={`${description.length >= 30 ? "text-red-400" : "text-zinc-500"} transition-colors`}>{description.length}/30</span>
                     </label>
                     <input 
                         value={description} 
                         onChange={(e) => setDescription(e.target.value)} 
                         maxLength={30} 
                         placeholder="Descripción de max 30 letras..." 
-                        className="w-full bg-zinc-900 border-b border-zinc-800 focus:border-emerald-500 p-2 text-xs text-white outline-none transition-colors" 
+                        className="w-full bg-zinc-900 border-b border-zinc-800 focus:border-neon p-2 text-xs text-white outline-none transition-colors" 
                     />
                 </div>
             )}
 
-            <button disabled={isSaving} type="submit" className="w-full py-2 bg-emerald-500/10 hover:bg-emerald-500 text-emerald-500 hover:text-black font-black text-[10px] uppercase tracking-widest transition-colors border border-emerald-500/50 mt-4">
-                {isSaving ? "PROCESANDO..." : "GUARDAR SLIDE"}
+            <button disabled={isSaving} type="submit" className="w-full py-2 bg-neon/10 hover:bg-neon text-neon hover:text-black font-black text-[10px] uppercase tracking-widest transition-colors border border-neon/50 mt-4">
+                {isSaving ? "Guardando..." : "Guardar tarjeta"}
             </button>
         </form>
     );

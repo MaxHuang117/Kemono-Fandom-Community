@@ -678,20 +678,101 @@ export async function guardarCosmeticosVIPAction(styleId: string) {
 | Sistema de Reputación: Dar o Quitar Like al Perfil (Escudo Anti-Sybil)
 |--------------------------------------------------------------------------
 */
-export async function toggleProfileReputationAction(receiverId: string) {
+
+/**
+ * Helper para resolver perfil por discord_id o discord_username.
+ * Similar al patrón de obtenerPerfilPublicoAction.
+ */
+async function resolverPerfilPorSelector(selector: string): Promise<{ id: string } | null> {
+    // Si es snowflake numérico (17-20 dígitos) → buscar por discord_id
+    const SNOWFLAKE_PATTERN = /^[0-9]{1,20}$/;
+    
+    if (SNOWFLAKE_PATTERN.test(selector)) {
+        const { data } = await supabaseAdmin
+            .from("profiles")
+            .select("id")
+            .eq("discord_id", selector)
+            .maybeSingle();
+        return data;
+    }
+    
+    // Si es username → buscar por discord_username
+    const USERNAME_PATTERN = /^[a-z0-9._-]{1,32}$/i;
+    if (USERNAME_PATTERN.test(selector)) {
+        const { data } = await supabaseAdmin
+            .from("profiles")
+            .select("id")
+            .eq("discord_username", selector)
+            .maybeSingle();
+        return data;
+    }
+    
+    return null;
+}
+
+/**
+ * Verifica si el usuario actual ya dio like a un perfil específico.
+ * Acepta discord_id o discord_username como selector.
+ */
+export async function obtenerEstadoReputacionAction(receiverSelector: string): Promise<{ hasLiked: boolean } | { error: string }> {
+    const session = await getServerSession(authOptions);
+    if (!session?.user?.discordId) {
+        return { hasLiked: false };
+    }
+
+    if (typeof receiverSelector !== "string" || receiverSelector.length === 0 || receiverSelector.length > 64) {
+        return { error: "Perfil de destino no válido." };
+    }
+
+    // Resolver giver (usuario actual)
+    const { data: giverProfile, error: giverError } = await supabaseAdmin
+        .from("profiles")
+        .select("id")
+        .eq("discord_id", session.user.discordId)
+        .maybeSingle();
+
+    if (giverError || !giverProfile) {
+        return { error: "Perfil de origen no encontrado." };
+    }
+
+    // Resolver receiver (perfil objetivo)
+    const receiverProfile = await resolverPerfilPorSelector(receiverSelector);
+    if (!receiverProfile) {
+        return { error: "Perfil de destino no encontrado." };
+    }
+
+    // Verificar si existe el like
+    const { data: likeExists, error: likeError } = await supabaseAdmin
+        .from("profile_likes")
+        .select("id")
+        .eq("giver_id", giverProfile.id)
+        .eq("receiver_id", receiverProfile.id)
+        .maybeSingle();
+
+    if (likeError) {
+        console.error("Error verificando estado de reputación:", likeError);
+        return { error: "Error al verificar el estado." };
+    }
+
+    return { hasLiked: !!likeExists };
+}
+
+/**
+ * Toggle de reputación (like/unlike) para un perfil.
+ * Acepta discord_id o discord_username como selector (más robusto que solo profiles.id).
+ */
+export async function toggleProfileReputationAction(receiverSelector: string) {
     const session = await getServerSession(authOptions);
     if (!session?.user?.discordId) return { error: "Debes iniciar sesión para dar reputación." };
 
     const discordId = session.user.discordId;
 
-    /* FASE2-10: `receiverId` es un selector no confiable del cliente (proviene de `comments.user_id`). */
-    if (typeof receiverId !== "string" || receiverId.length === 0 || receiverId.length > 64) {
+    /* Selector flexible: puede ser discord_id (snowflake) o discord_username. */
+    if (typeof receiverSelector !== "string" || receiverSelector.length === 0 || receiverSelector.length > 64) {
         return { error: "Perfil de destino no válido." };
     }
 
     // 🛡️ ESCUDO ANTI-SYBIL + resolución de identidad.
-    // FASE2-10: `giver_id` y `receiver_id` referencian `profiles.id`; se resuelve por `discord_id`
-    // y NO se asume `id === discord_id`.
     const { data: giverProfile, error: giverError } = await supabaseAdmin
         .from("profiles")
         .select("id, tier_level, created_at")
@@ -700,14 +781,9 @@ export async function toggleProfileReputationAction(receiverId: string) {
 
     if (giverError || !giverProfile) return { error: "Perfil de origen no encontrado." };
 
-    // Resolver el receptor para obtener su `profiles.id` real y validar que existe.
-    const { data: receiverProfile, error: receiverError } = await supabaseAdmin
-        .from("profiles")
-        .select("id")
-        .eq("id", receiverId)
-        .maybeSingle();
-
-    if (receiverError || !receiverProfile) return { error: "Perfil de destino no encontrado." };
+    // Resolver el receptor de forma robusta (acepta discord_id o username)
+    const receiverProfile = await resolverPerfilPorSelector(receiverSelector);
+    if (!receiverProfile) return { error: "Perfil de destino no encontrado." };
 
     const giverProfileId = giverProfile.id;
     const receiverProfileId = receiverProfile.id;

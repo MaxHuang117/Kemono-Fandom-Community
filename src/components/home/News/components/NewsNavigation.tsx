@@ -36,7 +36,7 @@ export default function NewsNavigation({
                 text-sm
                 text-white
                 transition
-                hover:border-green-500
+                hover:border-neon
                 active:scale-95
             "
         >

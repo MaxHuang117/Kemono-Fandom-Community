@@ -50,7 +50,7 @@ export default function CommentInput({ newsId, onCommentPosted }: Props) {
             <div className="relative overflow-hidden rounded-2xl border border-white/5 bg-white/[0.02] p-1 text-center backdrop-blur-sm">
                 {/* Decoración de fondo difuminada */}
                 <div className="absolute -left-10 -top-10 h-32 w-32 rounded-full bg-[#5865F2]/10 blur-3xl pointer-events-none" />
-                <div className="absolute -right-10 -bottom-10 h-32 w-32 rounded-full bg-green-500/10 blur-3xl pointer-events-none" />
+                <div className="absolute -right-10 -bottom-10 h-32 w-32 rounded-full bg-neon/10 blur-3xl pointer-events-none" />
 
                 <div className="relative z-10 max-w-sm mx-auto space-y-4">
                     <div className="text-2xl">💬</div>

@@ -36,8 +36,8 @@ export default function PerfilPage() {
         return (
             <div className="max-w-4xl mx-auto px-6 py-12 space-y-8 font-sans">
                 <div className="space-y-6">
-                    <div className="flex justify-between items-end border-b border-emerald-500/10 pb-3">
-                        <div className="border-l-4 border-emerald-500/30 pl-4 space-y-2">
+                    <div className="flex justify-between items-end border-b border-neon/10 pb-3">
+                        <div className="border-l-4 border-neon/30 pl-4 space-y-2">
                             <div className="h-6 w-48 bg-zinc-900 animate-pulse" />
                             <div className="h-3 w-32 bg-[#0a0a0a] animate-pulse" />
                         </div>
@@ -45,10 +45,10 @@ export default function PerfilPage() {
                     <div className="bg-[#050505] border border-white/5 h-96 shadow-[0_0_40px_rgba(0,0,0,0.8)]">
                         <div className="h-56 bg-zinc-900/50 w-full animate-pulse" />
                         <div className="px-8 relative -mt-16">
-                            <div className="h-32 w-32 bg-zinc-900 border-2 border-emerald-500/20 rounded-full animate-pulse" />
+                            <div className="h-32 w-32 bg-zinc-900 border-2 border-neon/20 rounded-full animate-pulse" />
                             <div className="mt-4 space-y-3">
                                 <div className="h-8 w-64 bg-zinc-900 animate-pulse" />
-                                <div className="h-4 w-24 bg-emerald-900/30 animate-pulse" />
+                                <div className="h-4 w-24 bg-neon-deep/30 animate-pulse" />
                             </div>
                         </div>
                     </div>

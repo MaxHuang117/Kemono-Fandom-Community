@@ -29,11 +29,13 @@ export default function HeroNavigation({
 
       <button
         onClick={previousSlide}
+        type="button"
+        aria-label="Slide anterior"
         className="
           flex
           h-10
           w-10
-          items-relative    
+          items-center
           justify-center
           rounded-full
           border
@@ -43,21 +45,23 @@ export default function HeroNavigation({
           transition-all
           duration-300
 
-          hover:border-green-500
-          hover:bg-green-500/20
+          hover:border-neon
+          hover:bg-neon/20
           hover:scale-110
         "
       >
-        <span className="text-2xl font-bold">‹</span>
+        <span className="text-2xl font-bold" aria-hidden="true">‹</span>
       </button>
 
       <button
         onClick={nextSlide}
+        type="button"
+        aria-label="Slide siguiente"
         className="
           flex
           h-10
           w-10
-          items-relative
+          items-center
           justify-center
           rounded-full
           border
@@ -67,12 +71,12 @@ export default function HeroNavigation({
           transition-all
           duration-300
 
-          hover:border-green-500
-          hover:bg-green-500/20
+          hover:border-neon
+          hover:bg-neon/20
           hover:scale-110
         "
       >
-        <span className="text-2xl font-bold">›</span>
+        <span className="text-2xl font-bold" aria-hidden="true">›</span>
       </button>
 
     </div>

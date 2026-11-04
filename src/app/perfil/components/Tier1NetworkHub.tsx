@@ -65,11 +65,11 @@ export default function Tier1NetworkHub({ socialLinks, onUpdate }: Props) {
             <div className="flex justify-between items-center mb-6 px-2">
                 <div className="flex items-center gap-3">
                     <h4 className="text-[11px] font-mono uppercase tracking-widest text-zinc-400">
-                        &gt; TIER 1: VERIFICACIÓN SOCIAL OAUTH
+                        &gt; Verificación de redes
                     </h4>
                 </div>
                 <span className="text-[9px] font-mono text-zinc-500 border border-zinc-800 px-2 py-1 rounded hidden sm:block">
-                    SISTEMA ANTI-IMPERSONATION
+                    Verificación oficial
                 </span>
             </div>
 
@@ -102,8 +102,8 @@ export default function Tier1NetworkHub({ socialLinks, onUpdate }: Props) {
                                     </div>
                                     <div>
                                         <h5 className="text-xs font-bold text-white uppercase tracking-wider">{net.label}</h5>
-                                        <span className={`text-[9px] font-mono ${isConnected ? 'text-emerald-400' : 'text-zinc-500'}`}>
-                                            {isConnected ? '✓ VERIFICADO' : 'NO CONECTADO'}
+                                        <span className={`text-[9px] font-mono ${isConnected ? 'text-neon-bright' : 'text-zinc-500'}`}>
+                                            {isConnected ? '✓ Verificado' : 'No conectado'}
                                         </span>
                                     </div>
                                 </div>
@@ -117,7 +117,7 @@ export default function Tier1NetworkHub({ socialLinks, onUpdate }: Props) {
                                         disabled={isWorking}
                                         className="text-[10px] font-mono text-red-400 hover:text-red-300 uppercase tracking-widest px-3 py-1.5 border border-red-900/30 hover:border-red-500/50 rounded transition-all disabled:opacity-50"
                                     >
-                                        {isWorking ? '...' : '[ DESCONECTAR ]'}
+                                        {isWorking ? '...' : 'Desconectar'}
                                     </button>
                                 </div>
                             ) : (
@@ -127,7 +127,7 @@ export default function Tier1NetworkHub({ socialLinks, onUpdate }: Props) {
                                     className="w-full mt-2 py-3 rounded-lg bg-[var(--net-color)]/10 hover:bg-[var(--net-color)]/20 text-[var(--net-color)] border border-[var(--net-color)]/30 hover:border-[var(--net-color)] text-[10px] font-black uppercase tracking-widest transition-all flex items-center justify-center gap-2 group disabled:opacity-50"
                                 >
                                     {isWorking ? (
-                                        <span className="animate-pulse">AUTENTICANDO...</span>
+                                        <span className="motion-safe:animate-pulse">AUTENTICANDO...</span>
                                     ) : (
                                         <>
                                             <span>CONECTAR {net.label}</span>

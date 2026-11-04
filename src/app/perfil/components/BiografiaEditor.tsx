@@ -86,7 +86,7 @@ export default function BiografiaEditor({
                     text-gray-300
                     placeholder-gray-700
                     focus:outline-none
-                    focus:border-green-500/50
+                    focus:border-neon/50
                     transition
                 "
 
@@ -104,8 +104,8 @@ export default function BiografiaEditor({
                         w-full
                         sm:w-auto
                         rounded-xl
-                        bg-green-500
-                        hover:bg-green-400
+                        bg-neon
+                        hover:bg-neon-bright
                         disabled:opacity-50
                         text-black
                         font-black

@@ -79,10 +79,10 @@ function AuthCallbackContent() {
                 className="w-full max-w-md bg-zinc-950 border border-zinc-800 p-8 rounded-2xl shadow-2xl relative overflow-hidden"
             >
                 {/* Glow de fondo */}
-                <div className={`absolute -top-20 -right-20 w-40 h-40 rounded-full blur-[80px] ${errorMsg ? 'bg-red-500/20' : 'bg-emerald-500/20'}`} />
+                <div className={`absolute -top-20 -right-20 w-40 h-40 rounded-full blur-[80px] ${errorMsg ? 'bg-red-500/20' : 'bg-neon/20'}`} />
                 
                 <h2 className="text-zinc-300 font-mono text-xs tracking-[0.3em] uppercase mb-8 flex items-center gap-2">
-                    <span className={`w-2 h-2 rounded-full animate-pulse ${errorMsg ? 'bg-red-500' : 'bg-emerald-500'}`} />
+                    <span className={`w-2 h-2 rounded-full motion-safe:animate-pulse ${errorMsg ? 'bg-red-500' : 'bg-neon'}`} />
                     Terminal de Verificación
                 </h2>
 
@@ -95,7 +95,7 @@ function AuthCallbackContent() {
                         
                         <div className="h-1 w-full bg-zinc-900 rounded-full overflow-hidden">
                             <motion.div 
-                                className={`h-full ${errorMsg ? 'bg-red-500' : 'bg-emerald-500'}`}
+                                className={`h-full ${errorMsg ? 'bg-red-500' : 'bg-neon'}`}
                                 initial={{ width: "0%" }}
                                 animate={{ width: `${progress}%` }}
                                 transition={{ duration: 0.5 }}

@@ -91,12 +91,12 @@ export default function CollaboratorModal({
                   className="object-cover"
                 />
               ) : (
-                <div className="h-full bg-gradient-to-r from-green-600 to-green-900" />
+                <div className="h-full bg-gradient-to-r from-neon-deep to-neon-deep" />
               )}
             </div>
 
             {/* Avatar */}
-            <div className="absolute left-10 top-36 h-32 w-32 shrink-0">
+            <div className="absolute left-6 sm:left-10 top-36 h-32 w-32 shrink-0">
               <Image
                 src={collaborator.avatar}
                 alt={collaborator.name}
@@ -114,8 +114,8 @@ export default function CollaboratorModal({
             </div>
 
             {/* Contenido */}
-            <div className="px-10 pb-10 pt-20">
-              <h2 className="text-4xl font-bold">{collaborator.name}</h2>
+            <div className="px-6 sm:px-10 pb-10 pt-20">
+              <h2 className="text-3xl sm:text-4xl font-bold">{collaborator.name}</h2>
 
               <p className="mt-6 text-gray-300 leading-8">
                 {collaborator.bio}

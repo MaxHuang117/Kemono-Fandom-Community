@@ -29,7 +29,7 @@ export default function AdminModuleCard({
                     <h2 className="text-xl font-black uppercase tracking-wider text-zinc-500">
                         {title}
                     </h2>
-                    <p className="mt-2 text-xs font-mono text-zinc-600 leading-relaxed">
+                    <p className="mt-2 text-xs font-mono text-zinc-500 leading-relaxed">
                         {description}
                     </p>
                 </div>
@@ -38,14 +38,14 @@ export default function AdminModuleCard({
     }
 
     return (
-        <article className="group relative bg-[#0a0a0a] border-l-4 border-l-zinc-700 hover:border-l-emerald-500 border-t border-t-white/5 border-r border-r-white/5 border-b border-b-white/5 p-6 transition-all duration-300 flex flex-col justify-between shadow-[0_0_15px_rgba(0,0,0,0.5)] font-sans">
+        <article className="group relative bg-[#0a0a0a] border-l-4 border-l-zinc-700 hover:border-l-neon border-t border-t-white/5 border-r border-r-white/5 border-b border-b-white/5 p-6 transition-all duration-300 flex flex-col justify-between shadow-[0_0_15px_rgba(0,0,0,0.5)] font-sans">
             <div>
                 <div className="flex justify-between items-center mb-4">
-                    <span className="text-[10px] font-mono px-2.5 py-1 bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 uppercase tracking-widest">
+                    <span className="text-[10px] font-mono px-2.5 py-1 bg-neon/10 text-neon-bright border border-neon/20 uppercase tracking-widest">
                         {moduleNumber}
                     </span>
                 </div>
-                <h2 className="text-xl font-black uppercase tracking-wider text-white group-hover:text-emerald-400 transition-colors">
+                <h2 className="text-xl font-black uppercase tracking-wider text-white group-hover:text-neon-bright transition-colors">
                     {title}
                 </h2>
                 <p className="mt-2 text-xs font-mono text-zinc-400 leading-relaxed">
@@ -54,7 +54,7 @@ export default function AdminModuleCard({
             </div>
             <Link 
                 href={href} 
-                className="mt-6 w-full text-center py-2.5 bg-emerald-500 hover:bg-emerald-400 text-black font-black text-xs uppercase tracking-[0.2em] transform -skew-x-12 shadow-[0_0_15px_rgba(16,185,129,0.3)] transition-all block"
+                className="mt-6 w-full text-center py-2.5 bg-neon hover:bg-neon-bright text-black font-black text-xs uppercase tracking-[0.2em] transform -skew-x-12 shadow-[0_0_15px_rgba(97,255,97,0.3)] transition-all block"
             >
                 <span className="inline-block transform skew-x-12">{buttonText}</span>
             </Link>

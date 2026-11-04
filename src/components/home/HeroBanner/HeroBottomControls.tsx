@@ -40,14 +40,16 @@ export default function HeroBottomControls({
     <div
       className="
         absolute
-        bottom-10
+        bottom-6
+        sm:bottom-10
         left-1/2
         z-40
 
         flex
         -translate-x-1/2
         items-center
-        gap-8
+        gap-4
+        sm:gap-8
       "
     >
 

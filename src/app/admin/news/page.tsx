@@ -21,12 +21,12 @@ export default async function AdminNewsPage() {
 
     return (
         <main className="min-h-screen bg-black text-white px-6 py-10">
-            <div className="fixed top-0 left-1/2 -translate-x-1/2 w-[800px] h-[300px] bg-emerald-500/10 blur-[140px] pointer-events-none rounded-full" />
+            <div className="fixed top-0 left-1/2 -translate-x-1/2 w-[800px] h-[300px] bg-neon/10 blur-[140px] pointer-events-none rounded-full" />
             <div className="mx-auto max-w-6xl relative z-10 space-y-6">
                 <div className="flex items-center gap-2 text-xs font-mono text-zinc-400">
-                    <Link href="/admin" className="hover:text-emerald-400 transition">ADMIN</Link>
+                    <Link href="/admin" className="hover:text-neon-bright transition">ADMIN</Link>
                     <span>/</span>
-                    <span className="text-emerald-400 font-bold">NOTICIAS</span>
+                    <span className="text-neon-bright font-bold">NOTICIAS</span>
                 </div>
                 
                 <NewsModalClient />

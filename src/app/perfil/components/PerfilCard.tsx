@@ -2,6 +2,7 @@
 import Image from "next/image";
 import { useState, useRef } from "react";
 import { subirBannerAction } from "../actions"; 
+import { esImagenAnimada } from "@/lib/image";
 import Tier1NetworkHub from "./Tier1NetworkHub"; 
 import Tier2Accordion from "@/components/profile/Tier2Accordion"; 
 import type { CustomSlide } from "@/types/slides";
@@ -37,13 +38,13 @@ export default function PerfilCard({
     
     const isPremium = tierLevel >= 1;
     const renderTextClass = isPremium ? `text-transparent bg-clip-text bg-gradient-to-r ${activeStyle.textClass} hover:brightness-125` : "text-white";
-    const renderRingClass = isPremium ? `bg-gradient-to-r ${activeStyle.ringClass} animate-[spin_4s_linear_infinite]` : "from-zinc-800 to-zinc-700";
+    const renderRingClass = isPremium ? `bg-gradient-to-r ${activeStyle.ringClass} motion-safe:animate-[spin_4s_linear_infinite]` : "from-zinc-800 to-zinc-700";
 
     const getTierBadge = () => {
         switch(tierLevel) {
             case 3: return <span className="bg-[#0a0a0a] text-purple-400 border border-purple-500/30 px-2.5 py-1 rounded text-[9px] tracking-widest uppercase shadow-[0_0_15px_rgba(168,85,247,0.2)]">TIER 3 : SPONSOR</span>;
             case 2: return <span className="bg-[#0a0a0a] text-blue-400 border border-blue-500/30 px-2.5 py-1 rounded text-[9px] tracking-widest uppercase shadow-[0_0_15px_rgba(59,130,246,0.2)]">TIER 2 : VIP</span>;
-            case 1: return <span className="bg-[#0a0a0a] text-emerald-400 border border-emerald-500/30 px-2.5 py-1 rounded text-[9px] tracking-widest uppercase shadow-[0_0_15px_rgba(16,185,129,0.2)]">TIER 1 : SUPPORTER</span>;
+            case 1: return <span className="bg-[#0a0a0a] text-neon-bright border border-neon/30 px-2.5 py-1 rounded text-[9px] tracking-widest uppercase shadow-[0_0_15px_rgba(97,255,97,0.2)]">TIER 1 : SUPPORTER</span>;
             default: return <span className="bg-[#0a0a0a] text-zinc-400 border border-zinc-700 px-2.5 py-1 rounded text-[9px] tracking-widest uppercase">FREE TIER</span>;
         }
     };
@@ -74,33 +75,33 @@ export default function PerfilCard({
     return (
         <div className="space-y-6 font-sans">
             {/* Header del Sistema omitido para brevedad... */}
-            <div className="flex justify-between items-end border-b border-emerald-500/20 pb-3">
-                <div className="border-l-4 border-emerald-500 pl-4">
-                    <h1 className="text-2xl font-black uppercase tracking-wider text-white">Consola_Nodo</h1>
+            <div className="flex justify-between items-end border-b border-neon/20 pb-3">
+                <div className="border-l-4 border-neon pl-4">
+                    <h1 className="text-2xl font-black uppercase tracking-wider text-white">Mi Perfil</h1>
                     <div className="flex items-center gap-2 text-xs text-zinc-500 mt-0.5 font-mono tracking-widest">
-                        <button onClick={handleCopyId} className="hover:text-emerald-400 transition-colors flex items-center gap-1.5 group cursor-pointer">
+                        <button onClick={handleCopyId} className="hover:text-neon-bright transition-colors flex items-center gap-1.5 group cursor-pointer">
                             ID: {discordId || "unknown_node"}
                             <span className="opacity-0 group-hover:opacity-100 transition-opacity">
-                                {copied ? <span className="text-emerald-400 font-bold">[ COPIADO ]</span> : <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" /></svg>}
+                                {copied ? <span className="text-neon-bright font-bold">Copiado</span> : <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" /></svg>}
                             </span>
                         </button>
                     </div>
                 </div>
-                <button onClick={onSignOut} className="text-[10px] uppercase font-mono tracking-widest text-zinc-500 hover:text-red-400 border border-transparent hover:border-red-500/30 bg-transparent hover:bg-red-500/10 px-4 py-2 transition-all rounded">[ DISCONNECT ]</button>
+                <button onClick={onSignOut} className="text-[10px] uppercase font-mono tracking-widest text-zinc-500 hover:text-red-400 border border-transparent hover:border-red-500/30 bg-transparent hover:bg-red-500/10 px-4 py-2 transition-all rounded">Cerrar sesión</button>
             </div>
 
             <div className="overflow-hidden bg-[#050505] border border-white/10 shadow-[0_0_40px_rgba(0,0,0,0.8)] rounded-xl">
                 <div className="group h-56 w-full relative overflow-hidden bg-zinc-950 flex items-center justify-center">
                     {banner ? (
-                        <Image src={banner} alt="Banner" fill priority sizes="(max-width: 896px) 100vw, 896px" className="object-cover opacity-60 group-hover:opacity-80 transition-opacity duration-500" />
+                        <Image src={banner} alt="Banner" fill priority sizes="(max-width: 896px) 100vw, 896px" unoptimized={esImagenAnimada(banner)} className="object-cover opacity-60 group-hover:opacity-80 transition-opacity duration-500" />
                     ) : (
-                        <div className="text-zinc-700 font-mono text-xs tracking-widest uppercase">NO_ASSET_LOADED</div>
+                        <div className="text-zinc-700 font-mono text-xs tracking-widest uppercase">Sin imagen de portada</div>
                     )}
                     <div className="absolute bottom-0 inset-x-0 h-28 bg-gradient-to-t from-[#050505] to-transparent pointer-events-none z-10" />
                     {tierLevel >= 1 && (
                         <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col items-center justify-center backdrop-blur-sm z-20">
                             <input type="file" accept="image/*" ref={fileInputRef} onChange={handleBannerUpload} className="hidden" />
-                            <button onClick={() => fileInputRef.current?.click()} disabled={isUploading} className="px-6 py-2 bg-black/50 text-emerald-400 font-mono text-xs uppercase tracking-widest border border-emerald-500/50 hover:bg-emerald-500 hover:text-black transition-colors rounded">
+                            <button onClick={() => fileInputRef.current?.click()} disabled={isUploading} className="px-6 py-2 bg-black/50 text-neon-bright font-mono text-xs uppercase tracking-widest border border-neon/50 hover:bg-neon hover:text-black transition-colors rounded">
                                 {isUploading ? "UPLOADING..." : "[ UPLOAD_BANNER 1200x400 ]"}
                             </button>
                         </div>
@@ -114,7 +115,7 @@ export default function PerfilCard({
                         <div className="relative group/avatar shrink-0">
                             <div className={`absolute inset-[-4px] rounded-full ${renderRingClass} opacity-60 group-hover/avatar:opacity-100 transition-opacity duration-500`} />
                             <div className="relative h-32 w-32 rounded-full border-4 border-[#050505] bg-[#0a0a0a] overflow-hidden">
-                                <Image src={imagen} fill alt="Perfil" sizes="128px" priority className="object-cover" />
+                                <Image src={imagen} fill alt="Perfil" sizes="128px" priority unoptimized={esImagenAnimada(imagen)} className="object-cover" />
                                 {isPremium && (
                                     <div className="absolute inset-0 w-full h-[200%] bg-gradient-to-b from-transparent via-white/20 to-transparent -translate-y-full group-hover/avatar:translate-y-full transition-transform duration-1000 ease-in-out pointer-events-none" />
                                 )}
@@ -128,8 +129,8 @@ export default function PerfilCard({
                             </h3>
                             
                             <div className="flex flex-wrap justify-center sm:justify-start gap-2.5 items-center">
-                                <div className="inline-flex items-center gap-2 bg-[#0a0a0a] border border-emerald-500/20 px-2.5 py-1 rounded text-[9px] uppercase tracking-widest text-emerald-400 shadow-[0_0_10px_rgba(16,185,129,0.1)]">
-                                    <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse"/>ONLINE
+                                <div className="inline-flex items-center gap-2 bg-[#0a0a0a] border border-neon/20 px-2.5 py-1 rounded text-[9px] uppercase tracking-widest text-neon-bright shadow-[0_0_10px_rgba(97,255,97,0.1)]">
+                                    <span className="h-1.5 w-1.5 rounded-full bg-neon motion-safe:animate-pulse"/>ONLINE
                                 </div>
                                 {getTierBadge()}
                                 <div className="group flex items-center gap-2 px-3 py-1 rounded border transition-all duration-300 shadow-[0_0_10px_rgba(239,68,68,0.1)] bg-[#0a0a0a] border-white/10 hover:border-red-500/30 text-zinc-400 hover:text-red-400 cursor-default" title="Esta es tu reputación actual">

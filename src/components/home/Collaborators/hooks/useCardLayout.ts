@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useIsMobile } from "@/hooks/useIsMobile";
 
 /*
 |--------------------------------------------------------------------------
@@ -12,24 +12,7 @@ import { useEffect, useState } from "react";
 
 export function useCardLayout(total: number) {
 
-  const [mobile, setMobile] = useState(false);
-
-  useEffect(() => {
-
-    function update() {
-
-      // Puedes cambiar 900 por el ancho que prefieras
-      setMobile(window.innerWidth < 900);
-
-    }
-
-    update();
-
-    window.addEventListener("resize", update);
-
-    return () => window.removeEventListener("resize", update);
-
-  }, []);
+  const mobile = useIsMobile(900);
 
   function getX(index: number, expanded: boolean) {
 

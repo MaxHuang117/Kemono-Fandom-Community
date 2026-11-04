@@ -1,6 +1,23 @@
 /* globals.css */
 
+@import "tailwindcss";
+
 @import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Oswald:wght@400;700&display=swap');
+
+/*
+|--------------------------------------------------------------------------
+| Paleta GeForce (acento único)
+|--------------------------------------------------------------------------
+| Un solo verde neón define el acento de la app. Los tokens se generan
+| automáticamente como utilidades de Tailwind v4 (text-neon, bg-neon,
+| border-neon, hover:text-neon, …).
+|--------------------------------------------------------------------------
+*/
+@theme {
+    --color-neon: #61ff61;         /* Verde neón principal (GeForce) */
+    --color-neon-bright: #8dff8d;  /* Variante clara para hover/texto */
+    --color-neon-deep: #3ed63e;    /* Variante profunda para fondos/sólidos */
+}
 
 .font-bebas {
     font-family: 'Bebas Neue', sans-serif;
@@ -10,56 +27,80 @@
     font-family: 'Oswald', sans-serif;
 }
 
-@import "tailwindcss";
-
 :root {
-  /* Paleta definida para estética gaming profesional */
-  --bg-color: #0a0a0a;
-  --text-color: #ededed;
-  --accent-color: #61ff61; /* Verde neón (GeForce/Discord style) */
-  --border-color: #2d2d2d;
+    /* Paleta definida para estética gaming profesional */
+    --bg-color: #0a0a0a;
+    --text-color: #ededed;
+    --accent-color: #61ff61; /* Verde neón (GeForce) */
+    --border-color: #2d2d2d;
 }
 
 /* Base de navegación y scroll suave */
 html {
-  scroll-behavior: smooth;
-  scroll-padding-top: 80px; /* Ajuste para evitar solapamiento con Navbar fija */
-}
-
-section[id]{
-    scroll-margin-top:0px;
+    scroll-behavior: smooth;
+    scroll-padding-top: 80px; /* Evita que las secciones queden bajo la Navbar fija */
 }
 
 /* Estilo de selección de texto */
 ::selection {
-  background-color: var(--accent-color);
-  color: #000;
+    background-color: var(--accent-color);
+    color: #000;
 }
 
 body {
-  background-color: var(--bg-color);
-  color: var(--text-color);
-  font-family: ui-sans-serif, system-ui, -apple-system, sans-serif;
-  min-height: 100vh;
-  margin: 0;
-  overflow-x: hidden;
+    background-color: var(--bg-color);
+    color: var(--text-color);
+    font-family: ui-sans-serif, system-ui, -apple-system, sans-serif;
+    min-height: 100vh;
+    margin: 0;
+    overflow-x: hidden;
+}
+
+/*
+|--------------------------------------------------------------------------
+| Accesibilidad: foco visible consistente para navegación por teclado
+|--------------------------------------------------------------------------
+*/
+:focus-visible {
+    outline: 2px solid var(--accent-color);
+    outline-offset: 2px;
 }
 
 /* Personalización de la barra de desplazamiento (Scrollbar) */
 ::-webkit-scrollbar {
-  width: 10px;
+    width: 10px;
 }
 
 ::-webkit-scrollbar-track {
-  background: #0d0d0d;
+    background: #0d0d0d;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #202020;
-  border-radius: 5px;
-  border: 1px solid #333;
+    background: #202020;
+    border-radius: 5px;
+    border: 1px solid #333;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: var(--accent-color);
+    background: var(--accent-color);
+}
+
+/*
+|--------------------------------------------------------------------------
+| Reduced motion: respeta la preferencia de animación reducida del usuario
+|--------------------------------------------------------------------------
+*/
+@media (prefers-reduced-motion: reduce) {
+    html {
+        scroll-behavior: auto;
+    }
+
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.001ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.001ms !important;
+        scroll-behavior: auto !important;
+    }
 }

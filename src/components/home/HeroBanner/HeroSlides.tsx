@@ -34,7 +34,7 @@ export const heroSlides: HeroSlide[] = [
 
     buttonColor: "bg-[#5865F2]",
     buttonHover: "hover:bg-[#4752C4]",
-    indicatorColor: "bg-green-400",
+    indicatorColor: "bg-neon-bright",
 
     url: "https://discord.gg/Ef86ndx33f",
   },
@@ -51,7 +51,7 @@ export const heroSlides: HeroSlide[] = [
 
     buttonColor: "bg-red-600",
     buttonHover: "hover:bg-red-700",
-    indicatorColor: "bg-green-400",
+    indicatorColor: "bg-neon-bright",
 
     url: "https://www.youtube.com/@maxhuang117",
   },
@@ -68,7 +68,7 @@ export const heroSlides: HeroSlide[] = [
 
     buttonColor: "bg-[#9146FF]",
     buttonHover: "hover:bg-[#7C3AED]",
-    indicatorColor: "bg-green-400",
+    indicatorColor: "bg-neon-bright",
 
     url: "https://www.twitch.tv/maxhuang117",
   },

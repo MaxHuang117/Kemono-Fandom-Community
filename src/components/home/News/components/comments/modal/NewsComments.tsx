@@ -50,14 +50,22 @@ export default function NewsComments({ news, onClose }: Props) {
     const [selectedUser, setSelectedUser] =
         useState<UserProfile | null>(null);
 
+    // 🔁 Estado de carga: alimenta el skeleton del modal mientras llegan los datos.
+    const [loadingComments, setLoadingComments] =
+        useState(true);
+
     async function loadComments() {
 
         if (!news) return;
+
+        setLoadingComments(true);
 
         const comments =
             await obtenerComentarios(news.id);
 
         setComments(comments);
+
+        setLoadingComments(false);
     }
 
     async function handleDeleteComment(
@@ -87,16 +95,13 @@ export default function NewsComments({ news, onClose }: Props) {
 
         async function cargarComentarios() {
 
-            if (!news) return;
+            await loadComments();
 
-            const comments =
-                await obtenerComentarios(news.id);
-
-            setComments(comments);
         }
 
         cargarComentarios();
 
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [news]);
 
     if (!news) return null;
@@ -106,6 +111,7 @@ export default function NewsComments({ news, onClose }: Props) {
             currentUserId={profile?.id ?? null}
             news={news}
             comments={comments}
+            loadingComments={loadingComments}
             selectedUser={selectedUser}
             onClose={onClose}
             onLoadComments={loadComments}

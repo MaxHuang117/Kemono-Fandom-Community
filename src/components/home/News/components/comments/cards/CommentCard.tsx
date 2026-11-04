@@ -92,7 +92,7 @@ export default function CommentCard({
 
                         <button
                             onClick={() => onOpenProfile(comment.profile)}
-                            className="font-bold text-white hover:text-green-400 transition-colors"
+                            className="font-bold text-white hover:text-neon-bright transition-colors"
                         >
                             {comment.profile.username}
                         </button>
@@ -143,7 +143,7 @@ export default function CommentCard({
                                     p-3
                                     text-gray-200
                                     outline-none
-                                    focus:border-green-500
+                                    focus:border-neon
                                     whitespace-pre-wrap
                                     break-words
                                     overflow-hidden
@@ -251,8 +251,8 @@ export default function CommentCard({
                                     rounded-lg
                                     px-4
                                     py-2
-                                    bg-green-600
-                                    hover:bg-green-500
+                                    bg-neon-deep
+                                    hover:bg-neon
                                     disabled:opacity-50
                                     disabled:cursor-not-allowed
                                     "

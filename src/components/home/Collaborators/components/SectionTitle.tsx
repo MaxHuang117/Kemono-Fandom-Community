@@ -26,7 +26,8 @@ export default function SectionTitle({
 
       <h2
         className="
-          text-5xl
+          text-4xl
+          sm:text-5xl
           font-black
           text-white
         "
@@ -40,7 +41,8 @@ export default function SectionTitle({
           mt-3
           max-w-2xl
           text-gray-400
-          text-lg
+          text-base
+          sm:text-lg
         "
       >
         {subtitle}

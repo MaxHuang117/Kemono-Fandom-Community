@@ -26,14 +26,14 @@ export default function ShareProfileButton({ discordUsername, fullWidth = false 
             onClick={copiarEnlace}
             className={`group relative flex items-center justify-center gap-2 px-6 py-2 border transition-all duration-300 rounded font-mono text-xs font-bold uppercase tracking-widest overflow-hidden
                 ${copiado 
-                    ? "bg-emerald-500 text-black border-emerald-500" 
-                    : "bg-white/5 text-zinc-300 border-white/10 hover:border-emerald-500 hover:bg-emerald-500/10 hover:text-emerald-400"
+                    ? "bg-neon text-black border-neon" 
+                    : "bg-white/5 text-zinc-300 border-white/10 hover:border-neon hover:bg-neon/10 hover:text-neon-bright"
                 } ${fullWidth ? 'w-full' : ''}`}
         >
             {copiado ? (
                 <>
                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path></svg>
-                    <span>Nodo Copiado</span>
+                    <span>Enlace copiado</span>
                 </>
             ) : (
                 <>
