@@ -1,6 +1,6 @@
 # Estado del proyecto
 
-**Actualizado:** 1 de noviembre de 2026
+**Actualizado:** 3 de noviembre de 2026
 
 ## Completado (27 de octubre de 2026)
 
@@ -35,6 +35,19 @@
 - **FASE2-10 (código):** `toggleProfileReputationAction` resuelve `giver_id`/`receiver_id` contra `profiles.id` (sin asumir `id === discord_id`) y usa toggle delete-then-insert sin `.match()`. La migración de unicidad (`supabase/migrations/20261101000000_profile_likes_reputation_unique.sql`) se aplicó manualmente en el SQL Editor de Supabase.
 - **Paso 5 (autorización `/admin`):** creado `src/lib/admin.ts` (`requireAdmin`) que resuelve `profiles.is_admin` por `discord_id`; migrados `subsAction.ts`, `newsAction.ts` y `commentsActions.ts`, incluyendo la corrección crítica de `deleteNewsAction` (ahora verifica `is_admin`). Las 4 páginas de `/admin` usan `getServerSession(authOptions)` + `getProfileByDiscordId`. `npm run build` correcto.
 
+## Sesión del 3 de noviembre de 2026 — Fase 2 (seguridad + rediseño GeForce)
+
+**Pasos completados (verificados con `npm run lint` y `npm run build` en verde):**
+
+- **Paso 1 — Migración SQL versionada:** creada `supabase/migrations/20261103000000_profiles_anon_column_grants_and_rls.sql` con GRANTs por columna del rol `anon` (excluye `email`, `is_admin`, `sub_expires_at`, `allow_gifs`, `custom_badge`, `custom_slides`) y políticas RLS (`SELECT` anon para `profiles`/`user_slides`, `news` con `published = true`). Cierra el pendiente de versionar FASE2-01.
+- **Paso 2 — Identidad de comentarios por `discord_id`:** `commentsAction.ts` y `likesAction.ts` migrados a `getServerSession(authOptions)` + `getProfileByDiscordId`. Cierra el ítem del checklist de Fase 2.
+- **Paso 3A — Infra cliente/imágenes:** cliente Supabase singleton (`src/lib/supabase/client.ts`), helper `esImagenAnimada` (`src/lib/image.ts`) y `unoptimized` en GIFs.
+- **Paso 3B — Reputación y redes sociales:** reputación robusta con `obtenerEstadoReputacionAction` + feedback inline; redes sociales con normalización de URLs y `rel="noopener noreferrer"` (`src/lib/social.ts`).
+- **Paso 3C — Skeletons y estados vacíos:** skeletons en News y comentarios; estados vacíos con copy limpio.
+- **Paso 3D — Rediseño GeForce:** unificación del acento a verde neón `#61ff61` (tokens `neon`, `neon-bright`, `neon-deep`), Navbar responsive, Footer global, pass responsive y de accesibilidad (foco visible, `prefers-reduced-motion`, contraste AA, `aria-label`/`disabled` reales). Limpieza de copy técnico visible.
+
+**Pendiente planificado (3D-5 — Optimización):** sustituir `useCurrentProfile.ts` por una server action, lazy loading de imágenes, reducción de CLS y carga diferida del editor de slides. Detalle en `.opencode/plan/PLAN_TODAY.md`.
+
 ## Verificación
 
 - `npm run build`: correcto (1 de noviembre de 2026; FASE2-08, FASE2-10 y autorización `/admin`).
@@ -50,19 +63,19 @@ Progreso parcial: los ítems marcados con `[x]` están implementados y verificad
 - [x] Unificar la resolución de perfiles por `profiles.discord_id` en `guardarBiografiaAction` en lugar de `.eq("id", discordId)`, verificando las filas afectadas (FASE2-03).
 - [x] Implementar validación server-side de entradas en `src/app/perfil/actions.ts`: longitud de biografía (FASE2-04), esquema https y allowlist de dominio para `avatarUrl` (FASE2-05), MIME types, tamaño máximo y nombres aleatorios en `subirBannerAction` (FASE2-06), allowlist de `styleId` (FASE2-07) y allowlist de plataformas y valores en redes sociales (FASE2-09).
 - [x] Ocultar mensajes de error crudos de Supabase en las respuestas devueltas al cliente (FASE2-11).
-- [ ] Revisión de políticas RLS y pruebas de permisos; versionar como migración los GRANTs de FASE2-01 aplicados manualmente en Supabase.
+- [x] Revisión de políticas RLS y pruebas de permisos; versionar como migración los GRANTs de FASE2-01 aplicados manualmente en Supabase.
 - [x] Verificar la vigencia `sub_expires_at` en todas las acciones de tier (FASE2-08). Centralizado en `src/lib/tier.ts` (`hasActiveTier`) y aplicado en `vincularRedSocialAction`, `guardarRedesAction`, `subirBannerAction`, `guardarCosmeticosVIPAction`, `obtenerPerfilCompletoAction` y `tier2.actions.ts`. Limitación: `obtenerPerfilPublicoAction` (cliente anon) no puede leer `sub_expires_at` tras los GRANTs, por lo que el downgrade público sigue basado en `tier_level`.
 - [x] Hacer atómica la operación de likes (FASE2-10) y resolver la semántica de `giver_id`/`receiver_id` (id vs `discord_id`). La acción resuelve ambos contra `profiles.id`, usa toggle delete-then-insert sin `.match()`, y la restricción única se aplicó en Supabase (migración versionada en `supabase/migrations/`).
 - [x] Migrar la autorización de `/admin` a `getServerSession(authOptions)` + `profiles.is_admin` resuelto por `discord_id`; corregido `deleteNewsAction` (ahora verifica `is_admin`). Centralizado en `src/lib/admin.ts` (`requireAdmin`) y aplicado en acciones y páginas de `/admin`.
-- [ ] Migrar la resolución de identidad de los comentarios (`src/components/home/News/components/comments/actions/commentsAction.ts`) de `getServerSession()` + `session.user.email` a `getServerSession(authOptions)` + `discord_id` (mismo patrón ya corregido en `/admin`).
+- [x] Migrar la resolución de identidad de los comentarios (`src/components/home/News/components/comments/actions/commentsAction.ts`) de `getServerSession()` + `session.user.email` a `getServerSession(authOptions)` + `discord_id` (mismo patrón ya corregido en `/admin`).
 
 ## Notas del Desarrollador / Deuda Técnica Detectada
 
 Pendientes de UI y DX identificados durante el desarrollo; no bloquean la seguridad, pero afectan estabilidad y experiencia.
 
-- **[Advertencia Browser]** Evitar múltiples instancias de `GoTrueClient` unificando el cliente client-side (`src/lib/supabase/client.ts`) bajo un patrón singleton.
-- **[UI/Next.js]** Agregar la propiedad `unoptimized` a los componentes `<Image>` que consuman GIF animados desde Supabase Storage (`user_slides`).
-- **[Bug UI]** Corregir la interacción para dar reputación/like en el modal de perfil público (los eventos hover/click no responden).
-- **[UX/Performance]** Implementar Skeleton loaders en la sección de comentarios de noticias.
-- **[UX/Performance]** Agregar pantalla/diseño de carga inicial (`loading.tsx` / Skeleton) en la página principal mientras finaliza la hidratación de datos.
-- **[Bug UI]** Corregir las extensiones de X, YouTube, Twitch y GitHub en el perfil para que funcionen en producción y no redirijan a `localhost:3000`.
+- [x] **[Advertencia Browser]** Evitar múltiples instancias de `GoTrueClient` unificando el cliente client-side (`src/lib/supabase/client.ts`) bajo un patrón singleton. *(resuelto en 3A)*
+- [x] **[UI/Next.js]** Agregar la propiedad `unoptimized` a los componentes `<Image>` que consuman GIF animados desde Supabase Storage (`user_slides`). *(resuelto en 3A)*
+- [x] **[Bug UI]** Corregir la interacción para dar reputación/like en el modal de perfil público (los eventos hover/click no responden). *(resuelto en 3B)*
+- [x] **[UX/Performance]** Implementar Skeleton loaders en la sección de comentarios de noticias. *(resuelto en 3C)*
+- [x] **[UX/Performance]** Agregar pantalla/diseño de carga inicial (`loading.tsx` / Skeleton) en la página principal mientras finaliza la hidratación de datos. *(resuelto en 3C)*
+- [x] **[Bug UI]** Corregir las extensiones de X, YouTube, Twitch y GitHub en el perfil para que funcionen en producción y no redirijan a `localhost:3000`. *(resuelto en 3B, normalización de URLs)*
