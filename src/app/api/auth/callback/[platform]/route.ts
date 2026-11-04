@@ -41,9 +41,7 @@ async function exchangeCode(
         redirect_uri: redirectUri,
     });
 
-    if (provider.usePkce) {
-        body.set("code_verifier", verifier);
-    }
+    body.set("code_verifier", verifier);
 
     const headers: Record<string, string> = {
         "Content-Type": "application/x-www-form-urlencoded",

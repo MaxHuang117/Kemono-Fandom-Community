@@ -21,8 +21,6 @@ export interface SocialProvider {
     tokenUrl: string;
     /** Cómo se envían las credenciales del cliente al intercambiar el token. */
     tokenAuth: "body" | "basic";
-    /** Si el intercambio de token requiere `code_verifier` (PKCE). */
-    usePkce: boolean;
     /** Endpoint para leer el usuario autenticado. */
     userInfoUrl: string;
     /** Headers para la petición de usuario (recibe el access_token). */
@@ -40,7 +38,6 @@ export const SOCIAL_PROVIDERS: Record<string, SocialProvider> = {
         scope: "",
         tokenUrl: "https://id.twitch.tv/oauth2/token",
         tokenAuth: "body",
-        usePkce: false,
         userInfoUrl: "https://api.twitch.tv/helix/users",
         userInfoHeaders: (accessToken) => ({
             Authorization: `Bearer ${accessToken}`,
@@ -59,7 +56,6 @@ export const SOCIAL_PROVIDERS: Record<string, SocialProvider> = {
         scope: "",
         tokenUrl: "https://github.com/login/oauth/access_token",
         tokenAuth: "body",
-        usePkce: false,
         userInfoUrl: "https://api.github.com/user",
         userInfoHeaders: (accessToken) => ({
             Authorization: `Bearer ${accessToken}`,
@@ -75,7 +71,6 @@ export const SOCIAL_PROVIDERS: Record<string, SocialProvider> = {
         scope: "users.read tweet.read",
         tokenUrl: "https://api.twitter.com/2/oauth2/token",
         tokenAuth: "basic",
-        usePkce: true,
         userInfoUrl: "https://api.twitter.com/2/users/me",
         userInfoHeaders: (accessToken) => ({
             Authorization: `Bearer ${accessToken}`,
@@ -90,7 +85,6 @@ export const SOCIAL_PROVIDERS: Record<string, SocialProvider> = {
         scope: "openid profile email https://www.googleapis.com/auth/youtube.readonly",
         tokenUrl: "https://oauth2.googleapis.com/token",
         tokenAuth: "body",
-        usePkce: false,
         userInfoUrl: "https://www.googleapis.com/youtube/v3/channels?part=snippet&mine=true",
         userInfoHeaders: (accessToken) => ({
             Authorization: `Bearer ${accessToken}`,
