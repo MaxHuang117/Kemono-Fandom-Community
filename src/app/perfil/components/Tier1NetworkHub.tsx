@@ -15,6 +15,10 @@ const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
 const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
+// URL canónica para el callback OAuth (configurable en producción).
+// El proveedor se obtiene de la sesión OAuth, no de la URL.
+const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || null;
+
 export default function Tier1NetworkHub({ socialLinks, onUpdate }: Props) {
     const [isProcessing, setIsProcessing] = useState<string | null>(null);
 
@@ -27,11 +31,18 @@ export default function Tier1NetworkHub({ socialLinks, onUpdate }: Props) {
             if (provider === 'youtube') supabaseProvider = 'google';
             if (provider === 'x') supabaseProvider = 'twitter';
 
+            // YouTube requiere el scope de lectura del canal para poder
+            // verificar el @handle real con YouTube Data API.
+            const scopes = provider === 'youtube'
+                ? 'https://www.googleapis.com/auth/youtube.readonly'
+                : undefined;
+
             const { error } = await supabase.auth.signInWithOAuth({
                 provider: supabaseProvider,
                 options: {
-                    // Lo enviaremos a una página especial de carga que crearemos ahora
-                    redirectTo: `${window.location.origin}/auth/callback?provider=${provider}`
+                    // El proveedor real se lee de la sesión OAuth en el callback.
+                    redirectTo: `${siteUrl || window.location.origin}/auth/callback`,
+                    ...(scopes ? { scopes } : {}),
                 }
             });
 
