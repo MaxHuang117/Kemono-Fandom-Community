@@ -94,11 +94,29 @@ NEXTAUTH_URL=http://localhost:3000
 # URL canónica para el callback OAuth de verificación de redes.
 # En producción pon tu dominio real (sin barra final).
 NEXT_PUBLIC_SITE_URL=http://localhost:3000
+
+# OAuth de redes sociales (verificación oficial)
+TWITCH_CLIENT_ID=
+TWITCH_CLIENT_SECRET=
+GITHUB_CLIENT_ID=
+GITHUB_CLIENT_SECRET=
+X_CLIENT_ID=
+X_CLIENT_SECRET=
+GOOGLE_CLIENT_ID=
+GOOGLE_CLIENT_SECRET=
 ```
 
-> **Importante:** `SUPABASE_SERVICE_ROLE_KEY` y `DISCORD_CLIENT_SECRET` son secretos. Nunca los expongas en el cliente, no les agregues el prefijo `NEXT_PUBLIC_` y no los subas al repositorio.
+> **Importante:** `SUPABASE_SERVICE_ROLE_KEY` y los `*_CLIENT_SECRET` son secretos. Nunca los expongas en el cliente, no les agregues el prefijo `NEXT_PUBLIC_` y no los subas al repositorio.
 
-> **Verificación de redes (OAuth):** para el botón «Conectar» de X, Twitch, GitHub y YouTube hay que habilitar esos proveedores en Supabase → Authentication → Providers y configurar `NEXTAUTH_URL` + `NEXT_PUBLIC_SITE_URL` con la URL de producción (y el «Site URL» de Supabase). YouTube además requiere el scope `youtube.readonly` en el cliente OAuth de Google.
+### Verificación de redes (OAuth directo)
+
+El botón «Conectar» de X, Twitch, GitHub y YouTube usa **OAuth 2.0 directo contra cada plataforma** (sin Supabase Auth). Para que funcione:
+
+1. Crea una app OAuth en cada portal (X Developer, Twitch dev, GitHub, Google Cloud) y pega sus credenciales en `.env.local`.
+2. Registra en cada portal el callback URL:
+   `https://tu-dominio.com/api/auth/callback/<plataforma>` (y `http://localhost:3000/...` para desarrollo).
+3. **Google/YouTube:** habilita **YouTube Data API v3** y añade el scope `https://www.googleapis.com/auth/youtube.readonly` al consent screen.
+4. Configura `NEXTAUTH_URL` y `NEXT_PUBLIC_SITE_URL` con tu dominio real en producción.
 
 ---
 
