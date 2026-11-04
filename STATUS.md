@@ -48,10 +48,40 @@
 
 **Pendiente planificado (3D-5 — Optimización):** sustituir `useCurrentProfile.ts` por una server action, lazy loading de imágenes, reducción de CLS y carga diferida del editor de slides. Detalle en `.opencode/plan/PLAN_TODAY.md`.
 
+## Rework de verificación de redes — OAuth directo (4 de noviembre de 2026)
+
+**Problema:** la verificación de redes (X, Twitch, GitHub, YouTube) dependía de **Supabase Auth** (un segundo sistema de identidad aparte de NextAuth/Discord). En producción redirigía siempre a `localhost:3000` por el "Site URL" de Supabase, y X fallaba con `Unsupported provider: provider is not enabled`.
+
+**Solución aplicada:** OAuth 2.0 **directo** contra cada plataforma (Supabase Auth eliminado del flujo). El redirect lo controla 100% la app.
+
+- `src/lib/social-oauth/config.ts` — endpoints, scopes y extractor de handle por red (twitch/github/x/youtube).
+- `src/lib/social-oauth/pkce.ts` — `code_verifier`/`code_challenge` (S256) + `state`.
+- `src/lib/social-oauth/linking.ts` — `vincularRedVerificada` (sesión Discord + allowlist + Tier 1 + escritura a `social_links`).
+- `src/app/api/auth/connect/[platform]/route.ts` y `src/app/api/auth/callback/[platform]/route.ts`.
+- `Tier1NetworkHub.tsx`: "Conectar" ahora es un enlace a `/api/auth/connect/<red>`; se eliminó el cliente Supabase y `signInWithOAuth`.
+- Eliminados `auth/callback/page.tsx` y `actions/youtube.action.ts`; `vincularRedSocialAction` extraído a la lib.
+- **Seguridad:** `state` anti-CSRF (cookie httpOnly), PKCE, identidad solo desde `getServerSession(authOptions)`, allowlist de plataformas + Tier 1 vigente; tokens intercambiados server-side.
+
+**Fixes adicionales de la sesión:**
+
+- **PKCE:** se enviaba `code_challenge` en la autorización pero no `code_verifier` en el intercambio para Twitch/GitHub/YouTube → `400 code_verifier is required`. Corregido: PKCE uniforme para las 4 redes (commit `422b739`).
+- **Color neón en dev:** el `@import url()` de Google Fonts rompía el `@theme` de Tailwind v4 en dev (navbar blanco). Sustituido por `next/font/google` (Bebas Neue + Oswald).
+- **Footer:** enlaces reales del creador (`maxhuang117` en X/YouTube/Twitch/GitHub + Discord invite `CgPM7cWp7t` y perfil `603643066242301963`).
+
+`npm run lint` y `npm run build` en verde.
+
+### Pendiente (configuración externa — siguiente sesión)
+
+- Crear apps OAuth en X Developer, Twitch dev, GitHub y Google Cloud; pegar credenciales en `.env` (`TWITCH_CLIENT_ID`/`SECRET`, `GITHUB_...`, `X_...`, `GOOGLE_...`).
+- Registrar en cada portal el callback URL `https://TU-DOMINIO/api/auth/callback/<red>` (+ `http://localhost:3000/...` para dev).
+- Google/YouTube: habilitar YouTube Data API v3 + scope `youtube.readonly`; publicar la app (o asumir pantalla "no verificada") para que cualquier usuario pueda vincular.
+- Configurar `NEXTAUTH_URL` y `NEXT_PUBLIC_SITE_URL` con el dominio de producción.
+- Probar las 4 redes en dev y producción.
+
 ## Verificación
 
-- `npm run build`: correcto (1 de noviembre de 2026; FASE2-08, FASE2-10 y autorización `/admin`).
-- `npm run lint`: correcto (27 de octubre de 2026; no se reejecutó en esta sesión).
+- `npm run lint`: correcto (4 de noviembre de 2026; toda la sesión).
+- `npm run build`: correcto (4 de noviembre de 2026; toda la sesión).
 
 ## En curso — Remediación Fase 2 (Seguridad y estabilidad)
 

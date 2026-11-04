@@ -67,7 +67,7 @@ El perfil de la aplicación se resuelve buscando `profiles.discord_id` con el `d
 
 ### Supabase y autorización
 
-Supabase almacena los perfiles y los datos de la aplicación. La sesión de NextAuth no es, por sí misma, una sesión de Supabase Auth: los clientes de `@supabase/ssr` y la sesión Supabase temporal del callback de redes sociales son flujos separados.
+Supabase almacena los perfiles y los datos de la aplicación. La sesión de NextAuth no es, por sí misma, una sesión de Supabase Auth. La **verificación de redes sociales ya no usa Supabase Auth**: se hace con OAuth 2.0 directo contra cada plataforma (`src/lib/social-oauth`) y el resultado se guarda vía server action autenticada con `getServerSession(authOptions)`.
 
 El cliente con `SUPABASE_SERVICE_ROLE_KEY` solo se usa en el servidor y puede omitir RLS. Por tanto, toda Server Action que lo utilice debe comprobar la sesión, la propiedad del recurso y los permisos aplicables antes de leer o modificar datos. Las políticas RLS siguen siendo necesarias para las operaciones que se hagan con la clave anon.
 
@@ -92,7 +92,8 @@ El acceso administrativo se determina mediante `profiles.is_admin`, consultado p
 | `/perfil` | Página cliente | Perfil propio y edición; requiere sesión. |
 | `/u/[id]` | Página servidor | Perfil público por `discord_id` o nombre de usuario. |
 | `/login` | Página | Inicio de sesión con Discord. |
-| `/auth/callback` | Página cliente | Vinculación de redes sociales mediante sesión temporal de Supabase. |
+| `/api/auth/connect/[platform]` | Route Handler | Inicia el OAuth de verificación de redes sociales (X, Twitch, GitHub, YouTube). |
+| `/api/auth/callback/[platform]` | Route Handler | Callback OAuth de verificación de redes sociales. |
 | `/admin` | Página servidor | Panel de administración; requiere `is_admin`. |
 | `/admin/news` | Página | Gestión de noticias. |
 | `/admin/comments` | Página | Moderación de comentarios. |
@@ -105,12 +106,12 @@ El acceso administrativo se determina mediante `profiles.is_admin`, consultado p
 | --- | --- | --- | --- |
 | `src/actions/publicProfile.action.ts` | `obtenerPerfilPublicoAction` | Identificador público (lectura) | Remediado FASE2-02/FASE2-12. La lectura pública usa `createPublicClient()` (anon) y los GRANTs de columnas sensibles se aplicaron en Supabase; pendiente versionarlos como migración. |
 | `src/actions/tier2.actions.ts` | `guardarSlideAction`, `eliminarSlideAction` | `getServerSession(authOptions)`; perfil resuelto por `discord_id` | Corregido en Paso 3: acciones limitadas al perfil de sesión y a Tier 2 vigente. |
-| `src/app/perfil/actions.ts` | `guardarBiografiaAction`, `obtenerBiografiaAction`, `sincronizarPerfilDiscordAction`, `obtenerPerfilCompletoAction`, `vincularRedSocialAction`, `guardarRedesAction`, `subirBannerAction`, `guardarCosmeticosVIPAction`, `toggleProfileReputationAction` | `getServerSession(authOptions)` | Remediado (FASE2-03/04/05/06/07/09/11), FASE2-08 (tier + `sub_expires_at` via `hasActiveTier`) y FASE2-10 (likes por `profiles.id`, toggle sin `.match()` + unicidad aplicada). |
+| `src/app/perfil/actions.ts` | `guardarBiografiaAction`, `obtenerBiografiaAction`, `sincronizarPerfilDiscordAction`, `obtenerPerfilCompletoAction`, `guardarRedesAction`, `subirBannerAction`, `guardarCosmeticosVIPAction`, `toggleProfileReputationAction` | `getServerSession(authOptions)` | Remediado (FASE2-03/04/05/06/07/09/11), FASE2-08 (tier + `sub_expires_at` via `hasActiveTier`) y FASE2-10 (likes por `profiles.id`, toggle sin `.match()` + unicidad aplicada). La vinculación de redes se movió a `src/lib/social-oauth/linking.ts` (`vincularRedVerificada`). |
 | `src/app/admin/subs/actions/subsAction.ts` | `getUsersListAction`, `updateUserTierAction` | `getServerSession(authOptions)` + `profiles.is_admin` por `discord_id` (`requireAdmin`) | Corregido el 1 de noviembre de 2026. |
 | `src/app/admin/news/actions/newsAction.ts` | `getAdminNewsAction`, `saveNewsAction`, `deleteNewsAction` | `getServerSession(authOptions)` + `profiles.is_admin` por `discord_id` (`requireAdmin`) | Corregido el 1 de noviembre de 2026 (`deleteNewsAction` ahora verifica `is_admin`). |
 | `src/app/admin/comments/actions/commentsActions.ts` | `getAdminCommentsAction`, `deleteCommentAction` | `getServerSession(authOptions)` + `profiles.is_admin` por `discord_id` (`requireAdmin`) | Corregido el 1 de noviembre de 2026. |
-| `src/components/home/News/components/comments/actions/commentsAction.ts` | `obtenerComentariosAction`, `publicarComentarioAction`, `editarComentarioAction`, `eliminarComentarioAction` | `getServerSession()` sin `authOptions` + resolución por `session.user.email` | Pendiente en Fase 2: migrar a `getServerSession(authOptions)` + `discord_id` (mismo patrón ya corregido en `/admin`). |
-| `src/components/home/News/components/comments/actions/likesAction.ts` | Likes de comentarios | `session.user.discordId` | Pendiente en Fase 2. |
+| `src/components/home/News/components/comments/actions/commentsAction.ts` | `obtenerComentariosAction`, `publicarComentarioAction`, `editarComentarioAction`, `eliminarComentarioAction` | `getServerSession(authOptions)` + perfil por `discord_id` | Corregido el 3 de noviembre de 2026 (Paso 2). |
+| `src/components/home/News/components/comments/actions/likesAction.ts` | Likes de comentarios | `getServerSession(authOptions)` + `profiles.id` por `discord_id` | Corregido el 3 de noviembre de 2026 (Paso 2). |
 
 ### Tablas y recursos de Supabase
 
