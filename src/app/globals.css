@@ -2,8 +2,6 @@
 
 @import "tailwindcss";
 
-@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Oswald:wght@400;700&display=swap');
-
 /*
 |--------------------------------------------------------------------------
 | Paleta GeForce (acento único)
@@ -20,11 +18,11 @@
 }
 
 .font-bebas {
-    font-family: 'Bebas Neue', sans-serif;
+    font-family: var(--font-bebas), 'Bebas Neue', sans-serif;
 }
 
 .font-oswald {
-    font-family: 'Oswald', sans-serif;
+    font-family: var(--font-oswald), 'Oswald', sans-serif;
 }
 
 :root {

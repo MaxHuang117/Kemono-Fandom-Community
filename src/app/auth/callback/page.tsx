@@ -7,10 +7,15 @@ import { vincularRedSocialAction } from "@/app/perfil/actions";
 import { obtenerHandleYouTubeAction } from "@/actions/youtube.action";
 import { motion } from "framer-motion";
 
-// Cliente estándar para interceptar el token temporal
+// Cliente estándar para interceptar el token temporal.
+// `flowType: 'pkce'` para que el redirect use `?code=` (no `#access_token=`).
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
-const supabase = createClient(supabaseUrl, supabaseAnonKey);
+const supabase = createClient(supabaseUrl, supabaseAnonKey, {
+    auth: {
+        flowType: 'pkce',
+    },
+});
 
 /*
 |--------------------------------------------------------------------------

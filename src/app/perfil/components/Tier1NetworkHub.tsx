@@ -10,10 +10,16 @@ interface Props {
     onUpdate: () => void;
 }
 
-// Inicializamos el cliente estándar de Supabase con tus variables públicas
+// Inicializamos el cliente estándar de Supabase con tus variables públicas.
+// `flowType: 'pkce'` evita el flujo implícito (tokens en el hash `#access_token=`)
+// y redirige con `?code=` al callback, que es lo que procesamos.
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
-const supabase = createClient(supabaseUrl, supabaseAnonKey);
+const supabase = createClient(supabaseUrl, supabaseAnonKey, {
+    auth: {
+        flowType: 'pkce',
+    },
+});
 
 // URL canónica para el callback OAuth (configurable en producción).
 // El proveedor se obtiene de la sesión OAuth, no de la URL.
