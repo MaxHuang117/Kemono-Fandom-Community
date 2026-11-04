@@ -90,9 +90,15 @@ DISCORD_CLIENT_SECRET=
 
 NEXTAUTH_SECRET=
 NEXTAUTH_URL=http://localhost:3000
+
+# URL canónica para el callback OAuth de verificación de redes.
+# En producción pon tu dominio real (sin barra final).
+NEXT_PUBLIC_SITE_URL=http://localhost:3000
 ```
 
 > **Importante:** `SUPABASE_SERVICE_ROLE_KEY` y `DISCORD_CLIENT_SECRET` son secretos. Nunca los expongas en el cliente, no les agregues el prefijo `NEXT_PUBLIC_` y no los subas al repositorio.
+
+> **Verificación de redes (OAuth):** para el botón «Conectar» de X, Twitch, GitHub y YouTube hay que habilitar esos proveedores en Supabase → Authentication → Providers y configurar `NEXTAUTH_URL` + `NEXT_PUBLIC_SITE_URL` con la URL de producción (y el «Site URL» de Supabase). YouTube además requiere el scope `youtube.readonly` en el cliente OAuth de Google.
 
 ---
 
