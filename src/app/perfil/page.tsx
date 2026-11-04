@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import { signOut } from "next-auth/react";
 import { usePerfil } from "./hooks/usePerfil";
 
@@ -9,6 +10,29 @@ import BiografiaEditor from "./components/BiografiaEditor";
 import ShareProfileButton from "@/components/ui/ShareProfileButton";
 
 export default function PerfilPage() {
+    const [socialToast, setSocialToast] = useState<{ type: "ok" | "error"; msg: string } | null>(null);
+
+    // Feedback del flujo OAuth de redes (viene de /api/auth/callback -> ?social=ok|error)
+    useEffect(() => {
+        const params = new URLSearchParams(window.location.search);
+        const social = params.get("social");
+
+        if (social === "ok") {
+            setSocialToast({ type: "ok", msg: "Red vinculada correctamente." });
+        } else if (social === "error") {
+            setSocialToast({ type: "error", msg: "No se pudo vincular la red. Intenta de nuevo." });
+        }
+
+        if (social) {
+            const url = new URL(window.location.href);
+            url.searchParams.delete("social");
+            window.history.replaceState({}, "", url.pathname + url.search);
+        }
+
+        const timer = setTimeout(() => setSocialToast(null), 5000);
+        return () => clearTimeout(timer);
+    }, []);
+
     const {
         session,
         user,
@@ -63,6 +87,19 @@ export default function PerfilPage() {
     
     return (
         <div className="max-w-4xl mx-auto px-6 py-12 space-y-8 text-white font-sans">
+            {socialToast && (
+                <div
+                    role="status"
+                    className={`px-4 py-3 rounded-lg border text-sm font-mono ${
+                        socialToast.type === "ok"
+                            ? "bg-neon/10 border-neon/40 text-neon-bright"
+                            : "bg-red-500/10 border-red-500/40 text-red-400"
+                    }`}
+                >
+                    {socialToast.msg}
+                </div>
+            )}
+
             <PerfilCard
                 banner={banner}
                 imagen={imagenFinal}

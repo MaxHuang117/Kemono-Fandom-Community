@@ -1,76 +1,29 @@
 "use client";
 
 import { useState } from "react";
-import { createClient } from "@supabase/supabase-js";
 import { NETWORK_CONFIG } from "@/config/networks.config";
-import { guardarRedesAction } from "../actions"; 
+import { guardarRedesAction } from "../actions";
 
 interface Props {
     socialLinks: Record<string, string>;
     onUpdate: () => void;
 }
 
-// Inicializamos el cliente estándar de Supabase con tus variables públicas.
-// `flowType: 'pkce'` evita el flujo implícito (tokens en el hash `#access_token=`)
-// y redirige con `?code=` al callback, que es lo que procesamos.
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
-const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
-const supabase = createClient(supabaseUrl, supabaseAnonKey, {
-    auth: {
-        flowType: 'pkce',
-    },
-});
-
-// URL canónica para el callback OAuth (configurable en producción).
-// El proveedor se obtiene de la sesión OAuth, no de la URL.
-const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || null;
-
 export default function Tier1NetworkHub({ socialLinks, onUpdate }: Props) {
     const [isProcessing, setIsProcessing] = useState<string | null>(null);
-
-    // 🔗 FUNCIÓN OAUTH: Conecta con la red oficial
-    const handleConnect = async (provider: string) => {
-        setIsProcessing(provider);
-        try {
-            // Mapeamos nuestra key (ej: 'youtube') al provider oficial de Supabase
-            let supabaseProvider: any = provider;
-            if (provider === 'youtube') supabaseProvider = 'google';
-            if (provider === 'x') supabaseProvider = 'twitter';
-
-            // YouTube requiere el scope de lectura del canal para poder
-            // verificar el @handle real con YouTube Data API.
-            const scopes = provider === 'youtube'
-                ? 'https://www.googleapis.com/auth/youtube.readonly'
-                : undefined;
-
-            const { error } = await supabase.auth.signInWithOAuth({
-                provider: supabaseProvider,
-                options: {
-                    // El proveedor real se lee de la sesión OAuth en el callback.
-                    redirectTo: `${siteUrl || window.location.origin}/auth/callback`,
-                    ...(scopes ? { scopes } : {}),
-                }
-            });
-
-            if (error) throw error;
-        } catch (error: any) {
-            alert(`Error al conectar con ${provider}: ${error.message}`);
-            setIsProcessing(null);
-        }
-    };
 
     // 💔 FUNCIÓN DESCONECTAR: Borra la red de la BD
     const handleDisconnect = async (networkKey: string) => {
         if (!confirm(`¿Estás seguro de desconectar tu cuenta de ${networkKey.toUpperCase()}?`)) return;
-        
+
         setIsProcessing(networkKey);
         const updatedLinks = { ...socialLinks };
-        delete updatedLinks[networkKey]; // Borramos la red
+        delete updatedLinks[networkKey];
 
         const result = await guardarRedesAction(updatedLinks);
-        
+
         if (result.success) {
-            onUpdate(); // Recarga la UI del perfil
+            onUpdate();
         } else {
             alert(result.error);
         }
@@ -97,13 +50,13 @@ export default function Tier1NetworkHub({ socialLinks, onUpdate }: Props) {
                     const isWorking = isProcessing === net.key;
 
                     return (
-                        <div 
+                        <div
                             key={net.key}
-                            style={{ '--net-color': net.color } as React.CSSProperties}
+                            style={{ "--net-color": net.color } as React.CSSProperties}
                             className={`relative overflow-hidden rounded-xl border p-5 transition-all duration-300 ${
-                                isConnected 
-                                ? "bg-black border-[var(--net-color)] shadow-[0_0_15px_rgba(0,0,0,0.5)]" 
-                                : "bg-[#050505] border-zinc-800 hover:border-zinc-600"
+                                isConnected
+                                    ? "bg-black border-[var(--net-color)] shadow-[0_0_15px_rgba(0,0,0,0.5)]"
+                                    : "bg-[#050505] border-zinc-800 hover:border-zinc-600"
                             }`}
                         >
                             {isConnected && (
@@ -129,7 +82,7 @@ export default function Tier1NetworkHub({ socialLinks, onUpdate }: Props) {
                             {isConnected ? (
                                 <div className="flex items-center justify-between mt-2 bg-zinc-900/50 p-3 rounded-lg border border-white/5">
                                     <span className="text-sm font-mono text-white truncate mr-4">@{username}</span>
-                                    <button 
+                                    <button
                                         onClick={() => handleDisconnect(net.key)}
                                         disabled={isWorking}
                                         className="text-[10px] font-mono text-red-400 hover:text-red-300 uppercase tracking-widest px-3 py-1.5 border border-red-900/30 hover:border-red-500/50 rounded transition-all disabled:opacity-50"
@@ -138,22 +91,15 @@ export default function Tier1NetworkHub({ socialLinks, onUpdate }: Props) {
                                     </button>
                                 </div>
                             ) : (
-                                <button 
-                                    onClick={() => handleConnect(net.key)}
-                                    disabled={isWorking}
-                                    className="w-full mt-2 py-3 rounded-lg bg-[var(--net-color)]/10 hover:bg-[var(--net-color)]/20 text-[var(--net-color)] border border-[var(--net-color)]/30 hover:border-[var(--net-color)] text-[10px] font-black uppercase tracking-widest transition-all flex items-center justify-center gap-2 group disabled:opacity-50"
+                                <a
+                                    href={`/api/auth/connect/${net.key}`}
+                                    className="w-full mt-2 py-3 rounded-lg bg-[var(--net-color)]/10 hover:bg-[var(--net-color)]/20 text-[var(--net-color)] border border-[var(--net-color)]/30 hover:border-[var(--net-color)] text-[10px] font-black uppercase tracking-widest transition-all flex items-center justify-center gap-2 group"
                                 >
-                                    {isWorking ? (
-                                        <span className="motion-safe:animate-pulse">AUTENTICANDO...</span>
-                                    ) : (
-                                        <>
-                                            <span>CONECTAR {net.label}</span>
-                                            <svg className="w-3 h-3 group-hover:translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" />
-                                            </svg>
-                                        </>
-                                    )}
-                                </button>
+                                    <span>Conectar {net.label}</span>
+                                    <svg className="w-3 h-3 group-hover:translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                                    </svg>
+                                </a>
                             )}
                         </div>
                     );
