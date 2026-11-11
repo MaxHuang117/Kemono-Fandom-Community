@@ -16,7 +16,11 @@ export function useCurrentProfile() {
 
     useEffect(() => {
         async function loadProfile() {
-            if (!session?.user?.email) {
+            // Identidad: `discord_id` proviene de la sesión de NextAuth (servidor),
+            // nunca del cliente. Tras los GRANTs de FASE2-01, el rol `anon` ya no
+            // puede leer `email` ni `custom_badge`/`allow_gifs`; resolvemos por
+            // `discord_id` y pedimos solo las columnas públicas expuestas a `anon`.
+            if (!session?.user?.discordId) {
                 setProfile(null);
                 setLoading(false);
                 return;
@@ -33,15 +37,15 @@ export function useCurrentProfile() {
                     biografia,
                     tier_level,
                     social_links,
-                    name_color_gradient,
-                    custom_badge,
-                    allow_gifs
+                    name_color_gradient
                 `)
-                .eq("email", session.user.email)
+                .eq("discord_id", session.user.discordId)
                 .single();
 
             if (data) {
                 setProfile(mapProfile(data));
+            } else {
+                setProfile(null);
             }
 
             setLoading(false);
