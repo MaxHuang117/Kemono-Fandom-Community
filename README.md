@@ -114,7 +114,7 @@ El botón «Conectar» de X, Twitch, GitHub y YouTube usa **OAuth 2.0 directo co
 
 1. Crea una app OAuth en cada portal (X Developer, Twitch dev, GitHub, Google Cloud) y pega sus credenciales en `.env.local`.
 2. Registra en cada portal el callback URL:
-   `https://tu-dominio.com/api/auth/callback/<plataforma>` (y `http://localhost:3000/...` para desarrollo).
+   `https://tu-dominio.com/api/social/callback/<plataforma>` (y `http://localhost:3000/...` para desarrollo).
 3. **Google/YouTube:** habilita **YouTube Data API v3** y añade el scope `https://www.googleapis.com/auth/youtube.readonly` al consent screen.
 4. Configura `NEXTAUTH_URL` y `NEXT_PUBLIC_SITE_URL` con tu dominio real en producción.
 

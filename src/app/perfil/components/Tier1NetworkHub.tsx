@@ -92,7 +92,7 @@ export default function Tier1NetworkHub({ socialLinks, onUpdate }: Props) {
                                 </div>
                             ) : (
                                 <a
-                                    href={`/api/auth/connect/${net.key}`}
+                                    href={`/api/social/connect/${net.key}`}
                                     className="w-full mt-2 py-3 rounded-lg bg-[var(--net-color)]/10 hover:bg-[var(--net-color)]/20 text-[var(--net-color)] border border-[var(--net-color)]/30 hover:border-[var(--net-color)] text-[10px] font-black uppercase tracking-widest transition-all flex items-center justify-center gap-2 group"
                                 >
                                     <span>Conectar {net.label}</span>

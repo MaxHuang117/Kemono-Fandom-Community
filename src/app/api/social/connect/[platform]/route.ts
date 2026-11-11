@@ -50,7 +50,7 @@ export async function GET(
     // URL canónica de la app (producción o dev), para armar el callback.
     const configured = process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/+$/, "");
     const origin = configured || new URL(request.url).origin;
-    const callbackUrl = `${origin}/api/auth/callback/${platform}`;
+    const callbackUrl = `${origin}/api/social/callback/${platform}`;
 
     // PKCE + state anti-CSRF.
     const verifier = generateCodeVerifier();

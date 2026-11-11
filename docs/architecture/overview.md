@@ -92,8 +92,8 @@ El acceso administrativo se determina mediante `profiles.is_admin`, consultado p
 | `/perfil` | Página cliente | Perfil propio y edición; requiere sesión. |
 | `/u/[id]` | Página servidor | Perfil público por `discord_id` o nombre de usuario. |
 | `/login` | Página | Inicio de sesión con Discord. |
-| `/api/auth/connect/[platform]` | Route Handler | Inicia el OAuth de verificación de redes sociales (X, Twitch, GitHub, YouTube). |
-| `/api/auth/callback/[platform]` | Route Handler | Callback OAuth de verificación de redes sociales. |
+| `/api/social/connect/[platform]` | Route Handler | Inicia el OAuth de verificación de redes sociales (X, Twitch, GitHub, YouTube). |
+| `/api/social/callback/[platform]` | Route Handler | Callback OAuth de verificación de redes sociales. |
 | `/admin` | Página servidor | Panel de administración; requiere `is_admin`. |
 | `/admin/news` | Página | Gestión de noticias. |
 | `/admin/comments` | Página | Moderación de comentarios. |

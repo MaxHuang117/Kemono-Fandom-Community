@@ -118,7 +118,7 @@ export async function GET(
     // URL canónica para reconstruir el redirect_uri usado al iniciar.
     const configured = process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/+$/, "");
     const origin = configured || new URL(request.url).origin;
-    const redirectUri = `${origin}/api/auth/callback/${platform}`;
+    const redirectUri = `${origin}/api/social/callback/${platform}`;
 
     const accessToken = await exchangeCode(provider, code, redirectUri, verifier);
     if (!accessToken) {

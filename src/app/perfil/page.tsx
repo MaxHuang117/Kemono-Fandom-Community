@@ -12,7 +12,7 @@ import ShareProfileButton from "@/components/ui/ShareProfileButton";
 export default function PerfilPage() {
     const [socialToast, setSocialToast] = useState<{ type: "ok" | "error"; msg: string } | null>(null);
 
-    // Feedback del flujo OAuth de redes (viene de /api/auth/callback -> ?social=ok|error)
+    // Feedback del flujo OAuth de redes (viene de /api/social/callback -> ?social=ok|error)
     useEffect(() => {
         const params = new URLSearchParams(window.location.search);
         const social = params.get("social");
