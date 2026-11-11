@@ -1,6 +1,6 @@
 # Estado del proyecto
 
-**Actualizado:** 3 de noviembre de 2026
+**Actualizado:** 11 de noviembre de 2026
 
 ## Completado (27 de octubre de 2026)
 
@@ -109,3 +109,17 @@ Pendientes de UI y DX identificados durante el desarrollo; no bloquean la seguri
 - [x] **[UX/Performance]** Implementar Skeleton loaders en la sección de comentarios de noticias. *(resuelto en 3C)*
 - [x] **[UX/Performance]** Agregar pantalla/diseño de carga inicial (`loading.tsx` / Skeleton) en la página principal mientras finaliza la hidratación de datos. *(resuelto en 3C)*
 - [x] **[Bug UI]** Corregir las extensiones de X, YouTube, Twitch y GitHub en el perfil para que funcionen en producción y no redirijan a `localhost:3000`. *(resuelto en 3B, normalización de URLs)*
+
+## Sesión del 11 de noviembre de 2026 — Login Discord + comentarios + warns
+
+- **Login con Discord corregido (2 commits):**
+  - `454a699` — movidas las rutas OAuth de redes de `/api/auth/*` a `/api/social/*`: la ruta dinámica `/api/auth/callback/[platform]` resolvía antes que la catch-all `/api/auth/[...nextauth]` e interceptaba el callback de Discord (`/api/auth/callback/discord` → `/perfil?social=error`).
+  - `8d96ea9` — restaurado `issuer: "https://discord.com"` en `src/lib/auth.ts`. Discord devuelve `iss` en el callback (RFC 9207) y `openid-client` lo valida contra `provider.issuer`; sin él fallaba con `issuer must be configured on the issuer` (`/login?error=OAuthCallback`).
+- **Botones editar/borrar comentarios:** `useCurrentProfile` consultaba `profiles` con el rol `anon` filtrando por `email` y seleccionando `custom_badge`/`allow_gifs`, columnas revocadas en FASE2-01. Corregido resolviendo por `discord_id` (sesión) y pidiendo solo columnas públicas.
+- **Rediseño del modal de noticias:** responsivo (full-screen en móvil, tarjeta centrada en desktop), descripción truncada con "ver más" y comentarios desplegables.
+
+### Warns de build (Vercel) — no bloquean; revisar al migrar dependencias
+
+- `npm warn Unknown env config "cache-dir"` → dejará de funcionar en el próximo major de npm. Quitar `cache-dir` del `.npmrc`/config global.
+- `npm warn deprecated uuid@8.3.2` → `uuid` ≤10 sin soporte (ESM → `uuid@latest`; CJS → `uuid@11`, deprecado previsiblemente en 2028). Es dependencia transitiva de `next-auth@4`; se resuelve al migrar a Auth.js v5.
+- `npm warn deprecated eslint@9.39.5` → versión sin soporte. Actualizar `eslint` a una versión mantenida.

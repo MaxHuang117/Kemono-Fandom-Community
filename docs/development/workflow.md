@@ -71,3 +71,11 @@ Checklist para el revisor:
 
 - Definir pruebas automatizadas para permisos y acciones sensibles.
 - Configurar integración continua que ejecute lint y build en cada pull request.
+
+## Warns de build (Vercel)
+
+Avisos de `npm install`/build que **no bloquean** la app, pero conviene resolver al migrar dependencias:
+
+- `npm warn Unknown env config "cache-dir"` → dejará de funcionar en el próximo major de npm. Quitar `cache-dir` del `.npmrc`/config global.
+- `npm warn deprecated uuid@8.3.2` → `uuid` ≤10 sin soporte (ESM → `uuid@latest`; CJS → `uuid@11`, deprecado previsiblemente en 2028). Es dependencia transitiva de `next-auth@4`; se resuelve al migrar a Auth.js v5.
+- `npm warn deprecated eslint@9.39.5` → versión sin soporte. Actualizar `eslint` a una versión mantenida.
