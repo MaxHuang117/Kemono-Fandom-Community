@@ -2,6 +2,19 @@
 
 **Actualizado:** 14 de noviembre de 2026
 
+## Sesión del 14 de noviembre de 2026 (2) — Fase 0: esquema base, refactor de tiers y configuración
+
+- **Migración versionada** `supabase/migrations/20261114000000_hub_creadores_schema.sql`:
+  - `profiles` + columnas `streamer_status`, `streamer_category`, `tags`, `profile_comments_enabled`, `profile_comments_moderated` (+ índice por estado).
+  - Tablas nuevas: `hero_slides`, `profile_comments`, `notifications`, `supporters`, `sponsors`; todas con RLS habilitado y **sin políticas** `anon`/`authenticated` (acceso solo vía server actions con `service_role`).
+  - Las columnas nuevas de `profiles` **no** se otorgan a `anon` (el patrón de GRANT por columna de `20261103000000` las mantiene privadas automáticamente).
+  - **No aplicada aún en Supabase** — pendiente de autorización explícita.
+- **Refactor `src/lib/tier.ts`:** `hasActiveTier(tier, required, sub_expires_at)` → `hasTier(tier, required)`; eliminada `isSubscriptionActive`. Actualizados los 6 call sites (`src/actions/tier2.actions.ts`, `src/lib/social-oauth/linking.ts` y 4 en `src/app/perfil/actions.ts`) y los mensajes de usuario ("Requiere el nivel Creador aprobado/destacado"). `sub_expires_at` se conserva en selects y en el admin "Tiers & Subs" hasta la Fase 2 (decisión D5 de `PLAN_FASE_0.md`).
+- **`src/config/site.config.ts` creado:** fuente única de verdad config-driven (marca, `donationUrl`, `tierLabels`, límites de slides, pesos de descubrimiento, categorías/tags, límites y feature flags) + helper `ALL_TAGS`.
+- **Análisis de seguridad (cierre de Fase 0):** las llamadas a `hasTier` están todas dentro de acciones con sesión verificada; tablas nuevas sin exposición pública; columnas nuevas privadas para `anon`; sin secretos en cliente. Cambio intencional de comportamiento: la vigencia vencida de `sub_expires_at` ya no desactiva un nivel (roles sin expiración).
+- **Verificación:** `npm run lint` y `npm run build` en verde; `grep hasActiveTier|isSubscriptionActive` → 0 resultados; `hasTier` → definición + 3 imports + 6 usos.
+- Plan expandido y criterios de aceptación en `.opencode/plan/PLAN_FASE_0.md`.
+
 ## Sesión del 14 de noviembre de 2026 — Pivote a hub de creadores + fix de responsividad
 
 - **Decisión estratégica:** pivotar de "plataforma de tiers/suscripción" a **hub de creadores + comunidad**. Los tiers pasan a ser **roles/estado** (`0` Miembro · `1` Creador aprobado · `2` Creador destacado), sin pago ni vigencia (`sub_expires_at` en desuso).
