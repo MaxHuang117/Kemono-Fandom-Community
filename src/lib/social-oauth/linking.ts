@@ -3,7 +3,7 @@ import "server-only";
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/lib/auth";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { hasActiveTier } from "@/lib/tier";
+import { hasTier } from "@/lib/tier";
 import { ALLOWED_SOCIAL_PLATFORMS } from "./config";
 
 const supabaseAdmin = createAdminClient();
@@ -75,11 +75,11 @@ export async function vincularRedVerificada(
             return { success: false, error: "No se pudo leer tu perfil." };
         }
 
-        // Beneficio Tier 1 con suscripción vigente (FASE2-08).
-        if (!hasActiveTier(profile.tier_level, 1, profile.sub_expires_at)) {
+        // Nivel 1 (Creador aprobado) requerido para vincular redes verificadas.
+        if (!hasTier(profile.tier_level, 1)) {
             return {
                 success: false,
-                error: "Requiere Tier 1 vigente o superior para vincular redes.",
+                error: "Requiere el nivel Creador aprobado (1) o superior para vincular redes.",
             };
         }
 

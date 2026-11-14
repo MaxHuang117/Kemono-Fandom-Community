@@ -3,7 +3,7 @@
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/lib/auth";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { hasActiveTier } from "@/lib/tier";
+import { hasTier } from "@/lib/tier";
 import type { Json } from "@/lib/supabase/database.types";
 import type { SlideFormat, SlideStyleConfig } from "@/types/slides";
 import { VIP_FONTS } from "@/types/slides";
@@ -42,8 +42,8 @@ async function getAuthorizedTier2Profile() {
         return { profile: null, error: "No se pudo verificar tu perfil." };
     }
 
-    if (!hasActiveTier(profile.tier_level, 2, profile.sub_expires_at)) {
-        return { profile: null, error: "Requiere una suscripción TIER 2 vigente o superior." };
+    if (!hasTier(profile.tier_level, 2)) {
+        return { profile: null, error: "Requiere el nivel Creador destacado (2) o superior." };
     }
 
     return { profile, error: null };

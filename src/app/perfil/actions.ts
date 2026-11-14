@@ -6,7 +6,7 @@ import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/lib/auth";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { VIP_STYLES } from "@/config/vipStyles.config";
-import { hasActiveTier } from "@/lib/tier";
+import { hasTier } from "@/lib/tier";
 
 const supabaseAdmin = createAdminClient();
 
@@ -409,8 +409,8 @@ export async function obtenerPerfilCompletoAction() {
     // FILTRO DE SALIDA (DOWNGRADE)
     const currentTier = profile.tier_level ?? 0;
     
-    // Si no hay Tier 2 vigente, bloqueamos la salida de datos VIP (aunque existan guardados en la DB)
-    const tier2Activo = hasActiveTier(profile.tier_level, 2, profile.sub_expires_at); // FASE2-08
+    // Si no alcanza el nivel 2 (Creador destacado), bloqueamos la salida de datos VIP (aunque existan guardados en la DB)
+    const tier2Activo = hasTier(profile.tier_level, 2);
     const finalNameColorGradient = tier2Activo ? profile.name_color_gradient : null;
     const finalCustomSlides = tier2Activo ? customSlidesParsed : [];
 
@@ -442,7 +442,7 @@ export async function guardarRedesAction(socialLinks: Record<string, string>) {
         return { error: "Alguna red social o su valor no es válido." };
     }
 
-    // Verificamos el Tier por seguridad en el backend (FASE2-08: tier + vigencia)
+    // Verificamos el nivel por seguridad en el backend (roles sin vigencia)
     const { data: perfil, error: errorTier } = await supabaseAdmin
         .from("profiles")
         .select("tier_level, sub_expires_at")
@@ -454,8 +454,8 @@ export async function guardarRedesAction(socialLinks: Record<string, string>) {
         return { error: GENERIC_DB_ERROR };
     }
 
-    if (!perfil || !hasActiveTier(perfil.tier_level, 1, perfil.sub_expires_at)) {
-        return { error: "Requiere Tier 1 vigente o superior." };
+    if (!perfil || !hasTier(perfil.tier_level, 1)) {
+        return { error: "Requiere el nivel Creador aprobado (1) o superior." };
     }
 
     const { error } = await supabaseAdmin
@@ -493,7 +493,7 @@ export async function subirBannerAction(formData: FormData) {
 
     const discordId = session.user.discordId;
 
-    // Verificamos el Tier por seguridad (FASE2-08: tier + vigencia)
+    // Verificamos el nivel por seguridad (roles sin vigencia)
     const { data: perfil, error: errorTier } = await supabaseAdmin
         .from("profiles")
         .select("tier_level, sub_expires_at")
@@ -505,8 +505,8 @@ export async function subirBannerAction(formData: FormData) {
         return { error: GENERIC_DB_ERROR };
     }
 
-    if (!perfil || !hasActiveTier(perfil.tier_level, 1, perfil.sub_expires_at)) {
-        return { error: "Requiere Tier 1 vigente o superior." };
+    if (!perfil || !hasTier(perfil.tier_level, 1)) {
+        return { error: "Requiere el nivel Creador aprobado (1) o superior." };
     }
 
     /* FASE2-06: extensión derivada del MIME validado (nunca del nombre del cliente)
@@ -560,7 +560,7 @@ export async function guardarCosmeticosVIPAction(styleId: string) {
         return { error: "Estilo de cosmético no válido." };
     }
 
-    // Verificamos nivel de seguridad (FASE2-08: tier + vigencia)
+    // Verificamos el nivel por seguridad (roles sin vigencia)
     const { data: perfil, error: errorTier } = await supabaseAdmin
         .from("profiles")
         .select("tier_level, sub_expires_at")
@@ -572,8 +572,8 @@ export async function guardarCosmeticosVIPAction(styleId: string) {
         return { error: GENERIC_DB_ERROR };
     }
 
-    if (!perfil || !hasActiveTier(perfil.tier_level, 2, perfil.sub_expires_at)) {
-        return { error: "Requiere Tier 2 vigente o superior." };
+    if (!perfil || !hasTier(perfil.tier_level, 2)) {
+        return { error: "Requiere el nivel Creador destacado (2) o superior." };
     }
 
     const { error } = await supabaseAdmin
