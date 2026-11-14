@@ -1,5 +1,6 @@
 import { HeroSlide } from "./HeroSlides";
 import { motion, AnimatePresence } from "framer-motion";
+import { SITE_CONFIG } from "@/config/site.config";
 
 interface Props {
   slide: HeroSlide;
@@ -88,29 +89,75 @@ className="relative z-20 flex h-full items-center"
 
         </p>
 
-        <a
-        href={slide.url}
-        target="_blank"
-        rel="noopener noreferrer"
-        className={`
-        inline-flex
-        rounded-xl
-        px-8
-        py-3
-        font-bold
-        text-white
-        transition-all
-        duration-300
-        hover:scale-105
+        {/* CTAs del slide: acción principal + "Donar" (fijo, en todos los
+            slides). `flex-wrap` evita cortes en móvil/tablet. */}
+        <div className="flex flex-wrap items-center gap-4">
 
-        ${slide.buttonColor}
-        ${slide.buttonHover}
-        `}
-        >
+            <a
+            href={slide.url}
+            target="_blank"
+            rel="noopener noreferrer"
+            className={`
+            inline-flex
+            rounded-xl
+            px-8
+            py-3
+            font-bold
+            text-white
+            transition-all
+            duration-300
+            hover:scale-105
 
-            {slide.buttonText}
+            ${slide.buttonColor}
+            ${slide.buttonHover}
+            `}
+            >
 
-        </a>
+                {slide.buttonText}
+
+            </a>
+
+            {/* Donación (StreamElements): enlace externo seguro; estilo
+                secundario outline neón para no robar protagonismo. */}
+            <a
+            href={SITE_CONFIG.donationUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className={`
+            inline-flex
+            items-center
+            gap-2
+            rounded-xl
+            border
+            border-neon/60
+            bg-black/30
+            px-8
+            py-3
+            font-bold
+            text-neon-bright
+            backdrop-blur-sm
+            transition-all
+            duration-300
+            hover:scale-105
+            hover:bg-neon
+            hover:text-black
+            `}
+            >
+
+                <svg
+                className="w-5 h-5 motion-safe:animate-pulse"
+                viewBox="0 0 24 24"
+                fill="currentColor"
+                aria-hidden="true"
+                >
+                    <path d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12z" />
+                </svg>
+
+                Donar
+
+            </a>
+
+        </div>
 
     </div>
 

@@ -2,6 +2,17 @@
 
 **Actualizado:** 14 de noviembre de 2026
 
+## Sesión del 14 de noviembre de 2026 (3) — Fase 1: donaciones (CTAs de StreamElements)
+
+- **CTAs "Donar"** apuntando a `SITE_CONFIG.donationUrl` (`https://streamelements.com/maxhuang117/tip`), con diseño para atraer donantes (corazón pulsante, gradiente neón + glow, `hover:scale`):
+  - `src/components/Navbar/Navbar.tsx` — botón en la navegación desktop + entrada full-width en el menú móvil (cierra el menú al navegar).
+  - `src/components/home/HeroBanner/HeroContent.tsx` — botón secundario outline junto al CTA de cada slide (`flex-wrap` para móvil).
+  - `src/components/home/Footer/Footer.tsx` — enlace destacado en la columna de navegación.
+- **Fuente única:** la URL de StreamElements vive solo en `src/config/site.config.ts`; 4 consumos vía `SITE_CONFIG.donationUrl`, cero hardcodeo.
+- **Análisis de seguridad (cierre de fase):** sin secretos en cliente; sin cambios de identidad/autorización; enlaces externos con `rel="noopener noreferrer"`; animaciones con `motion-safe:`.
+- **Verificación:** `npm run lint` y `npm run build` en verde.
+- **Upgrades futuros registrados** en el plan maestro: chat breve entre creadores y borrado de comentarios de perfil por su dueño (ver `.opencode/plan/PLAN_HUB_STREAMERS.md`, backlog).
+
 ## Sesión del 14 de noviembre de 2026 (2) — Fase 0: esquema base, refactor de tiers y configuración
 
 - **Migración versionada** `supabase/migrations/20261114000000_hub_creadores_schema.sql`:

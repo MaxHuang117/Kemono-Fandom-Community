@@ -5,6 +5,7 @@ import { useSession, signOut } from "next-auth/react";
 import { usePathname } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
+import { SITE_CONFIG } from "@/config/site.config";
 
 const navLinks = [
   { id: "inicio", label: "Inicio" },
@@ -127,6 +128,26 @@ export default function Navbar() {
                 </Link>
               )}
 
+              {/* CTA de donación — StreamElements. Enlace externo siempre
+                  visible; el corazón pulsante y el glow lo destacan para
+                  atraer donantes sin competir con el CTA principal. */}
+              <a
+                href={SITE_CONFIG.donationUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-1.5 rounded bg-gradient-to-r from-neon to-neon-deep px-4 py-2 text-sm font-bold text-black shadow-[0_0_12px_rgba(97,255,97,0.35)] transition-transform hover:scale-105 focus:outline-none focus-visible:ring-2 focus-visible:ring-neon-bright"
+              >
+                <svg
+                  className="w-4 h-4 motion-safe:animate-pulse"
+                  viewBox="0 0 24 24"
+                  fill="currentColor"
+                  aria-hidden="true"
+                >
+                  <path d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12z" />
+                </svg>
+                Donar
+              </a>
+
               {session ? (
                 <div className="relative" ref={userMenuRef}>
                   <button
@@ -243,6 +264,25 @@ export default function Navbar() {
                 ← Volver al Inicio
               </Link>
             )}
+
+            {/* CTA de donación (móvil): se cierra el menú al navegar. */}
+            <a
+              href={SITE_CONFIG.donationUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              onClick={() => setMenuOpen(false)}
+              className="inline-flex w-full items-center justify-center gap-2 rounded bg-gradient-to-r from-neon to-neon-deep py-3 font-bold text-black shadow-[0_0_12px_rgba(97,255,97,0.35)] transition-transform hover:scale-[1.02] focus:outline-none focus-visible:ring-2 focus-visible:ring-neon-bright"
+            >
+              <svg
+                className="w-5 h-5 motion-safe:animate-pulse"
+                viewBox="0 0 24 24"
+                fill="currentColor"
+                aria-hidden="true"
+              >
+                <path d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12z" />
+              </svg>
+              Donar
+            </a>
 
             <div className="mt-4">
               {session ? (
