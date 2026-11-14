@@ -1,6 +1,14 @@
 # Estado del proyecto
 
-**Actualizado:** 11 de noviembre de 2026
+**Actualizado:** 14 de noviembre de 2026
+
+## Sesión del 14 de noviembre de 2026 — Pivote a hub de creadores + fix de responsividad
+
+- **Decisión estratégica:** pivotar de "plataforma de tiers/suscripción" a **hub de creadores + comunidad**. Los tiers pasan a ser **roles/estado** (`0` Miembro · `1` Creador aprobado · `2` Creador destacado), sin pago ni vigencia (`sub_expires_at` en desuso).
+- **Plan completo** en `.opencode/plan/PLAN_HUB_STREAMERS.md` (visión, fases 0–7, modelo de datos, matriz de modelos, flujo diario y reglas).
+- **Docs actualizadas:** `docs/product/roadmap.md` (fases 3–6), `docs/architecture/overview.md` (módulos, tablas nuevas, reglas de tiers), `docs/development/workflow.md` (regla de análisis de seguridad por fase).
+- **Fix (bug de responsividad):** el menú móvil del Navbar no desplegaba porque `backdrop-blur-md` del `<header>` fijo convertía al header en *containing block* del menú `position: fixed` (colapsaba a ~1px). Solución: mover el menú fuera del `<header>` (sibling, `z-40`).
+- **Próximo:** Fase 0 (migración + refactor `tier.ts` → `hasTier` + `site.config.ts`) → Fase 1 (donaciones) → Fase 2 (hero editable + directorio + postulación).
 
 ## Completado (27 de octubre de 2026)
 

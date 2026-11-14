@@ -37,9 +37,13 @@ Regla: las páginas no escriben en la base de datos directamente; llaman a accio
 - **Identidad:** inicio de sesión con Discord y resolución del perfil interno.
 - **Perfiles:** datos públicos, biografía, banner, enlaces sociales y reputación.
 - **Personalización (Tier 2):** slides y estilos del perfil.
+- **Descubrimiento:** directorio de creadores, top, "sorpréndeme" y búsqueda por categoría/tags.
+- **Comentarios en perfiles:** comentarios en el perfil de un creador, con activación y moderación propias.
 - **Noticias:** publicación administrada y lectura pública.
 - **Comentarios:** creación, edición, eliminación propia, likes y moderación.
-- **Administración:** gestión de noticias, comentarios y tiers.
+- **Notificaciones:** avisos in-app (postulación resuelta, comentario recibido, reputación, nueva noticia).
+- **Monetización:** donaciones, sponsors y (a futuro) anuncios.
+- **Administración:** gestión de hero, creadores, noticias, comentarios, sponsors y supporters.
 
 Cada módulo debe poder leerse de forma aislada: sus tipos, acciones y componentes viven juntos o con referencias claras.
 
@@ -117,37 +121,42 @@ El acceso administrativo se determina mediante `profiles.is_admin`, consultado p
 
 | Recurso | Uso |
 | --- | --- |
-| `profiles` | Perfiles: `id`, `discord_id`, `email`, `is_admin`, `tier_level`, `sub_expires_at`, redes, banner y biografía. |
-| `user_slides` | Slides VIP (Tier 2+), identificados por `user_id` y `slot_number`. |
+| `profiles` | Perfiles: `id`, `discord_id`, `email`, `is_admin`, `tier_level`, `sub_expires_at` (en desuso), redes, banner y biografía. Nuevas columnas: `streamer_status`, `streamer_category`, `tags`, `profile_comments_enabled`, `profile_comments_moderated`. |
+| `user_slides` | Slides VIP (Tier 2+), identificados por `user_id` y `slot_number`. Se reorganiza: `target_network` → `link_url` (enlace libre) y 3 slots con propósito (Portada / Agenda / CTA). |
 | `profile_likes` | Reputación entre perfiles (`giver_id`, `receiver_id`). |
 | `news` | Noticias publicadas. |
 | `comments` | Comentarios de noticias (`news_id`). |
 | `comment_likes` | Likes de comentarios (`comment_id`). |
+| `hero_slides` | Slides del Hero editable desde `/admin` (título, subtítulo, imagen, CTA, orden, activo). |
+| `profile_comments` | Comentarios en perfiles de creadores (`profile_id`, `author_id`, `content`, `status`). |
+| `notifications` | Notificaciones in-app (`user_id`, `type`, `actor_id`, `payload`, `read`). |
+| `supporters` | Muro de supporters (`profile_id`, `name`, `message`). |
+| `sponsors` | Patrocinadores (`name`, `logo_url`, `link_url`, `placement`, `start_date`, `end_date`, `active`). |
 | `user_networks` | Definida en los tipos generados; no se detectó uso en `src/`. |
 | Función `reorder_slides_after_delete` | RPC que reordena slots tras eliminar uno. |
 | Bucket `user_slides` | Imágenes de slides. |
 | Bucket `user_banners` | Banners de perfil. |
 | Bucket `news_images` | Imágenes de noticias. |
+| Bucket `hero_images` | Imágenes del Hero editable (a crear). |
 
-## Reglas de tiers
+## Reglas de tiers (roles/estado)
 
-Los tiers son niveles de beneficios de producto, guardados en `profiles.tier_level`.
+Los tiers son **niveles de estado/rol**, guardados en `profiles.tier_level`. **No son de pago ni tienen vigencia** (`sub_expires_at` queda en desuso).
 
-| Tier | Estado | Beneficios actuales o previstos |
-| --- | --- | --- |
-| 0 | Implementado | Perfil público básico, comentarios y likes. |
-| 1 | Implementado parcialmente | Enlaces a redes destacados y visibilidad en el perfil. |
-| 2 | Implementado parcialmente | Personalización: estilo de nombre, anillo de avatar y slides propios. |
-| 3 | Propuesta | Visibilidad para patrocinadores y empresas. **No implementado.** |
+| Nivel | Rol | Beneficios | Cómo se obtiene |
+| --- | --- | --- | --- |
+| 0 | Miembro | Perfil público, comentar, likear. | Login con Discord. |
+| 1 | Creador aprobado | Aparece en el directorio + redes destacadas. | Postulación aprobada por el admin. |
+| 2 | Creador destacado | Lo anterior + slides/degradado de nombre/anillo + mayor peso en descubrimiento. | El admin lo destaca. |
 
 Reglas:
 
 1. Cada beneficio debe estar listado en esta tabla antes de implementarse.
-2. Un tier superior incluye los beneficios de los inferiores.
-3. Un beneficio se valida en el servidor en cada operación que lo use (por ejemplo, guardar un slide exige Tier 2 o superior).
-4. La vigencia (`sub_expires_at`) debe considerarse al evaluar un beneficio. *Pendiente:* definir qué ocurre al vencer (degradación inmediata o periodo de gracia) y aplicarlo de forma consistente.
-5. Los administradores gestionan tiers desde el panel; cualquier cambio de tier debe quedar auditable.
-6. Los permisos de administrador no se derivan del tier.
+2. Un nivel superior incluye los beneficios de los inferiores.
+3. Un beneficio se valida en el servidor en cada operación que lo use (por ejemplo, guardar un slide exige nivel 2 o superior).
+4. No hay vigencia ni degradación por tiempo; el estado solo cambia por acción del admin (aprobar/destacar) o del propio flujo de postulación.
+5. Los administradores gestionan los niveles desde el panel; cualquier cambio debe quedar auditable.
+6. Los permisos de administrador no se derivan del nivel de estado.
 
 ## Datos y almacenamiento
 
@@ -157,6 +166,7 @@ Reglas:
 
 ## Decisiones pendientes
 
-- Política de vigencia y degradación de tiers.
 - Políticas RLS documentadas por tabla.
 - Estrategia de pruebas automatizadas.
+- Proveedor de automatización de supporters (Ko-fi recomendado vs StreamElements vs Stripe).
+- Categorías/tags definitivos para la postulación.

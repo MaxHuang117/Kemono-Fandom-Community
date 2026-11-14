@@ -2,6 +2,8 @@
 
 Este documento define las fases de desarrollo de Kemono Fandom Community. Cada fase tiene un objetivo claro; no se avanza a la siguiente hasta cumplir sus criterios de salida.
 
+> **Regla transversal:** al terminar cada fase se ejecuta un **análisis de seguridad** de las Server Actions, rutas y tablas nuevas/modificadas antes de darla por cerrada (ver `docs/development/workflow.md`).
+
 ## Fase 1 — Fundación (completada)
 
 **Objetivo:** dejar documentada la base del proyecto.
@@ -26,27 +28,41 @@ Este documento define las fases de desarrollo de Kemono Fandom Community. Cada f
 
 **Criterio de salida:** ninguna acción sensible confía en datos enviados por el cliente para decidir identidad o permisos.
 
-## Fase 3 — Experiencia para creadores (Tier 1 y 2)
+## Fase 3 — Hub de creadores y descubrimiento
 
-**Objetivo:** que los beneficios de Tier 1 y 2 sean claros, útiles y medibles.
+**Objetivo:** que la web cumpla la promesa de descubrir y conectar creadores de contenido.
 
-- Definir beneficios concretos por tier (ver `docs/architecture/overview.md`, sección de tiers).
-- Mejorar onboarding, perfiles y descubrimiento de creadores.
-- Mejorar moderación de comentarios y noticias.
+- **Postulación de creadores:** formulario + aprobación manual; el aprobado se convierte en `tier_level 1` (Creador aprobado).
+- **Directorio de creadores:** reutilizar la sección de colaboradores; leer perfiles con `streamer_status = 'approved'`.
+- **Hero editable:** slides gestionados desde `/admin` (tabla `hero_slides`), no hardcodeados.
+- **Top creadores** por reputación (`likes_count`).
+- **"Sorpréndeme"** con random ponderado (mayor peso a destacados) y **búsqueda por categoría/tags**.
+- **Tiers como roles/estado** (sin pago ni vigencia): `0` Miembro · `1` Creador aprobado · `2` Creador destacado.
 
-**Criterio de salida:** los beneficios de cada tier están documentados, probados y visibles para el usuario.
+**Criterio de salida:** postular → aprobar → aparece en el directorio; el hero cambia desde admin; se puede ordenar, filtrar y saltar a un creador al azar.
 
-## Fase 4 — Validación de Tier 3 (patrocinadores)
+## Fase 4 — Comunidad viva
 
-**Objetivo:** decidir si Tier 3 se construye, y cómo, antes de escribir código.
+**Objetivo:** retención y participación de creadores y visitantes.
 
-- Investigar necesidades reales de patrocinadores y empresas.
-- Definir: formatos de visibilidad, vigencia, privacidad, métricas y operación manual o automatizada.
-- Definir si hay pagos y, en tal caso, el proveedor y los procesos de facturación.
+- **Comentarios en perfiles:** el creador activa/desactiva y modera (aprobar/rechazar cada comentario).
+- **Slides Tier 2 reorganizados:** 3 slots con propósito (Portada / Agenda / CTA) y enlace libre.
+- **Notificaciones:** campanita con tipos `application_result`, `profile_comment_received`, `reputation_received`, `news_published`.
+- **Supporters:** muro + badge, automatizado vía webhook (Ko-fi).
 
-**Criterio de salida:** documento de propuesta aprobado. Sin esto, no se implementa Tier 3.
+**Criterio de salida:** el creador modera sus comentarios y recibe notificaciones; un supporter aparece solo al donar.
 
-## Fase 5 — Escala sostenible
+## Fase 5 — Monetización
+
+**Objetivo:** generar ingresos de forma sostenible.
+
+- **Donaciones:** botón StreamElements en Navbar/Hero/Footer.
+- **Sponsors:** tabla `sponsors` con placement (hero/news/footer) y vigencia.
+- **Anuncios:** solo con tráfico medible (AdSense).
+
+**Criterio de salida:** donaciones y sponsors visibles y gestionables desde `/admin`.
+
+## Fase 6 — Escala sostenible
 
 **Objetivo:** que el crecimiento no degrade costos, rendimiento ni seguridad.
 

@@ -36,7 +36,15 @@ npm run lint
 npm run build
 ```
 
-Además, verifica manualmente el flujo afectado con la cuenta adecuada (usuario sin sesión, Tier 0, Tier 2 y administrador cuando aplique).
+Además, verifica manualmente el flujo afectado con la cuenta adecuada (usuario sin sesión, Miembro, Creador aprobado/destacado y administrador cuando aplique).
+
+> **🔒 Análisis de seguridad por fase (obligatorio):** al terminar una *fase* (no solo un cambio puntual), ejecuta un análisis de seguridad de las Server Actions, route handlers y tablas nuevas/modificadas. Revisa como mínimo:
+> 1. Identidad obtenida solo desde `getServerSession(authOptions)` (`session.user.discordId`).
+> 2. Autorización en servidor (propiedad, rol `is_admin`, nivel de estado) sin confiar en datos del cliente.
+> 3. Validación de entradas (formato, longitud, tipo y tamaño).
+> 4. Ausencia de secretos en el cliente (`NEXT_PUBLIC_`).
+>
+> Registra hallazgos y su remediación en `STATUS.md` (o `.opencode/plan/`) antes de dar la fase por cerrada.
 
 ## 5. Revisar
 
