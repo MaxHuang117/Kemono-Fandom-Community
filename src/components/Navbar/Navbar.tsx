@@ -9,9 +9,11 @@ import { SITE_CONFIG } from "@/config/site.config";
 
 const navLinks = [
   { id: "inicio", label: "Inicio" },
-  { id: "colaboradores", label: "Colaboradores" },
+  { id: "creadores", label: "Creadores" },
   { id: "novedades", label: "Novedades" },
 ];
+
+const postulateLink = { href: "/postulate", label: "Postúlate" };
 
 export default function Navbar() {
   const { data: session } = useSession();
@@ -118,6 +120,13 @@ export default function Navbar() {
                       )}
                     </span>
                   ))}
+                  <span className="text-zinc-700" aria-hidden="true">|</span>
+                  <Link
+                    href={postulateLink.href}
+                    className="text-sm font-medium text-zinc-300 hover:text-neon transition-colors focus:outline-none focus-visible:text-neon"
+                  >
+                    {postulateLink.label}
+                  </Link>
                 </>
               ) : (
                 <Link
@@ -246,15 +255,24 @@ export default function Navbar() {
         >
           <nav className="flex flex-col p-6 gap-4" aria-label="Navegación móvil">
             {isHome ? (
-              navLinks.map((link) => (
-                <button
-                  key={link.id}
-                  onClick={() => scrollToSection(link.id)}
+              <>
+                {navLinks.map((link) => (
+                  <button
+                    key={link.id}
+                    onClick={() => scrollToSection(link.id)}
+                    className="text-left text-lg font-medium text-zinc-300 hover:text-neon transition-colors py-2 border-b border-zinc-800 focus:outline-none focus-visible:text-neon"
+                  >
+                    {link.label}
+                  </button>
+                ))}
+                <Link
+                  href={postulateLink.href}
+                  onClick={() => setMenuOpen(false)}
                   className="text-left text-lg font-medium text-zinc-300 hover:text-neon transition-colors py-2 border-b border-zinc-800 focus:outline-none focus-visible:text-neon"
                 >
-                  {link.label}
-                </button>
-              ))
+                  {postulateLink.label}
+                </Link>
+              </>
             ) : (
               <Link
                 href="/"

@@ -49,7 +49,6 @@ export default async function AdminPage() {
                 </header>
 
                 <section className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-                    {/* Renderizamos las tarjetas limpiamente mediante el componente */}
                     <AdminModuleCard 
                         moduleNumber="Módulo 01"
                         title="Noticias"
@@ -66,9 +65,27 @@ export default async function AdminPage() {
                         buttonText="Comentarios"
                     />
 
-                    {/* ¡El nuevo módulo de Tiers! */}
+                    {/* Módulo Hero */}
                     <AdminModuleCard 
                         moduleNumber="Módulo 03"
+                        title="Hero"
+                        description="Slides editables del banner principal de la home."
+                        href="/admin/hero"
+                        buttonText="Hero"
+                    />
+
+                    {/* Módulo Creadores */}
+                    <AdminModuleCard 
+                        moduleNumber="Módulo 04"
+                        title="Creadores"
+                        description="Aprobar, rechazar y destacar postulaciones de creadores."
+                        href="/admin/creators"
+                        buttonText="Creadores"
+                    />
+
+                    {/* Módulo Tiers & Subs (legacy, se conserva hasta reemplazar) */}
+                    <AdminModuleCard 
+                        moduleNumber="Módulo 05"
                         title="Tiers & Subs"
                         description="Asignación de niveles VIP, patrocinadores y control de expiraciones."
                         href="/admin/subs"

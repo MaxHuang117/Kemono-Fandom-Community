@@ -2,6 +2,47 @@
 
 **Actualizado:** 15 de noviembre de 2026
 
+## Sesión del 15 de noviembre de 2026 — Fase 2: Hero editable + directorio + postulación (MVP)
+
+- **Migraciones aplicadas**:
+  - `20261115000001_create_hero_images_bucket.sql`: bucket público `hero_images` para el Hero editable.
+- **Tipos regenerados** (`npm run sub-types`): `database.types.ts` ahora tipa `hero_slides` y columnas `streamer_*`/`tags`.
+- **Postulación** (`/postulate`):
+  - `src/app/postulate/actions.ts`: `obtenerEstadoPostulacionAction` + `postularCreadorAction`.
+  - Validación de `category` contra `SITE_CONFIG.categories` y `tags` contra `ALL_TAGS`.
+  - Bloqueo de re-postulación si el estado es `pending` o `approved`.
+  - `src/app/postulate/page.tsx`: formulario cliente con select de categoría, multi-select de tags y estado de la postulación.
+- **Hero editable + rediseñado**:
+  - `src/actions/hero.action.ts`: `obtenerHeroSlidesAction` (service_role, solo `active = true`).
+  - `src/app/admin/hero/actions/heroAction.ts`: CRUD completo de `hero_slides` (`requireAdmin`) con subida a `hero_images` (validación MIME/size).
+  - `src/app/admin/hero/page.tsx` + `HeroAdminClient.tsx`: UI admin para gestionar slides.
+  - Refactor de `HeroBanner`:
+    - Lee de DB con fallback a `FALLBACK_HERO_SLIDES`.
+    - CTA principal unificado a neón; CTAs fijos: **Donar · Postúlate · Explorar creadores**.
+    - Franja **"Creadores destacados"** (roster) al pie del banner con scroll horizontal y clic → `UserProfileModal`.
+  - `HeroSlides.tsx`, `HeroContent.tsx`, `HeroIndicators.tsx`, `HeroBottomControls.tsx`, `useHeroSlider.ts` actualizados para recibir slides dinámicos y eliminar colores por slide.
+- **Directorio dinámico (franja en el Hero)**:
+  - `src/actions/creators.action.ts`: `obtenerCreadoresAction` (service_role, filtra `streamer_status = 'approved'`).
+  - `src/components/home/HeroBanner/HeroCreatorsRoster.tsx`: franja roster con avatares, presencia ONLINE y modal.
+  - Sección `Colaborators` removida de `src/app/inicio/page.tsx` (ahora integrada en el Hero).
+- **Admin "Creadores"**:
+  - `src/app/admin/creators/actions/creatorsAction.ts`: listado, aprobar (`tier_level 1`), rechazar, destacar (`tier_level 2`), quitar destacado (todas con `requireAdmin`).
+  - `src/app/admin/creators/page.tsx` + `CreatorsAdminClient.tsx`: UI de gestión con filtros por estado.
+- **Navbar** (`src/components/Navbar/Navbar.tsx`):
+  - "Colaboradores" → "Creadores" (scroll a `#creadores`).
+  - Nuevo enlace "Postúlate" (`/postulate`) en desktop y móvil.
+- **Admin dashboard** (`src/app/admin/page.tsx`): añadidas tarjetas "Hero" y "Creadores".
+- **Análisis de seguridad (Fase 2):** ✅ PASS
+  - Identidad solo desde `getServerSession(authOptions)` + `discordId`; relaciones por `profiles.id`.
+  - Todas las acciones admin pasan por `requireAdmin()`.
+  - Validación de entradas: categoría/tags allowlist, longitudes, MIME/size de imagen.
+  - `streamer_status`/`tags` **no** se otorgan a `anon`: el directorio lee con `service_role` y filtra `approved` en servidor.
+  - `hero_slides` se lee con `service_role`; solo devuelve `active = true`.
+  - `revalidatePath` tras mutaciones admin.
+  - Sin secretos en cliente (`NEXT_PUBLIC_`).
+- **Verificación:** `npm run lint` ✅ · `npm run build` ✅
+- **Nota de modelo:** Fase 2 se implementó con el modelo actual (Kimi, sin nivel de razonamiento declarado). El usuario confirmó que si pasa todos los requisitos se marca como correcto. **Validación posterior con DeepSeek V4 Pro** está planeada para confirmar Fases 1.5 y 2 antes de avanzar a Fases 3+.
+
 ## Sesión del 15 de noviembre de 2026 — Fase 1.5: Presencia ONLINE
 
 - **Migración aplicada** (`20261115000000_presence_is_online.sql`): columna `is_online boolean NOT NULL DEFAULT false` + GRANT SELECT a rol `anon` (no es sensible, lectura pública).
