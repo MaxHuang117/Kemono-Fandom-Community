@@ -41,6 +41,8 @@ Este documento define las fases de desarrollo de Kemono Fandom Community. Cada f
 
 **Criterio de salida:** postular → aprobar → aparece en el directorio; el hero cambia desde admin; se puede ordenar, filtrar y saltar a un creador al azar.
 
+> **Progreso (15 nov 2026):** ✅ postulación · ✅ directorio (franja en el Hero) · ✅ hero editable. ⏳ Pendiente: top creadores, "sorpréndeme" y búsqueda por categoría/tags (→ Fase 4 del plan maestro `PLAN_HUB_STREAMERS.md`).
+
 ## Fase 4 — Comunidad viva
 
 **Objetivo:** retención y participación de creadores y visitantes.

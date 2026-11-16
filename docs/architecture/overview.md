@@ -36,8 +36,10 @@ Regla: las páginas no escriben en la base de datos directamente; llaman a accio
 
 - **Identidad:** inicio de sesión con Discord y resolución del perfil interno.
 - **Perfiles:** datos públicos, biografía, banner, enlaces sociales y reputación.
+- **Presencia:** estado ONLINE/OFFLINE (`profiles.is_online`) controlado manualmente por el creador desde `/perfil`.
+- **Postulación:** formulario `/postulate` → `pending` → aprobación/rechazo admin (Creadores).
 - **Personalización (Tier 2):** slides y estilos del perfil.
-- **Descubrimiento:** directorio de creadores, top, "sorpréndeme" y búsqueda por categoría/tags.
+- **Descubrimiento:** directorio de creadores aprobados (franja en el Hero). Pendientes: top, "sorpréndeme" y búsqueda por categoría/tags (Fase 4).
 - **Comentarios en perfiles:** comentarios en el perfil de un creador, con activación y moderación propias.
 - **Noticias:** publicación administrada y lectura pública.
 - **Comentarios:** creación, edición, eliminación propia, likes y moderación.
@@ -92,8 +94,9 @@ El acceso administrativo se determina mediante `profiles.is_admin`, consultado p
 | Ruta | Tipo | Descripción |
 | --- | --- | --- |
 | `/` | Página | Reexporta la página de inicio. |
-| `/inicio` | Página | Hero, colaboradores y noticias. |
+| `/inicio` | Página | Hero (slides editables + franja de creadores) y noticias. |
 | `/perfil` | Página cliente | Perfil propio y edición; requiere sesión. |
+| `/postulate` | Página cliente | Postulación de creador; requiere sesión. |
 | `/u/[id]` | Página servidor | Perfil público por `discord_id` o nombre de usuario. |
 | `/login` | Página | Inicio de sesión con Discord. |
 | `/api/social/connect/[platform]` | Route Handler | Inicia el OAuth de verificación de redes sociales (X, Twitch, GitHub, YouTube). |
@@ -101,6 +104,8 @@ El acceso administrativo se determina mediante `profiles.is_admin`, consultado p
 | `/admin` | Página servidor | Panel de administración; requiere `is_admin`. |
 | `/admin/news` | Página | Gestión de noticias. |
 | `/admin/comments` | Página | Moderación de comentarios. |
+| `/admin/hero` | Página servidor | CRUD de slides del Hero; requiere `is_admin`. |
+| `/admin/creators` | Página servidor | Aprobar/rechazar/destacar creadores; requiere `is_admin`. |
 | `/admin/subs` | Página | Gestión de tiers. |
 | `/api/auth/[...nextauth]` | Route Handler | Endpoints de NextAuth. |
 
@@ -110,24 +115,29 @@ El acceso administrativo se determina mediante `profiles.is_admin`, consultado p
 | --- | --- | --- | --- |
 | `src/actions/publicProfile.action.ts` | `obtenerPerfilPublicoAction` | Identificador público (lectura) | Remediado FASE2-02/FASE2-12. La lectura pública usa `createPublicClient()` (anon) y los GRANTs de columnas sensibles se aplicaron en Supabase; pendiente versionarlos como migración. |
 | `src/actions/tier2.actions.ts` | `guardarSlideAction`, `eliminarSlideAction` | `getServerSession(authOptions)`; perfil resuelto por `discord_id` | Corregido en Paso 3: acciones limitadas al perfil de sesión y a Tier 2 vigente. |
-| `src/app/perfil/actions.ts` | `guardarBiografiaAction`, `obtenerBiografiaAction`, `sincronizarPerfilDiscordAction`, `obtenerPerfilCompletoAction`, `guardarRedesAction`, `subirBannerAction`, `guardarCosmeticosVIPAction`, `toggleProfileReputationAction` | `getServerSession(authOptions)` | Remediado (FASE2-03/04/05/06/07/09/11), FASE2-08 (tier + `sub_expires_at` via `hasActiveTier`) y FASE2-10 (likes por `profiles.id`, toggle sin `.match()` + unicidad aplicada). La vinculación de redes se movió a `src/lib/social-oauth/linking.ts` (`vincularRedVerificada`). |
+| `src/app/perfil/actions.ts` | `guardarBiografiaAction`, `obtenerBiografiaAction`, `sincronizarPerfilDiscordAction`, `obtenerPerfilCompletoAction`, `guardarRedesAction`, `subirBannerAction`, `guardarCosmeticosVIPAction`, `toggleProfileReputationAction`, `setPresenciaAction` | `getServerSession(authOptions)` | Remediado (FASE2-03/04/05/06/07/09/11), FASE2-08 (tier + `sub_expires_at` via `hasActiveTier`) y FASE2-10 (likes por `profiles.id`, toggle sin `.match()` + unicidad aplicada). La vinculación de redes se movió a `src/lib/social-oauth/linking.ts` (`vincularRedVerificada`). `setPresenciaAction` (Fase 1.5) actualiza `is_online` del perfil propio. |
 | `src/app/admin/subs/actions/subsAction.ts` | `getUsersListAction`, `updateUserTierAction` | `getServerSession(authOptions)` + `profiles.is_admin` por `discord_id` (`requireAdmin`) | Corregido el 1 de noviembre de 2026. |
 | `src/app/admin/news/actions/newsAction.ts` | `getAdminNewsAction`, `saveNewsAction`, `deleteNewsAction` | `getServerSession(authOptions)` + `profiles.is_admin` por `discord_id` (`requireAdmin`) | Corregido el 1 de noviembre de 2026 (`deleteNewsAction` ahora verifica `is_admin`). |
 | `src/app/admin/comments/actions/commentsActions.ts` | `getAdminCommentsAction`, `deleteCommentAction` | `getServerSession(authOptions)` + `profiles.is_admin` por `discord_id` (`requireAdmin`) | Corregido el 1 de noviembre de 2026. |
 | `src/components/home/News/components/comments/actions/commentsAction.ts` | `obtenerComentariosAction`, `publicarComentarioAction`, `editarComentarioAction`, `eliminarComentarioAction` | `getServerSession(authOptions)` + perfil por `discord_id` | Corregido el 3 de noviembre de 2026 (Paso 2). |
 | `src/components/home/News/components/comments/actions/likesAction.ts` | Likes de comentarios | `getServerSession(authOptions)` + `profiles.id` por `discord_id` | Corregido el 3 de noviembre de 2026 (Paso 2). |
+| `src/actions/hero.action.ts` | `obtenerHeroSlidesAction` | Lectura pública (`service_role`, `active = true`) | Fase 2. Contenido público filtrado en servidor. |
+| `src/actions/creators.action.ts` | `obtenerCreadoresAction` | Lectura pública (`service_role`, `streamer_status = 'approved'`) | Fase 2. No expone `pending`/`rejected`. |
+| `src/app/postulate/actions.ts` | `obtenerEstadoPostulacionAction`, `postularCreadorAction` | `getServerSession(authOptions)` + perfil por `discord_id` | Fase 2. Valida categoría/tags contra allowlist y bloquea re-postulación `pending`/`approved`. |
+| `src/app/admin/hero/actions/heroAction.ts` | `getAdminHeroSlidesAction`, `saveHeroSlideAction`, `deleteHeroSlideAction` | `requireAdmin()` | Fase 2. Valida longitudes, URL, MIME/size de imagen. |
+| `src/app/admin/creators/actions/creatorsAction.ts` | `getCreatorApplicationsAction`, `approveCreatorAction`, `rejectCreatorAction`, `featureCreatorAction`, `unfeatureCreatorAction` | `requireAdmin()` | Fase 2. Transiciones de estado: aprobar→tier 1, destacar→tier 2. |
 
 ### Tablas y recursos de Supabase
 
 | Recurso | Uso |
 | --- | --- |
-| `profiles` | Perfiles: `id`, `discord_id`, `email`, `is_admin`, `tier_level`, `sub_expires_at` (en desuso), redes, banner y biografía. Nuevas columnas: `streamer_status`, `streamer_category`, `tags`, `profile_comments_enabled`, `profile_comments_moderated`. |
+| `profiles` | Perfiles: `id`, `discord_id`, `email`, `is_admin`, `tier_level`, `sub_expires_at` (en desuso), redes, banner y biografía. Columnas de hub: `streamer_status`, `streamer_category`, `tags`, `is_online` (presencia), `profile_comments_enabled`, `profile_comments_moderated`. |
 | `user_slides` | Slides VIP (Tier 2+), identificados por `user_id` y `slot_number`. Se reorganiza: `target_network` → `link_url` (enlace libre) y 3 slots con propósito (Portada / Agenda / CTA). |
 | `profile_likes` | Reputación entre perfiles (`giver_id`, `receiver_id`). |
 | `news` | Noticias publicadas. |
 | `comments` | Comentarios de noticias (`news_id`). |
 | `comment_likes` | Likes de comentarios (`comment_id`). |
-| `hero_slides` | Slides del Hero editable desde `/admin` (título, subtítulo, imagen, CTA, orden, activo). |
+| `hero_slides` | Slides del Hero editable desde `/admin/hero` (título, subtítulo, imagen, CTA, orden, activo). En uso desde Fase 2; leído con `service_role`. |
 | `profile_comments` | Comentarios en perfiles de creadores (`profile_id`, `author_id`, `content`, `status`). |
 | `notifications` | Notificaciones in-app (`user_id`, `type`, `actor_id`, `payload`, `read`). |
 | `supporters` | Muro de supporters (`profile_id`, `name`, `message`). |
@@ -137,7 +147,9 @@ El acceso administrativo se determina mediante `profiles.is_admin`, consultado p
 | Bucket `user_slides` | Imágenes de slides. |
 | Bucket `user_banners` | Banners de perfil. |
 | Bucket `news_images` | Imágenes de noticias. |
-| Bucket `hero_images` | Imágenes del Hero editable (a crear). |
+| Bucket `hero_images` | Imágenes del Hero editable. |
+
+> **Lecturas públicas vía `service_role` (Fase 2):** `obtenerHeroSlidesAction` y `obtenerCreadoresAction` usan la clave de servicio (bypass de RLS) para contenido público filtrado en servidor (`active = true` / `streamer_status = 'approved'`), coherente con la decisión D1 de Fase 0. No exponen `pending`/`rejected` ni columnas sensibles a `anon`.
 
 ## Reglas de tiers (roles/estado)
 

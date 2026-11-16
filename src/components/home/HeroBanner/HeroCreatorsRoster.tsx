@@ -9,12 +9,16 @@ import { UserProfile } from "@/components/home/News/components/lib/types/profile
 
 function mapCreatorToUserProfile(creator: CreatorProfile): UserProfile {
     return {
-        id: creator.id,
+        // Fase 2 (H1): usar `discord_id` como identificador de fetch para no
+        // depender de la convención `profiles.id === discord_id`. El modal
+        // consulta `obtenerPerfilPublicoAction(user.id)`, que acepta el snowflake.
+        id: creator.discord_id,
         username: creator.discord_username || creator.nombre_publico || "Usuario",
         avatar: creator.avatar_url || "https://cdn.discordapp.com/embed/avatars/0.png",
         banner: creator.banner_url ?? undefined,
         biografia: creator.biografia ?? undefined,
-        discord: creator.discord_id,
+        // Username para el enlace/compartir (más legible), con fallback al id.
+        discord: creator.discord_username ?? creator.discord_id,
         tier_level: creator.tier_level ?? 0,
         social_links: {},
         name_color_gradient: creator.name_color_gradient ?? undefined,
