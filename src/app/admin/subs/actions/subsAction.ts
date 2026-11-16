@@ -30,16 +30,26 @@ export async function updateUserTierAction(targetUserId: string, newTier: number
         throw new Error("DATA_ERR: Nivel de Tier inválido.");
     }
 
+    // Sincronizar streamer_status con el tier para evitar desincronización
+    // entre "Tiers & Subs" y el directorio/panel de Creadores:
+    //   - tier >= 1 → 'approved' (aparece en el directorio)
+    //   - tier 0 → null (miembro, fuera del directorio)
+    const streamerStatus = newTier >= 1 ? "approved" : null;
+
     const { error } = await supabaseAdmin
         .from("profiles")
         .update({
             tier_level: newTier,
-            sub_expires_at: expiresAt
+            sub_expires_at: expiresAt,
+            streamer_status: streamerStatus,
         })
         .eq("id", targetUserId);
 
     if (error) throw new Error("DB_ERR: Fallo al actualizar el Tier del usuario.");
 
     revalidatePath("/admin/subs");
+    revalidatePath("/admin/creators");
+    revalidatePath("/");
+    revalidatePath("/inicio");
     return { success: true };
 }

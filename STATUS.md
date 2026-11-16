@@ -2,6 +2,14 @@
 
 **Actualizado:** 16 de noviembre de 2026
 
+## Sesión del 16 de noviembre de 2026 — Admin: sincronización tiers, quitar creador y filtro
+
+- **Sincronización tiers ↔ streamer_status** (`updateUserTierAction`): al subir a tier ≥ 1 desde "Tiers & Subs" se marca `streamer_status = 'approved'` (aparece en directorio); al bajar a tier 0 se pone `null` (desaprobado). Cierra de raíz el desajuste B1 entre los dos módulos de admin. Añadidos `revalidatePath` de `/admin/creators`, `/` y `/inicio`.
+- **Quitar "Creador aprobado"** (`removeCreatorAction` en `creatorsAction.ts` + botón en `CreatorsAdminClient`): degrada a Miembro (`streamer_status = null` + `tier_level = 0`), visible para cualquier perfil con `tier_level >= 1`.
+- **Filtro por tier en "Tiers & Subs"** (`SubsAdminClient`): botones Todos · Tier 0 · Tier 1 · Tier 2 · Tier 3, combinados con el buscador de texto.
+- **Seguridad:** las tres son acciones admin protegidas con `requireAdmin()`; sin cambios en identidad ni validación.
+- **Verificación:** `npm run lint` ✅ · `npm run build` ✅
+
 ## Sesión del 16 de noviembre de 2026 — Verificación de redes como acordeón + etiquetas
 
 - **`Tier1NetworkHub` rediseñado** (solo UI, sin tocar servidor):

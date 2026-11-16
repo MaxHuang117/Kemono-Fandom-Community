@@ -157,3 +157,30 @@ export async function unfeatureCreatorAction(profileId: string) {
     revalidatePath("/inicio");
     return { success: true };
 }
+
+export async function removeCreatorAction(profileId: string) {
+    await requireAdmin();
+
+    if (!isValidProfileId(profileId)) return { error: "ID inválido." };
+
+    // Quita el estatus de creador por completo: vuelve a Miembro (tier 0)
+    // y sale del directorio (streamer_status null). Puede volver a postular.
+    const { error } = await supabaseAdmin
+        .from("profiles")
+        .update({
+            streamer_status: null,
+            tier_level: 0,
+            updated_at: new Date().toISOString(),
+        })
+        .eq("id", profileId);
+
+    if (error) {
+        console.error("Error quitando creador:", error);
+        return { error: GENERIC_DB_ERROR };
+    }
+
+    revalidatePath("/admin/creators");
+    revalidatePath("/");
+    revalidatePath("/inicio");
+    return { success: true };
+}

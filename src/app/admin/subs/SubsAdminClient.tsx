@@ -8,6 +8,7 @@ export default function SubsAdminClient() {
     const [users, setUsers] = useState<UserProfile[]>([]);
     const [filteredUsers, setFilteredUsers] = useState<UserProfile[]>([]);
     const [search, setSearch] = useState("");
+    const [tierFilter, setTierFilter] = useState<"all" | number>("all");
     
     const [activeModalUser, setActiveModalUser] = useState<UserProfile | null>(null);
 
@@ -26,12 +27,15 @@ export default function SubsAdminClient() {
     useEffect(() => {
         const lowerSearch = search.toLowerCase();
         setFilteredUsers(
-            users.filter(u => 
-                (u.nombre_publico?.toLowerCase().includes(lowerSearch)) || 
-                (u.email.toLowerCase().includes(lowerSearch))
-            )
+            users.filter(u => {
+                const matchesSearch =
+                    (u.nombre_publico?.toLowerCase().includes(lowerSearch)) ||
+                    (u.email.toLowerCase().includes(lowerSearch));
+                const matchesTier = tierFilter === "all" || u.tier_level === tierFilter;
+                return matchesSearch && matchesTier;
+            })
         );
-    }, [search, users]);
+    }, [search, users, tierFilter]);
 
     const getTierColor = (tier: number) => {
         switch(tier) {
@@ -57,6 +61,23 @@ export default function SubsAdminClient() {
                     onChange={(e) => setSearch(e.target.value)}
                     className="w-full md:w-64 bg-[#0a0a0a] border border-white/10 focus:border-neon px-4 py-2 text-sm text-white font-mono outline-none transition-colors"
                 />
+            </div>
+
+            {/* Filtro por tier */}
+            <div className="flex flex-wrap gap-2">
+                {(["all", 0, 1, 2, 3] as const).map((t) => (
+                    <button
+                        key={String(t)}
+                        onClick={() => setTierFilter(t)}
+                        className={`px-3 py-1.5 text-[10px] font-mono uppercase tracking-widest border transition-colors ${
+                            tierFilter === t
+                                ? "bg-neon text-black border-neon"
+                                : "bg-transparent text-zinc-400 border-zinc-700 hover:border-zinc-500"
+                        }`}
+                    >
+                        {t === "all" ? "Todos" : `Tier ${t}`}
+                    </button>
+                ))}
             </div>
 
             {/* Grid de Usuarios */}

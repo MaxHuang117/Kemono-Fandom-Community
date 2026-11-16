@@ -8,6 +8,7 @@ import {
     rejectCreatorAction,
     featureCreatorAction,
     unfeatureCreatorAction,
+    removeCreatorAction,
 } from "./actions/creatorsAction";
 
 interface CreatorApplication {
@@ -180,6 +181,14 @@ export default function CreatorsAdminClient() {
                                         className="text-xs font-mono text-zinc-400 hover:text-white uppercase tracking-widest"
                                     >
                                         Quitar destacado
+                                    </button>
+                                )}
+                                {(app.tier_level ?? 0) >= 1 && (
+                                    <button
+                                        onClick={() => handleAction(removeCreatorAction, app.id, "Creador quitado.")}
+                                        className="text-xs font-mono text-orange-400 hover:text-orange-300 uppercase tracking-widest"
+                                    >
+                                        Quitar aprobado
                                     </button>
                                 )}
                             </div>
