@@ -9,6 +9,9 @@
 - **B3 — Borrado de tarjetas VIP**: versionada y corregida la función `reorder_slides_after_delete` (migración `20261116000000_reorder_slides_after_delete.sql`, reorden secuencial sin violar la unicidad `(user_id, slot_number)`). `eliminarSlideAction` ahora devuelve error si el reorden falla (antes se tragaba el error).
 - **B4 — Modal editor de tarjetas**: `min-h-0` en el panel de controles (scroll interno correcto) y `h-[90dvh] max-h-[90vh]` + `overflow-y-auto` en el overlay (responsividad).
 - **Anillo/contorno siempre visible**: en `PerfilCard`, `UserProfileModal` y `u/[id]` se eliminó `opacity-60 group-hover/avatar:opacity-100`; el anillo (con su animación de giro para destacados) queda siempre visible sin necesidad de hover.
+- **Zoom/brillo del avatar eliminado**: se quitó el `scale-110` (zoom) y el "Hover Glow" (barrido blanco) en `/u/[id]`, `PerfilCard` y `UserProfileModal`, dejando el avatar limpio (solo el anillo animado).
+- **Modal editor de tarjetas por encima de la navbar**: `SlidePowerEditorModal` subió de `z-50` a `z-[100]`, corrigiendo que la navbar tapara la parte superior del editor.
+- **Botón "copiar enlace" en `/perfil`**: añadido `ShareProfileButton` al perfil propio (antes solo estaba en `/u/[id]` y el modal).
 - **Verificación:** `npm run lint` ✅ · `npm run build` ✅
 
 ## Sesión del 15 de noviembre de 2026 — Fase 2: Hero editable + directorio + postulación (MVP)

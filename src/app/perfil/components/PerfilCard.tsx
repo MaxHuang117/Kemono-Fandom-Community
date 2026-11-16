@@ -121,9 +121,6 @@ export default function PerfilCard({
                             <div className={`absolute inset-[-4px] rounded-full ${renderRingClass}`} />
                             <div className="relative h-32 w-32 rounded-full border-4 border-[#050505] bg-[#0a0a0a] overflow-hidden">
                                 <Image src={imagen} fill alt="Perfil" sizes="128px" priority unoptimized={esImagenAnimada(imagen)} className="object-cover" />
-                                {isPremium && (
-                                    <div className="absolute inset-0 w-full h-[200%] bg-gradient-to-b from-transparent via-white/20 to-transparent -translate-y-full group-hover/avatar:translate-y-full transition-transform duration-1000 ease-in-out pointer-events-none" />
-                                )}
                             </div>
                         </div>
 

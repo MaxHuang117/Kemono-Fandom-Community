@@ -135,10 +135,6 @@ export default function UserProfileModal({ user, onClose }: Props) {
                                     <div className={`absolute inset-[-4px] rounded-full ${renderRingClass}`} />
                                     <div className="relative h-24 w-24 rounded-full border-[4px] border-[#050505] bg-[#0a0a0a] shadow-[0_0_20px_rgba(97,255,97,0.2)] overflow-hidden">
                                         <Image src={user.avatar} alt={user.username} fill sizes="96px" unoptimized={esImagenAnimada(user.avatar)} className="object-cover" />
-                                        {/* Hover Glow blanco: Solo se inyecta si es Premium */}
-                                        {isPremium && (
-                                            <div className="absolute inset-0 w-full h-[200%] bg-gradient-to-b from-transparent via-white/30 to-transparent -translate-y-full group-hover/avatar:translate-y-full transition-transform duration-700 ease-in-out pointer-events-none" />
-                                        )}
                                     </div>
                                 </div>
 

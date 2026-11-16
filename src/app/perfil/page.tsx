@@ -118,6 +118,8 @@ export default function PerfilPage() {
                 onSignOut={() => signOut()}
             />
 
+            <ShareProfileButton discordUsername={discordIdFinal} />
+
             <BiografiaEditor
                 biografia={biografia}
                 guardando={guardando}

@@ -95,11 +95,7 @@ export default async function PublicProfilePage({ params }: Props) {
                                 {/* Anillo Dinámico VIP */}
                                 <div className={`absolute inset-[-4px] rounded-full ${renderRingClass}`} />
                                 <div className="relative h-40 w-40 sm:h-48 sm:w-48 rounded-full border-[6px] border-[#070707] bg-[#0a0a0a] shadow-[0_0_30px_rgba(0,0,0,0.8)] overflow-hidden">
-                                    <Image src={user.avatar_url || "https://cdn.discordapp.com/embed/avatars/0.png"} alt={profileName} fill sizes="192px" unoptimized={esImagenAnimada(user.avatar_url)} className="object-cover group-hover/avatar:scale-110 transition-transform duration-700" priority />
-                                    {/* Brillo de luz blanco (Hover Glow) solo para Tier 1+ */}
-                                    {isPremium && (
-                                        <div className="absolute inset-0 w-full h-[200%] bg-gradient-to-b from-transparent via-white/30 to-transparent -translate-y-full group-hover/avatar:translate-y-full transition-transform duration-1000 ease-in-out pointer-events-none" />
-                                    )}
+                                    <Image src={user.avatar_url || "https://cdn.discordapp.com/embed/avatars/0.png"} alt={profileName} fill sizes="192px" unoptimized={esImagenAnimada(user.avatar_url)} className="object-cover" priority />
                                 </div>
                             </div>
 
