@@ -10,6 +10,7 @@ import Tier2CosmeticsHub from "./tier2/Tier2CosmeticsHub";
 // 👇 IMPORTAMOS LOS ESTILOS VIP
 import { VIP_STYLES, DEFAULT_STYLE } from "@/config/vipStyles.config";
 import { SITE_CONFIG } from "@/config/site.config";
+import ShareProfileButton from "@/components/ui/ShareProfileButton";
 
 interface Props {
     banner?: string;
@@ -91,6 +92,10 @@ export default function PerfilCard({
                             </span>
                         </button>
                     </div>
+                    {/* Copiar enlace público (/u/...) junto al ID */}
+                    <div className="mt-2">
+                        <ShareProfileButton discordUsername={discordId} />
+                    </div>
                 </div>
                 <button onClick={onSignOut} className="text-[10px] uppercase font-mono tracking-widest text-zinc-500 hover:text-red-400 border border-transparent hover:border-red-500/30 bg-transparent hover:bg-red-500/10 px-4 py-2 transition-all rounded">Cerrar sesión</button>
             </div>
@@ -155,7 +160,7 @@ export default function PerfilCard({
                         </div>
                     </div>
 
-                    {tierLevel >= 1 && <Tier1NetworkHub socialLinks={socialLinks} onUpdate={onUpdate} />}
+                    <Tier1NetworkHub tierLevel={tierLevel} socialLinks={socialLinks} onUpdate={onUpdate} />
                     <Tier2CosmeticsHub tierLevel={tierLevel} currentStyleId={nameColorGradient || "matrix"} onUpdate={onUpdate} />
                     <Tier2Accordion tierLevel={tierLevel} slides={customSlides} socialLinks={socialLinks} onUpdate={onUpdate} />
                 </div>

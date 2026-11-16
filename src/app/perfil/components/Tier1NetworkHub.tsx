@@ -7,9 +7,10 @@ import { guardarRedesAction } from "../actions";
 interface Props {
     socialLinks: Record<string, string>;
     onUpdate: () => void;
+    tierLevel: number;
 }
 
-export default function Tier1NetworkHub({ socialLinks, onUpdate }: Props) {
+export default function Tier1NetworkHub({ socialLinks, onUpdate, tierLevel }: Props) {
     const [isProcessing, setIsProcessing] = useState<string | null>(null);
 
     // 💔 FUNCIÓN DESCONECTAR: Borra la red de la BD
@@ -43,6 +44,19 @@ export default function Tier1NetworkHub({ socialLinks, onUpdate }: Props) {
                 </span>
             </div>
 
+            {tierLevel < 1 ? (
+                /* ESTADO BLOQUEADO (Tier 0): la verificación de redes requiere Creador aprobado */
+                <div className="bg-[#050505] border border-dashed border-zinc-800 p-10 text-center flex flex-col items-center justify-center opacity-80 select-none">
+                    <svg className="w-8 h-8 text-zinc-700 mb-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                        <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+                    </svg>
+                    <h5 className="text-zinc-400 font-bold uppercase tracking-wider text-sm mb-2">Módulo Bloqueado</h5>
+                    <p className="text-zinc-500 font-mono text-xs max-w-md">
+                        Desbloquea el Tier 1 (Creador aprobado) para verificar y vincular tus redes sociales.
+                    </p>
+                </div>
+            ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {NETWORK_CONFIG.map((net) => {
                     const isConnected = Boolean(socialLinks && socialLinks[net.key]);
@@ -105,6 +119,7 @@ export default function Tier1NetworkHub({ socialLinks, onUpdate }: Props) {
                     );
                 })}
             </div>
+            )}
         </div>
     );
 }

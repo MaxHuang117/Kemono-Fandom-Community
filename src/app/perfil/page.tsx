@@ -7,7 +7,6 @@ import { usePerfil } from "./hooks/usePerfil";
 import LoginCard from "./components/LoginCard";
 import PerfilCard from "./components/PerfilCard";
 import BiografiaEditor from "./components/BiografiaEditor";
-import ShareProfileButton from "@/components/ui/ShareProfileButton";
 
 export default function PerfilPage() {
     const [socialToast, setSocialToast] = useState<{ type: "ok" | "error"; msg: string } | null>(null);
@@ -117,8 +116,6 @@ export default function PerfilPage() {
                 onUpdate={cargarDatos}
                 onSignOut={() => signOut()}
             />
-
-            <ShareProfileButton discordUsername={discordIdFinal} />
 
             <BiografiaEditor
                 biografia={biografia}
