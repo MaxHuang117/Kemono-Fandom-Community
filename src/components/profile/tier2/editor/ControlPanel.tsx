@@ -59,7 +59,7 @@ export default function ControlPanel(props: Props) {
                 <button onClick={props.onClose} type="button" disabled={props.isSaving} aria-label="Cerrar editor" className="text-zinc-500 hover:text-red-400 font-mono text-[10px] tracking-widest uppercase transition-colors px-2 py-1 border border-transparent hover:border-red-900/50 rounded">Cerrar</button>
             </div>
 
-            <div className="flex-1 overflow-y-auto p-5 sm:p-8 space-y-10 scrollbar-thin scrollbar-thumb-zinc-800 scrollbar-track-transparent">
+            <div className="flex-1 min-h-0 overflow-y-auto p-5 sm:p-8 space-y-10">
                 
 {/* 1. FORMATO */}
                 <div className="space-y-4">

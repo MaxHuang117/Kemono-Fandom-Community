@@ -132,7 +132,7 @@ export default function UserProfileModal({ user, onClose }: Props) {
                                 {/* AVATAR + EFECTO VIP */}
                                 <div className="relative group/avatar shrink-0 mb-3">
                                     {/* Anillo de color (Calculado en la variable renderRingClass) */}
-                                    <div className={`absolute inset-[-4px] rounded-full ${renderRingClass} opacity-60 group-hover/avatar:opacity-100 transition-opacity duration-500`} />
+                                    <div className={`absolute inset-[-4px] rounded-full ${renderRingClass}`} />
                                     <div className="relative h-24 w-24 rounded-full border-[4px] border-[#050505] bg-[#0a0a0a] shadow-[0_0_20px_rgba(97,255,97,0.2)] overflow-hidden">
                                         <Image src={user.avatar} alt={user.username} fill sizes="96px" unoptimized={esImagenAnimada(user.avatar)} className="object-cover" />
                                         {/* Hover Glow blanco: Solo se inyecta si es Premium */}

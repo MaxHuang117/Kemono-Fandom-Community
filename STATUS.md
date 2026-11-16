@@ -1,6 +1,15 @@
 # Estado del proyecto
 
-**Actualizado:** 15 de noviembre de 2026
+**Actualizado:** 16 de noviembre de 2026
+
+## Sesión del 16 de noviembre de 2026 — Fixes (B1-B4) + anillo siempre visible
+
+- **B1 — Tablero admin "Creadores"**: `getCreatorApplicationsAction` ahora filtra con `.or("streamer_status.not.is.null,tier_level.gte.1")`, mostrando también a perfiles promovidos directamente desde `/admin/subs` (tier ≥ 1).
+- **B2 — Renombrar badges**: `TierBadge.tsx` y `PerfilCard.tsx` ahora usan `SITE_CONFIG.tierLabels` → **Miembro / Creador aprobado / Creador destacado**. Eliminados los nombres legacy SUPPORTER/VIP/SPONSOR y el tier 3.
+- **B3 — Borrado de tarjetas VIP**: versionada y corregida la función `reorder_slides_after_delete` (migración `20261116000000_reorder_slides_after_delete.sql`, reorden secuencial sin violar la unicidad `(user_id, slot_number)`). `eliminarSlideAction` ahora devuelve error si el reorden falla (antes se tragaba el error).
+- **B4 — Modal editor de tarjetas**: `min-h-0` en el panel de controles (scroll interno correcto) y `h-[90dvh] max-h-[90vh]` + `overflow-y-auto` en el overlay (responsividad).
+- **Anillo/contorno siempre visible**: en `PerfilCard`, `UserProfileModal` y `u/[id]` se eliminó `opacity-60 group-hover/avatar:opacity-100`; el anillo (con su animación de giro para destacados) queda siempre visible sin necesidad de hover.
+- **Verificación:** `npm run lint` ✅ · `npm run build` ✅
 
 ## Sesión del 15 de noviembre de 2026 — Fase 2: Hero editable + directorio + postulación (MVP)
 

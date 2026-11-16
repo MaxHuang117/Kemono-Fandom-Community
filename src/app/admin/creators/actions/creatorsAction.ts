@@ -18,7 +18,9 @@ export async function getCreatorApplicationsAction() {
     const { data, error } = await supabaseAdmin
         .from("profiles")
         .select("id, discord_username, nombre_publico, avatar_url, streamer_status, streamer_category, tags, tier_level")
-        .not("streamer_status", "is", null)
+        // Fase 2 (B1): mostrar tanto postulaciones (streamer_status no nulo)
+        // como perfiles promovidos directamente (tier_level >= 1) desde /admin/subs.
+        .or("streamer_status.not.is.null,tier_level.gte.1")
         .order("created_at", { ascending: false });
 
     if (error) {

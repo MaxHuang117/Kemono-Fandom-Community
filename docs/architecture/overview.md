@@ -143,7 +143,7 @@ El acceso administrativo se determina mediante `profiles.is_admin`, consultado p
 | `supporters` | Muro de supporters (`profile_id`, `name`, `message`). |
 | `sponsors` | Patrocinadores (`name`, `logo_url`, `link_url`, `placement`, `start_date`, `end_date`, `active`). |
 | `user_networks` | Definida en los tipos generados; no se detectó uso en `src/`. |
-| Función `reorder_slides_after_delete` | RPC que reordena slots tras eliminar uno. |
+| Función `reorder_slides_after_delete` | RPC que reordena slots tras eliminar uno. Versionada y corregida en `supabase/migrations/20261116000000_reorder_slides_after_delete.sql` (reorden secuencial sin violar la unicidad). |
 | Bucket `user_slides` | Imágenes de slides. |
 | Bucket `user_banners` | Banners de perfil. |
 | Bucket `news_images` | Imágenes de noticias. |

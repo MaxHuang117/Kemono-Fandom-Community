@@ -9,6 +9,7 @@ import type { CustomSlide } from "@/types/slides";
 import Tier2CosmeticsHub from "./tier2/Tier2CosmeticsHub"; 
 // 👇 IMPORTAMOS LOS ESTILOS VIP
 import { VIP_STYLES, DEFAULT_STYLE } from "@/config/vipStyles.config";
+import { SITE_CONFIG } from "@/config/site.config";
 
 interface Props {
     banner?: string;
@@ -43,12 +44,14 @@ export default function PerfilCard({
     const renderRingClass = isPremium ? `bg-gradient-to-r ${activeStyle.ringClass} motion-safe:animate-[spin_4s_linear_infinite]` : "from-zinc-800 to-zinc-700";
 
     const getTierBadge = () => {
-        switch(tierLevel) {
-            case 3: return <span className="bg-[#0a0a0a] text-purple-400 border border-purple-500/30 px-2.5 py-1 rounded text-[9px] tracking-widest uppercase shadow-[0_0_15px_rgba(168,85,247,0.2)]">TIER 3 : SPONSOR</span>;
-            case 2: return <span className="bg-[#0a0a0a] text-blue-400 border border-blue-500/30 px-2.5 py-1 rounded text-[9px] tracking-widest uppercase shadow-[0_0_15px_rgba(59,130,246,0.2)]">TIER 2 : VIP</span>;
-            case 1: return <span className="bg-[#0a0a0a] text-neon-bright border border-neon/30 px-2.5 py-1 rounded text-[9px] tracking-widest uppercase shadow-[0_0_15px_rgba(97,255,97,0.2)]">TIER 1 : SUPPORTER</span>;
-            default: return <span className="bg-[#0a0a0a] text-zinc-400 border border-zinc-700 px-2.5 py-1 rounded text-[9px] tracking-widest uppercase">FREE TIER</span>;
-        }
+        // Fase 2 (B2): roles del hub (sin tier 3 ni "FREE TIER").
+        if (tierLevel !== 1 && tierLevel !== 2) return null;
+        const label = SITE_CONFIG.tierLabels[tierLevel as 1 | 2];
+        return tierLevel === 2 ? (
+            <span className="bg-[#0a0a0a] text-blue-400 border border-blue-500/30 px-2.5 py-1 rounded text-[9px] tracking-widest uppercase shadow-[0_0_15px_rgba(59,130,246,0.2)]">{label}</span>
+        ) : (
+            <span className="bg-[#0a0a0a] text-neon-bright border border-neon/30 px-2.5 py-1 rounded text-[9px] tracking-widest uppercase shadow-[0_0_15px_rgba(97,255,97,0.2)]">{label}</span>
+        );
     };
 
     const handleBannerUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -115,7 +118,7 @@ export default function PerfilCard({
                         
                         {/* 👇 AVATAR CON MARCO DINÁMICO Y HOVER GLOW 👇 */}
                         <div className="relative group/avatar shrink-0">
-                            <div className={`absolute inset-[-4px] rounded-full ${renderRingClass} opacity-60 group-hover/avatar:opacity-100 transition-opacity duration-500`} />
+                            <div className={`absolute inset-[-4px] rounded-full ${renderRingClass}`} />
                             <div className="relative h-32 w-32 rounded-full border-4 border-[#050505] bg-[#0a0a0a] overflow-hidden">
                                 <Image src={imagen} fill alt="Perfil" sizes="128px" priority unoptimized={esImagenAnimada(imagen)} className="object-cover" />
                                 {isPremium && (

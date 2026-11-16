@@ -228,7 +228,12 @@ export async function eliminarSlideAction(slotId: number) {
             p_deleted_slot: slotId,
         });
 
-        if (reorderError) console.error("SYS_ERR [Reorder_Slides]:", reorderError);
+        if (reorderError) {
+            console.error("SYS_ERR [Reorder_Slides]:", reorderError);
+            // Fase 3 (B3): no ocultar el fallo de reorden; informar al cliente
+            // en lugar de devolver un éxito falso que deja los slots desincronizados.
+            return { success: false, error: "Fallo al reordenar los slides." };
+        }
 
         return { success: true, message: "Slide eliminado correctamente." };
     } catch (error) {
