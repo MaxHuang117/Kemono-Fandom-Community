@@ -2,6 +2,15 @@
 
 **Actualizado:** 16 de noviembre de 2026
 
+## Sesión del 16 de noviembre de 2026 — Verificación de redes como acordeón + etiquetas
+
+- **`Tier1NetworkHub` rediseñado** (solo UI, sin tocar servidor):
+  - Ahora es una **tarjeta desplegable** (acordeón) con el mismo patrón que "Estilo de nombre" y "Tarjetas VIP".
+  - **Bloqueado para tier 0** ("Requiere Tier 1"); habilitado para tier 1+.
+  - Dentro: **redes conectadas como etiquetas** (logo + `@usuario` + botón quitar) y **redes disponibles como chips "Conectar"** (enlazan al OAuth).
+  - Reutiliza `NETWORK_CONFIG` (logos/colores) y `guardarRedesAction` (desconectar). El flujo post-verificación ya recarga el perfil vía `onUpdate`.
+- **Verificación:** `npm run lint` ✅ · `npm run build` ✅
+
 ## Sesión del 16 de noviembre de 2026 — Fixes (B1-B4) + anillo siempre visible
 
 - **B1 — Tablero admin "Creadores"**: `getCreatorApplicationsAction` ahora filtra con `.or("streamer_status.not.is.null,tier_level.gte.1")`, mostrando también a perfiles promovidos directamente desde `/admin/subs` (tier ≥ 1).
