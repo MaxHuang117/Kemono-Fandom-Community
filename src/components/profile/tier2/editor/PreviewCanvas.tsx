@@ -33,7 +33,7 @@ export default function PreviewCanvas({ format, previewUrl, title, description, 
     };
 
     return (
-        <div className="w-full md:w-[55%] h-[40vh] md:h-full border-b md:border-b-0 md:border-r border-zinc-800 bg-[url('/grid-pattern.svg')] bg-[#020202] relative p-4 sm:p-10 flex items-center justify-center">
+        <div className="w-full md:w-[55%] shrink-0 h-[40vh] md:h-full border-b md:border-b-0 md:border-r border-zinc-800 bg-[url('/grid-pattern.svg')] bg-[#020202] relative p-4 sm:p-10 flex items-center justify-center">
             <div className="absolute top-4 left-4 flex gap-2">
                 <span className="bg-zinc-900 border border-zinc-700 text-zinc-500 font-mono text-[9px] px-2 py-1 rounded">Vista previa</span>
                 {format === "A" && <span className="bg-neon/10 border border-neon/30 text-neon font-mono text-[9px] px-2 py-1 rounded motion-safe:animate-pulse">Arrastra el título para colocarlo</span>}

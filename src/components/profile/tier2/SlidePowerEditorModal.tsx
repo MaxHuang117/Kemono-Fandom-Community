@@ -90,12 +90,12 @@ export default function SlidePowerEditorModal({ isOpen, slotId, existingSlide, a
 
     return (
         <AnimatePresence>
-            <div className="fixed inset-0 z-[100] flex items-center justify-center overflow-y-auto bg-black/90 backdrop-blur-md p-2 sm:p-6 font-sans">
+            <div className="fixed top-20 inset-x-0 bottom-0 z-[100] flex items-center justify-center overflow-y-auto bg-black/90 backdrop-blur-md p-2 sm:p-6 font-sans">
                 <motion.div 
                     initial={{ opacity: 0, scale: 0.95, y: 20 }}
                     animate={{ opacity: 1, scale: 1, y: 0 }}
                     exit={{ opacity: 0, scale: 0.95, y: 20 }}
-                    className="w-full max-w-6xl h-[90dvh] max-h-[90vh] bg-[#050505] border border-zinc-800 rounded-xl overflow-hidden shadow-[0_0_50px_rgba(0,0,0,0.8)] flex flex-col md:flex-row"
+                    className="w-full max-w-6xl h-full max-h-full bg-[#050505] border border-zinc-800 rounded-xl overflow-hidden shadow-[0_0_50px_rgba(0,0,0,0.8)] flex flex-col md:flex-row"
                 >
                     {/* Input invisible para manejar archivos */}
                     <input type="file" ref={fileInputRef} onChange={handleImageChange} accept="image/*" className="hidden" />

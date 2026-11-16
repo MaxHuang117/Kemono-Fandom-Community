@@ -48,7 +48,7 @@ export default function ControlPanel(props: Props) {
     const { format, styleConfig, onStyleChange } = props;
 
     return (
-        <div className="w-full md:w-[45%] h-[50vh] md:h-full bg-[#070707] flex flex-col relative">
+        <div className="w-full md:w-[45%] flex-1 min-h-0 md:flex-none md:h-full bg-[#070707] flex flex-col relative">
             <div className="flex justify-between items-center p-5 border-b border-white/5 bg-[#030303] z-10">
                 <div className="flex items-center gap-3">
                     <div className="w-2 h-2 rounded-full bg-neon motion-safe:animate-pulse" />
