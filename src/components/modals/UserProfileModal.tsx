@@ -150,6 +150,15 @@ export default function UserProfileModal({ user, onClose }: Props) {
                                     
                                     <div className="flex flex-wrap items-center justify-center gap-2 mt-2">
                                         <TierBadge tier={finalTier} />
+                                        {/* FASE 1.5: Badge de presencia ONLINE/OFFLINE */}
+                                        <div className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded border text-[10px] font-mono uppercase tracking-widest ${
+                                            dbData?.is_online
+                                                ? "bg-neon/10 border-neon/30 text-neon-bright shadow-[0_0_10px_rgba(97,255,97,0.1)]"
+                                                : "bg-zinc-900/50 border-zinc-700 text-zinc-500"
+                                        }`}>
+                                            <span className={`h-1.5 w-1.5 rounded-full ${dbData?.is_online ? "bg-neon motion-safe:animate-pulse" : "bg-zinc-600"}`}/>
+                                            {dbData?.is_online ? "ONLINE" : "OFFLINE"}
+                                        </div>
                                         {/* BOTÓN DE LIKE: Dispara la función handleToggleLike */}
                                         <button 
                                             onClick={handleToggleLike} 

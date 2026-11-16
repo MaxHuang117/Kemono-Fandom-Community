@@ -25,7 +25,7 @@ export async function obtenerPerfilPublicoAction(identifier: string) {
         // (Supabase escapa el valor; nunca interpolar en cadenas de filtro — FASE2-02).
         let query = supabasePublic
             .from("profiles")
-            .select("id, discord_username, biografia, tier_level, social_links, banner_url, name_color_gradient, likes_count, avatar_url, discord_id");
+            .select("id, discord_username, biografia, tier_level, social_links, banner_url, name_color_gradient, likes_count, avatar_url, discord_id, is_online");
 
         if (SNOWFLAKE_PATTERN.test(identifier)) {
             // Identificador numérico → buscar por discord_id.
@@ -97,7 +97,8 @@ export async function obtenerPerfilPublicoAction(identifier: string) {
             banner_url: profile.banner_url ?? null,
             likes_count: profile.likes_count ?? 0,
             name_color_gradient: finalNameColorGradient,
-            custom_slides: customSlidesParsed
+            custom_slides: customSlidesParsed,
+            is_online: profile.is_online ?? false
         };
 
         return { success: true, data: finalData };

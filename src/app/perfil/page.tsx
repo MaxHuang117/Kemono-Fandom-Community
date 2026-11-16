@@ -49,6 +49,8 @@ export default function PerfilPage() {
         setBiografia,
         cargarDatos,
         likesCount,
+        isOnline,
+        cambiarPresencia,
     } = usePerfil();
 
     if (!session) {
@@ -110,6 +112,8 @@ export default function PerfilPage() {
                 likesCount={likesCount}
                 customSlides={customSlides || []}
                 nameColorGradient={nameColorGradient}
+                isOnline={isOnline}
+                onTogglePresencia={cambiarPresencia}
                 onUpdate={cargarDatos}
                 onSignOut={() => signOut()}
             />

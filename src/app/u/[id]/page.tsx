@@ -114,6 +114,15 @@ export default async function PublicProfilePage({ params }: Props) {
                                         @{user.discord_username}
                                     </span>
                                     <TierBadge tier={finalTier} />
+                                    {/* FASE 1.5: Badge de presencia ONLINE/OFFLINE */}
+                                    <div className={`inline-flex items-center gap-2 px-3 py-1.5 rounded border text-xs font-mono uppercase tracking-widest backdrop-blur-md ${
+                                        user.is_online
+                                            ? "bg-neon/10 border-neon/30 text-neon-bright shadow-[0_0_10px_rgba(97,255,97,0.1)]"
+                                            : "bg-zinc-900/50 border-zinc-700 text-zinc-500"
+                                    }`}>
+                                        <span className={`h-1.5 w-1.5 rounded-full ${user.is_online ? "bg-neon motion-safe:animate-pulse" : "bg-zinc-600"}`}/>
+                                        {user.is_online ? "ONLINE" : "OFFLINE"}
+                                    </div>
                                     {/* LECTURA DE REPUTACIÓN: Aquí es solo informativo, protegemos la base de datos de spam externo */}
                                     <div className="flex items-center gap-2 px-4 py-1.5 rounded border border-red-500/30 bg-red-500/10 text-red-400 shadow-[0_0_10px_rgba(239,68,68,0.1)]">
                                         <svg className="w-4 h-4 fill-red-400 motion-safe:animate-pulse" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12z" /></svg>

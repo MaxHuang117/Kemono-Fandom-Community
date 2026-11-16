@@ -9,6 +9,7 @@ import {
     guardarBiografiaAction,
     obtenerPerfilCompletoAction,
     sincronizarPerfilDiscordAction,
+    setPresenciaAction,
 } from "../actions";
 import type { CustomSlide } from "@/types/slides"; 
 
@@ -25,6 +26,8 @@ export function usePerfil() {
     const [nameColorGradient, setNameColorGradient] = useState<string | null>(null);
     // AÑADIDO: Estado para el contador de likes
     const [likesCount, setLikesCount] = useState<number>(0);
+    // FASE 1.5: Estado de presencia ONLINE
+    const [isOnline, setIsOnline] = useState<boolean>(false);
 
     const [dbId, setDbId] = useState<string>("");
     const [customSlides, setCustomSlides] = useState<CustomSlide[]>([]);
@@ -48,6 +51,8 @@ export function usePerfil() {
         setNameColorGradient(perfilData.name_color_gradient ?? null);
         // AÑADIDO: Guardamos el contador de likes que viene de Supabase
         setLikesCount(perfilData.likes_count ?? 0);
+        // FASE 1.5: Guardamos el estado de presencia
+        setIsOnline(perfilData.is_online ?? false);
         
         setCustomSlides((perfilData.custom_slides as CustomSlide[]) || []);
         
@@ -87,6 +92,21 @@ export function usePerfil() {
         alert("¡Te ves bien!");
     }
 
+    // FASE 1.5: Cambiar estado de presencia
+    async function cambiarPresencia(activo: boolean) {
+        if (!session?.user?.discordId) return;
+        // Actualización optimista
+        const previousState = isOnline;
+        setIsOnline(activo);
+        
+        const result = await setPresenciaAction(activo);
+        if (result.error) {
+            // Revertir en caso de error
+            setIsOnline(previousState);
+            alert(result.error);
+        }
+    }
+
     return {
         session,
         user: session?.user,
@@ -98,11 +118,13 @@ export function usePerfil() {
         customSlides, 
         nameColorGradient, 
         likesCount, // AÑADIDO: Lo exportamos
+        isOnline, // FASE 1.5: Estado de presencia
         setBiografia,
         guardarBiografia,
         cargarDatos,
         guardando,
         isLoading, 
         signOut,
+        cambiarPresencia, // FASE 1.5: Función para cambiar presencia
     };
 }

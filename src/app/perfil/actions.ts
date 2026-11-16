@@ -359,7 +359,7 @@ export async function obtenerPerfilCompletoAction() {
     // 1. AÑADIMOS "likes_count" al select para que el corazón funcione
     const { data: profile, error: profileError } = await supabaseAdmin
         .from("profiles")
-        .select("id, biografia, tier_level, sub_expires_at, social_links, banner_url, name_color_gradient, likes_count")
+        .select("id, biografia, tier_level, sub_expires_at, social_links, banner_url, name_color_gradient, likes_count, is_online")
         .eq("discord_id", session.user.discordId)
         .maybeSingle();
 
@@ -422,7 +422,8 @@ export async function obtenerPerfilCompletoAction() {
         banner_url: profile.banner_url ?? null,
         likes_count: profile.likes_count ?? 0,       // Enviamos los likes limpios
         name_color_gradient: finalNameColorGradient, // Datos VIP filtrados
-        custom_slides: finalCustomSlides             // Slides VIP filtrados
+        custom_slides: finalCustomSlides,            // Slides VIP filtrados
+        is_online: profile.is_online ?? false
     };
 }
 
@@ -586,6 +587,33 @@ export async function guardarCosmeticosVIPAction(styleId: string) {
         return { error: GENERIC_DB_ERROR };
     }
     return { success: true };
+}
+
+/*
+|--------------------------------------------------------------------------
+| Presencia ONLINE (Fase 1.5): activar/desactivar "Disponible ahora".
+|--------------------------------------------------------------------------
+*/
+export async function setPresenciaAction(activo: boolean) {
+    const session = await getServerSession(authOptions);
+    if (!session?.user?.discordId) return { error: "No autorizado." };
+
+    /* Validación de tipo: solo se acepta un booleano, nunca valores arbitrarios. */
+    if (typeof activo !== "boolean") {
+        return { error: "Valor de presencia inválido." };
+    }
+
+    const { error } = await supabaseAdmin
+        .from("profiles")
+        .update({ is_online: activo, updated_at: new Date().toISOString() })
+        .eq("discord_id", session.user.discordId);
+
+    if (error) {
+        console.error("Error actualizando presencia:", error);
+        return { error: GENERIC_DB_ERROR }; // FASE2-11: mensaje genérico al cliente
+    }
+
+    return { success: true, is_online: activo };
 }
 
 /*

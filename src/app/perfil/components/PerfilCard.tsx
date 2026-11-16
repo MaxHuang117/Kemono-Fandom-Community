@@ -19,13 +19,15 @@ interface Props {
     socialLinks: Record<string, string>;
     customSlides: CustomSlide[];
     nameColorGradient?: string | null;
-    likesCount: number; 
+    likesCount: number;
+    isOnline: boolean;
+    onTogglePresencia: (next: boolean) => void;
     onSignOut: () => void;
     onUpdate: () => void;
 }
 
 export default function PerfilCard({
-    banner, imagen, nombre, discordId, tierLevel, socialLinks, customSlides, nameColorGradient, likesCount: initialLikesCount, onSignOut, onUpdate
+    banner, imagen, nombre, discordId, tierLevel, socialLinks, customSlides, nameColorGradient, likesCount: initialLikesCount, isOnline, onTogglePresencia, onSignOut, onUpdate
 }: Props) {
     const [isUploading, setIsUploading] = useState(false);
     const [copied, setCopied] = useState(false);
@@ -129,9 +131,21 @@ export default function PerfilCard({
                             </h3>
                             
                             <div className="flex flex-wrap justify-center sm:justify-start gap-2.5 items-center">
-                                <div className="inline-flex items-center gap-2 bg-[#0a0a0a] border border-neon/20 px-2.5 py-1 rounded text-[9px] uppercase tracking-widest text-neon-bright shadow-[0_0_10px_rgba(97,255,97,0.1)]">
-                                    <span className="h-1.5 w-1.5 rounded-full bg-neon motion-safe:animate-pulse"/>ONLINE
-                                </div>
+                                {/* FASE 1.5: Badge de presencia dinámico con toggle */}
+                                <button
+                                    type="button"
+                                    onClick={() => onTogglePresencia(!isOnline)}
+                                    aria-pressed={isOnline}
+                                    aria-label={isOnline ? "Desactivar presencia" : "Activar presencia"}
+                                    className={`inline-flex items-center gap-2 px-2.5 py-1 rounded text-[9px] uppercase tracking-widest transition-all duration-300 ${
+                                        isOnline
+                                            ? "bg-[#0a0a0a] border border-neon/20 text-neon-bright shadow-[0_0_10px_rgba(97,255,97,0.1)] hover:border-neon/40 hover:shadow-[0_0_15px_rgba(97,255,97,0.2)]"
+                                            : "bg-[#0a0a0a] border border-zinc-700 text-zinc-500 hover:border-zinc-600 hover:text-zinc-400"
+                                    }`}
+                                >
+                                    <span className={`h-1.5 w-1.5 rounded-full ${isOnline ? "bg-neon motion-safe:animate-pulse" : "bg-zinc-600"}`}/>
+                                    {isOnline ? "ONLINE" : "OFFLINE"}
+                                </button>
                                 {getTierBadge()}
                                 <div className="group flex items-center gap-2 px-3 py-1 rounded border transition-all duration-300 shadow-[0_0_10px_rgba(239,68,68,0.1)] bg-[#0a0a0a] border-white/10 hover:border-red-500/30 text-zinc-400 hover:text-red-400 cursor-default" title="Esta es tu reputación actual">
                                     <svg className="w-3.5 h-3.5 transition-transform duration-300 fill-transparent stroke-current stroke-2 group-hover:scale-110" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12z" /></svg>

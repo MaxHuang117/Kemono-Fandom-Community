@@ -89,6 +89,42 @@ export type Database = {
           },
         ]
       }
+      hero_slides: {
+        Row: {
+          active: boolean
+          created_at: string
+          cta_label: string | null
+          cta_url: string | null
+          id: string
+          image_url: string
+          position: number
+          subtitle: string | null
+          title: string
+        }
+        Insert: {
+          active?: boolean
+          created_at?: string
+          cta_label?: string | null
+          cta_url?: string | null
+          id?: string
+          image_url: string
+          position?: number
+          subtitle?: string | null
+          title: string
+        }
+        Update: {
+          active?: boolean
+          created_at?: string
+          cta_label?: string | null
+          cta_url?: string | null
+          id?: string
+          image_url?: string
+          position?: number
+          subtitle?: string | null
+          title?: string
+        }
+        Relationships: []
+      }
       news: {
         Row: {
           category: string | null
@@ -124,6 +160,93 @@ export type Database = {
           updated_at?: string
         }
         Relationships: []
+      }
+      notifications: {
+        Row: {
+          actor_id: string | null
+          created_at: string
+          id: string
+          payload: Json | null
+          read: boolean
+          type: string
+          user_id: string
+        }
+        Insert: {
+          actor_id?: string | null
+          created_at?: string
+          id?: string
+          payload?: Json | null
+          read?: boolean
+          type: string
+          user_id: string
+        }
+        Update: {
+          actor_id?: string | null
+          created_at?: string
+          id?: string
+          payload?: Json | null
+          read?: boolean
+          type?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "notifications_actor_id_fkey"
+            columns: ["actor_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "notifications_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      profile_comments: {
+        Row: {
+          author_id: string
+          content: string
+          created_at: string
+          id: string
+          profile_id: string
+          status: string
+        }
+        Insert: {
+          author_id: string
+          content: string
+          created_at?: string
+          id?: string
+          profile_id: string
+          status?: string
+        }
+        Update: {
+          author_id?: string
+          content?: string
+          created_at?: string
+          id?: string
+          profile_id?: string
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "profile_comments_author_id_fkey"
+            columns: ["author_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "profile_comments_profile_id_fkey"
+            columns: ["profile_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       profile_likes: {
         Row: {
@@ -175,11 +298,17 @@ export type Database = {
           email: string
           id: string
           is_admin: boolean
+          is_online: boolean
           likes_count: number | null
           name_color_gradient: string | null
           nombre_publico: string | null
+          profile_comments_enabled: boolean
+          profile_comments_moderated: boolean
           social_links: Json | null
+          streamer_category: string | null
+          streamer_status: string | null
           sub_expires_at: string | null
+          tags: string[] | null
           tier_level: number | null
           updated_at: string | null
         }
@@ -196,11 +325,17 @@ export type Database = {
           email: string
           id?: string
           is_admin?: boolean
+          is_online?: boolean
           likes_count?: number | null
           name_color_gradient?: string | null
           nombre_publico?: string | null
+          profile_comments_enabled?: boolean
+          profile_comments_moderated?: boolean
           social_links?: Json | null
+          streamer_category?: string | null
+          streamer_status?: string | null
           sub_expires_at?: string | null
+          tags?: string[] | null
           tier_level?: number | null
           updated_at?: string | null
         }
@@ -217,15 +352,92 @@ export type Database = {
           email?: string
           id?: string
           is_admin?: boolean
+          is_online?: boolean
           likes_count?: number | null
           name_color_gradient?: string | null
           nombre_publico?: string | null
+          profile_comments_enabled?: boolean
+          profile_comments_moderated?: boolean
           social_links?: Json | null
+          streamer_category?: string | null
+          streamer_status?: string | null
           sub_expires_at?: string | null
+          tags?: string[] | null
           tier_level?: number | null
           updated_at?: string | null
         }
         Relationships: []
+      }
+      sponsors: {
+        Row: {
+          active: boolean
+          created_at: string
+          description: string | null
+          end_date: string | null
+          id: string
+          link_url: string | null
+          logo_url: string | null
+          name: string
+          placement: string
+          start_date: string | null
+        }
+        Insert: {
+          active?: boolean
+          created_at?: string
+          description?: string | null
+          end_date?: string | null
+          id?: string
+          link_url?: string | null
+          logo_url?: string | null
+          name: string
+          placement?: string
+          start_date?: string | null
+        }
+        Update: {
+          active?: boolean
+          created_at?: string
+          description?: string | null
+          end_date?: string | null
+          id?: string
+          link_url?: string | null
+          logo_url?: string | null
+          name?: string
+          placement?: string
+          start_date?: string | null
+        }
+        Relationships: []
+      }
+      supporters: {
+        Row: {
+          created_at: string
+          id: string
+          message: string | null
+          name: string
+          profile_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          message?: string | null
+          name: string
+          profile_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          message?: string | null
+          name?: string
+          profile_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "supporters_profile_id_fkey"
+            columns: ["profile_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       user_networks: {
         Row: {

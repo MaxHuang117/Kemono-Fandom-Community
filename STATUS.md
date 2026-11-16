@@ -1,6 +1,29 @@
 # Estado del proyecto
 
-**Actualizado:** 14 de noviembre de 2026
+**Actualizado:** 15 de noviembre de 2026
+
+## Sesión del 15 de noviembre de 2026 — Fase 1.5: Presencia ONLINE
+
+- **Migración aplicada** (`20261115000000_presence_is_online.sql`): columna `is_online boolean NOT NULL DEFAULT false` + GRANT SELECT a rol `anon` (no es sensible, lectura pública).
+- **Tipos regenerados** (`npm run sub-types`): `database.types.ts` ahora tipa `profiles.is_online` y todas las columnas nuevas de Fase 0.
+- **Server action** `setPresenciaAction(activo: boolean)` en `src/app/perfil/actions.ts`:
+  - Identidad desde `getServerSession(authOptions)` + filtro `.eq("discord_id", ...)`.
+  - Validación de tipo `boolean` (rechaza valores arbitrarios).
+  - Actualización de `is_online` + `updated_at`.
+- **Lectura** de `is_online` añadida a `obtenerPerfilCompletoAction` (perfil propio, `service_role`) y `obtenerPerfilPublicoAction` (público, `anon`).
+- **UI**:
+  - `usePerfil.ts`: estado `isOnline` + `cambiarPresencia(activo)` con actualización optimista y reversión en error.
+  - `PerfilCard.tsx`: badge dinámico ONLINE/OFFLINE con toggle accesible (`aria-pressed`, `aria-label`, `cursor-pointer`).
+  - `perfil/page.tsx`: cablea `isOnline` y `cambiarPresencia` al card.
+  - `/u/[id]/page.tsx`: badge de presencia junto al TierBadge.
+  - `UserProfileModal.tsx`: badge de presencia junto al TierBadge.
+- **Análisis de seguridad (Fase 1.5):** ✅ PASS
+  - Identidad solo desde `getServerSession(authOptions)` + `discordId`; nunca `email` ni IDs del cliente.
+  - La acción muta únicamente el perfil propio (filtro por `discord_id`).
+  - Validación de tipo `boolean` (sin valores arbitrarios).
+  - `is_online` no es sensible; su GRANT a `anon` no filtra datos privados.
+  - Sin secretos en cliente (`NEXT_PUBLIC_`).
+- **Verificación:** `npm run lint` ✅ · `npm run build` ✅
 
 ## Sesión del 14 de noviembre de 2026 (3) — Fase 1: donaciones (CTAs de StreamElements)
 
