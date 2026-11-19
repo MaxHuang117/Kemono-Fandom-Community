@@ -1,6 +1,20 @@
 # Estado del proyecto
 
-**Actualizado:** 16 de noviembre de 2026
+**Actualizado:** 19 de noviembre de 2026
+
+## Sesión del 19 de noviembre de 2026 — Fase 3: perfil de creador (slides + cosméticos + biografía)
+
+- **Migración versionada** `supabase/migrations/20261118000000_fase3_link_url_y_cosmeticos.sql`:
+  - `user_slides.target_network` → `link_url` (renombrado, idempotente con `DO $$`): el enlace de cada slide pasa de clave de red ("twitch") a **URL libre http/https**.
+  - `profiles` gana `ring_color` (hex, Tier 1), `gradient_from` y `gradient_to` (hex, Tier 2).
+  - `GRANT SELECT (ring_color, gradient_from, gradient_to) TO anon`: cosméticos no sensibles, legibles por el lector público (igual que `is_online`).
+  - ⚠️ **Pendiente de aplicar en Supabase** (autorización explícita) y de regenerar tipos con `npm run sub-types`. Hasta entonces, `database.types.ts` se parcheó a mano para que compile.
+- **Slides reorganizados (3A):** `guardarSlideAction` valida `link_url` (http/https, ≤2048, sin credenciales); editor unificado (`SlidePowerEditorModal`/`ControlPanel`) con **input de URL + propósito del slot** (Portada/Agenda/CTA desde `SITE_CONFIG.slides.slotPurposes`); límites unificados (título 25 / descripción 80) en `SITE_CONFIG`. Corregido el **bug del enlace roto** en `PublicVipCarousel` (ahora solo enlaza URLs válidas). Eliminado código muerto `Tier2SlidesManager` + `SlideEditorSlot`.
+- **Cosméticos (3B):** `guardarAnilloAction` (Tier 1) y `guardarDegradadoAction` (Tier 2) con validación hex `^#[\da-f]{6}$`; helper compartido `src/lib/cosmetics.ts` (`resolverCosmeticos`) usado en `PerfilCard`, `UserProfileModal`, `/u/[id]` y el roster. Los presets (`VIP_STYLES`) se conservan como **fallback**.
+- **Animación del degradado:** solo si Tier 2 define un degradado propio (clase `gradient-animate` + `backgroundImage` inline, keyframe `gradient-pan` en `globals.css`). Preset o color puro → **sin animación** del degradado, pero se conservan los glows y el giro latente del anillo (`spin_4s`).
+- **Biografía (3C):** editor rediseñado (cabecera neón coherente con los acordeones) y render multi-línea con `whitespace-pre-line` en `/u/[id]` y modal.
+- **Seguridad:** identidad por sesión + `discord_id`; tier re-validado en servidor; `link_url` y hex validados server-side; lectores con filtro de downgrade por nivel; sin secretos en cliente.
+- **Verificación:** `npm run lint` ✅ · `npm run build` ✅
 
 ## Sesión del 16 de noviembre de 2026 — Admin: sincronización tiers, quitar creador y filtro
 

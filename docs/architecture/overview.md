@@ -115,7 +115,7 @@ El acceso administrativo se determina mediante `profiles.is_admin`, consultado p
 | --- | --- | --- | --- |
 | `src/actions/publicProfile.action.ts` | `obtenerPerfilPublicoAction` | Identificador público (lectura) | Remediado FASE2-02/FASE2-12. La lectura pública usa `createPublicClient()` (anon) y los GRANTs de columnas sensibles se aplicaron en Supabase; pendiente versionarlos como migración. |
 | `src/actions/tier2.actions.ts` | `guardarSlideAction`, `eliminarSlideAction` | `getServerSession(authOptions)`; perfil resuelto por `discord_id` | Corregido en Paso 3: acciones limitadas al perfil de sesión y a Tier 2 vigente. |
-| `src/app/perfil/actions.ts` | `guardarBiografiaAction`, `obtenerBiografiaAction`, `sincronizarPerfilDiscordAction`, `obtenerPerfilCompletoAction`, `guardarRedesAction`, `subirBannerAction`, `guardarCosmeticosVIPAction`, `toggleProfileReputationAction`, `setPresenciaAction` | `getServerSession(authOptions)` | Remediado (FASE2-03/04/05/06/07/09/11), FASE2-08 (tier + `sub_expires_at` via `hasActiveTier`) y FASE2-10 (likes por `profiles.id`, toggle sin `.match()` + unicidad aplicada). La vinculación de redes se movió a `src/lib/social-oauth/linking.ts` (`vincularRedVerificada`). `setPresenciaAction` (Fase 1.5) actualiza `is_online` del perfil propio. |
+| `src/app/perfil/actions.ts` | `guardarBiografiaAction`, `obtenerBiografiaAction`, `sincronizarPerfilDiscordAction`, `obtenerPerfilCompletoAction`, `guardarRedesAction`, `subirBannerAction`, `guardarCosmeticosVIPAction`, `guardarAnilloAction`, `guardarDegradadoAction`, `toggleProfileReputationAction`, `setPresenciaAction` | `getServerSession(authOptions)` | Remediado (FASE2-03/04/05/06/07/09/11), FASE2-08 (tier + `sub_expires_at` via `hasActiveTier`) y FASE2-10 (likes por `profiles.id`, toggle sin `.match()` + unicidad aplicada). La vinculación de redes se movió a `src/lib/social-oauth/linking.ts` (`vincularRedVerificada`). `setPresenciaAction` (Fase 1.5) actualiza `is_online` del perfil propio. `guardarAnilloAction` (Tier 1) y `guardarDegradadoAction` (Tier 2) validan hex server-side (Fase 3). |
 | `src/app/admin/subs/actions/subsAction.ts` | `getUsersListAction`, `updateUserTierAction` | `getServerSession(authOptions)` + `profiles.is_admin` por `discord_id` (`requireAdmin`) | Corregido el 1 de noviembre de 2026. |
 | `src/app/admin/news/actions/newsAction.ts` | `getAdminNewsAction`, `saveNewsAction`, `deleteNewsAction` | `getServerSession(authOptions)` + `profiles.is_admin` por `discord_id` (`requireAdmin`) | Corregido el 1 de noviembre de 2026 (`deleteNewsAction` ahora verifica `is_admin`). |
 | `src/app/admin/comments/actions/commentsActions.ts` | `getAdminCommentsAction`, `deleteCommentAction` | `getServerSession(authOptions)` + `profiles.is_admin` por `discord_id` (`requireAdmin`) | Corregido el 1 de noviembre de 2026. |
@@ -131,8 +131,8 @@ El acceso administrativo se determina mediante `profiles.is_admin`, consultado p
 
 | Recurso | Uso |
 | --- | --- |
-| `profiles` | Perfiles: `id`, `discord_id`, `email`, `is_admin`, `tier_level`, `sub_expires_at` (en desuso), redes, banner y biografía. Columnas de hub: `streamer_status`, `streamer_category`, `tags`, `is_online` (presencia), `profile_comments_enabled`, `profile_comments_moderated`. |
-| `user_slides` | Slides VIP (Tier 2+), identificados por `user_id` y `slot_number`. Se reorganiza: `target_network` → `link_url` (enlace libre) y 3 slots con propósito (Portada / Agenda / CTA). |
+| `profiles` | Perfiles: `id`, `discord_id`, `email`, `is_admin`, `tier_level`, `sub_expires_at` (en desuso), redes, banner y biografía. Columnas de hub: `streamer_status`, `streamer_category`, `tags`, `is_online` (presencia), `profile_comments_enabled`, `profile_comments_moderated`. Cosméticos (Fase 3): `ring_color` (Tier 1), `gradient_from`/`gradient_to` (Tier 2). |
+| `user_slides` | Slides VIP (Tier 2+), identificados por `user_id` y `slot_number`. Reorganizado (Fase 3): `target_network` → `link_url` (enlace libre http/https) y 3 slots con propósito (Portada / Agenda / CTA). |
 | `profile_likes` | Reputación entre perfiles (`giver_id`, `receiver_id`). |
 | `news` | Noticias publicadas. |
 | `comments` | Comentarios de noticias (`news_id`). |
@@ -158,8 +158,8 @@ Los tiers son **niveles de estado/rol**, guardados en `profiles.tier_level`. **N
 | Nivel | Rol | Beneficios | Cómo se obtiene |
 | --- | --- | --- | --- |
 | 0 | Miembro | Perfil público, comentar, likear. | Login con Discord. |
-| 1 | Creador aprobado | Aparece en el directorio + redes destacadas. | Postulación aprobada por el admin. |
-| 2 | Creador destacado | Lo anterior + slides/degradado de nombre/anillo + mayor peso en descubrimiento. | El admin lo destaca. |
+| 1 | Creador aprobado | Aparece en el directorio + redes destacadas + anillo de color (`ring_color`). | Postulación aprobada por el admin. |
+| 2 | Creador destacado | Lo anterior + slides/degradado de nombre de 2 colores (`gradient_from`/`gradient_to`, animado si es propio) + mayor peso en descubrimiento. | El admin lo destaca. |
 
 Reglas:
 
