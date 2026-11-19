@@ -296,6 +296,8 @@ export type Database = {
           discord_id: string | null
           discord_username: string | null
           email: string
+          gradient_from: string | null
+          gradient_to: string | null
           id: string
           is_admin: boolean
           is_online: boolean
@@ -304,6 +306,7 @@ export type Database = {
           nombre_publico: string | null
           profile_comments_enabled: boolean
           profile_comments_moderated: boolean
+          ring_color: string | null
           social_links: Json | null
           streamer_category: string | null
           streamer_status: string | null
@@ -323,6 +326,8 @@ export type Database = {
           discord_id?: string | null
           discord_username?: string | null
           email: string
+          gradient_from?: string | null
+          gradient_to?: string | null
           id?: string
           is_admin?: boolean
           is_online?: boolean
@@ -331,6 +336,7 @@ export type Database = {
           nombre_publico?: string | null
           profile_comments_enabled?: boolean
           profile_comments_moderated?: boolean
+          ring_color?: string | null
           social_links?: Json | null
           streamer_category?: string | null
           streamer_status?: string | null
@@ -350,6 +356,8 @@ export type Database = {
           discord_id?: string | null
           discord_username?: string | null
           email?: string
+          gradient_from?: string | null
+          gradient_to?: string | null
           id?: string
           is_admin?: boolean
           is_online?: boolean
@@ -358,6 +366,7 @@ export type Database = {
           nombre_publico?: string | null
           profile_comments_enabled?: boolean
           profile_comments_moderated?: boolean
+          ring_color?: string | null
           social_links?: Json | null
           streamer_category?: string | null
           streamer_status?: string | null
@@ -478,9 +487,9 @@ export type Database = {
           format: string
           id: string
           image_url: string
+          link_url: string
           slot_number: number
           style_config: Json | null
-          target_network: string
           title: string
           updated_at: string | null
           user_id: string
@@ -491,9 +500,9 @@ export type Database = {
           format: string
           id?: string
           image_url: string
+          link_url: string
           slot_number: number
           style_config?: Json | null
-          target_network: string
           title: string
           updated_at?: string | null
           user_id: string
@@ -504,9 +513,9 @@ export type Database = {
           format?: string
           id?: string
           image_url?: string
+          link_url?: string
           slot_number?: number
           style_config?: Json | null
-          target_network?: string
           title?: string
           updated_at?: string | null
           user_id?: string
@@ -527,10 +536,15 @@ export type Database = {
     }
     Functions: {
       is_admin: { Args: never; Returns: boolean }
-      reorder_slides_after_delete: {
-        Args: { p_deleted_slot: number; p_user_id: string }
-        Returns: undefined
-      }
+      reorder_slides_after_delete:
+        | {
+            Args: { p_deleted_slot: number; p_user_id: string }
+            Returns: undefined
+          }
+        | {
+            Args: { p_deleted_slot: number; p_user_id: string }
+            Returns: undefined
+          }
     }
     Enums: {
       [_ in never]: never
