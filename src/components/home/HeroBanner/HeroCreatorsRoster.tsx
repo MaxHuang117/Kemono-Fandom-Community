@@ -6,6 +6,7 @@ import { motion } from "framer-motion";
 import { obtenerCreadoresAction, CreatorProfile } from "@/actions/creators.action";
 import UserProfileModal from "@/components/modals/UserProfileModal";
 import { UserProfile } from "@/components/home/News/components/lib/types/profile";
+import { resolverCosmeticos, CosmeticProfile } from "@/lib/cosmetics";
 
 function mapCreatorToUserProfile(creator: CreatorProfile): UserProfile {
     return {
@@ -24,6 +25,15 @@ function mapCreatorToUserProfile(creator: CreatorProfile): UserProfile {
         ring_color: creator.ring_color ?? undefined,
         gradient_from: creator.gradient_from ?? undefined,
         gradient_to: creator.gradient_to ?? undefined,
+    };
+}
+
+function mapCreatorToCosmetic(creator: CreatorProfile): CosmeticProfile {
+    return {
+        tier_level: creator.tier_level ?? 0,
+        ring_color: creator.ring_color ?? null,
+        gradient_from: creator.gradient_from ?? null,
+        gradient_to: creator.gradient_to ?? null,
     };
 }
 
@@ -64,18 +74,32 @@ export default function HeroCreatorsRoster() {
                                 onClick={() => setSelected(mapCreatorToUserProfile(creator))}
                                 className="group flex-shrink-0 flex flex-col items-center gap-2 w-20 focus:outline-none focus-visible:ring-2 focus-visible:ring-neon rounded-lg"
                             >
-                                <div className="relative h-14 w-14 rounded-full border-2 border-white/10 group-hover:border-neon group-hover:shadow-[0_0_15px_rgba(97,255,97,0.3)] transition-all overflow-hidden bg-[#0a0a0a]">
-                                    <Image
-                                        src={creator.avatar_url || "https://cdn.discordapp.com/embed/avatars/0.png"}
-                                        alt={creator.discord_username || "Creador"}
-                                        fill
-                                        sizes="56px"
-                                        className="object-cover"
-                                    />
-                                    {creator.is_online && (
-                                        <span className="absolute bottom-0.5 right-0.5 h-3 w-3 rounded-full bg-neon border-2 border-black motion-safe:animate-pulse" />
-                                    )}
-                                </div>
+                                {(() => {
+                                    const cosmeticos = resolverCosmeticos(mapCreatorToCosmetic(creator));
+                                    return (
+                                        <div className="relative h-14 w-14 rounded-full">
+                                            {/* Anillo con glow */}
+                                            <div 
+                                                className={`absolute inset-[-2px] rounded-full ${cosmeticos.ringClassName} transition-all duration-300 group-hover:scale-110`}
+                                                style={{ ...cosmeticos.ringStyle, boxShadow: cosmeticos.ringGlow }}
+                                            />
+                                            {/* Avatar */}
+                                            <div className="relative h-14 w-14 rounded-full overflow-hidden bg-[#0a0a0a] border-2 border-black">
+                                                <Image
+                                                    src={creator.avatar_url || "https://cdn.discordapp.com/embed/avatars/0.png"}
+                                                    alt={creator.discord_username || "Creador"}
+                                                    fill
+                                                    sizes="56px"
+                                                    className="object-cover"
+                                                />
+                                            </div>
+                                            {/* Indicador online */}
+                                            {creator.is_online && (
+                                                <span className="absolute bottom-0.5 right-0.5 h-3 w-3 rounded-full bg-neon border-2 border-black motion-safe:animate-pulse" />
+                                            )}
+                                        </div>
+                                    );
+                                })()}
                                 <span className="text-[10px] font-medium text-zinc-300 group-hover:text-neon-bright truncate max-w-full transition-colors">
                                     {creator.discord_username || creator.nombre_publico || "Creador"}
                                 </span>

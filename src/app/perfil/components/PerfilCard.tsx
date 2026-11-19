@@ -125,7 +125,10 @@ export default function PerfilCard({
                         
                         {/* 👇 AVATAR CON MARCO DINÁMICO Y HOVER GLOW 👇 */}
                         <div className="relative group/avatar shrink-0">
-                            <div className={`absolute inset-[-4px] rounded-full ${cosmeticos.ringClassName}`} style={cosmeticos.ringStyle} />
+                            <div 
+                                className={`absolute inset-[-4px] rounded-full ${cosmeticos.ringClassName}`} 
+                                style={{ ...cosmeticos.ringStyle, boxShadow: cosmeticos.ringGlow }} 
+                            />
                             <div className="relative h-32 w-32 rounded-full border-4 border-[#050505] bg-[#0a0a0a] overflow-hidden">
                                 <Image src={imagen} fill alt="Perfil" sizes="128px" priority unoptimized={esImagenAnimada(imagen)} className="object-cover" />
                             </div>

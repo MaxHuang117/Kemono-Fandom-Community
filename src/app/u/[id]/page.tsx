@@ -92,7 +92,10 @@ export default async function PublicProfilePage({ params }: Props) {
                             {/* AVATAR + EFECTO VIP */}
                             <div className="relative group/avatar shrink-0">
                                 {/* Anillo Dinámico VIP */}
-                                <div className={`absolute inset-[-4px] rounded-full ${cosmeticos.ringClassName}`} style={cosmeticos.ringStyle} />
+                                <div 
+                                    className={`absolute inset-[-4px] rounded-full ${cosmeticos.ringClassName}`} 
+                                    style={{ ...cosmeticos.ringStyle, boxShadow: cosmeticos.ringGlow }} 
+                                />
                                 <div className="relative h-40 w-40 sm:h-48 sm:w-48 rounded-full border-[6px] border-[#070707] bg-[#0a0a0a] shadow-[0_0_30px_rgba(0,0,0,0.8)] overflow-hidden">
                                     <Image src={user.avatar_url || "https://cdn.discordapp.com/embed/avatars/0.png"} alt={profileName} fill sizes="192px" unoptimized={esImagenAnimada(user.avatar_url)} className="object-cover" priority />
                                 </div>

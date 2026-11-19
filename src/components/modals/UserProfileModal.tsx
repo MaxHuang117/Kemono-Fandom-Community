@@ -127,8 +127,11 @@ export default function UserProfileModal({ user, onClose }: Props) {
                                 {/* AVATAR + EFECTO VIP */}
                                 <div className="relative group/avatar shrink-0 mb-3">
                                     {/* Anillo de color (Calculado en resolverCosmeticos) */}
-                                    <div className={`absolute inset-[-4px] rounded-full ${cosmeticos.ringClassName}`} style={cosmeticos.ringStyle} />
-                                    <div className="relative h-24 w-24 rounded-full border-[4px] border-[#050505] bg-[#0a0a0a] shadow-[0_0_20px_rgba(97,255,97,0.2)] overflow-hidden">
+                                    <div 
+                                        className={`absolute inset-[-4px] rounded-full ${cosmeticos.ringClassName}`} 
+                                        style={{ ...cosmeticos.ringStyle, boxShadow: cosmeticos.ringGlow }} 
+                                    />
+                                    <div className="relative h-24 w-24 rounded-full border-[4px] border-[#050505] bg-[#0a0a0a] overflow-hidden">
                                         <Image src={user.avatar} alt={user.username} fill sizes="96px" unoptimized={esImagenAnimada(user.avatar)} className="object-cover" />
                                     </div>
                                 </div>

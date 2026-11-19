@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { guardarAnilloAction, guardarDegradadoAction } from "@/app/perfil/actions";
+import { esHexColorValido, DEFAULT_RING_COLOR } from "@/lib/cosmetics";
 
 interface Props {
     tierLevel: number;
@@ -12,18 +13,29 @@ interface Props {
     onUpdate: () => void;
 }
 
-/* Campo de color reutilizable (swatch + hex). */
+/* Campo de color reutilizable con validación visual */
 function ColorField({ label, value, onChange }: { label: string; value: string; onChange: (hex: string) => void }) {
+    const isValid = esHexColorValido(value);
+    
     return (
         <div className="bg-black border border-white/5 p-3 rounded-lg flex flex-col gap-2">
-            <span className="text-[9px] font-mono text-zinc-500 uppercase tracking-widest">{label}</span>
+            <div className="flex items-center justify-between">
+                <span className="text-[9px] font-mono text-zinc-500 uppercase tracking-widest">{label}</span>
+                {!isValid && (
+                    <span className="text-[9px] font-mono text-red-400">Inválido</span>
+                )}
+            </div>
             <div className="flex items-center gap-2">
-                <div className="relative w-7 h-7 rounded overflow-hidden border border-white/20 shrink-0">
+                {/* Preview del color */}
+                <div 
+                    className={`relative w-10 h-10 rounded overflow-hidden border-2 shrink-0 ${isValid ? 'border-white/20' : 'border-red-500/50'}`}
+                    style={{ backgroundColor: isValid ? value : '#000' }}
+                >
                     <input
                         type="color"
-                        value={value}
+                        value={isValid ? value : '#000000'}
                         onChange={(e) => onChange(e.target.value)}
-                        className="absolute -top-2 -left-2 w-12 h-12 cursor-pointer"
+                        className="absolute inset-0 w-full h-full cursor-pointer opacity-0"
                         aria-label={label}
                     />
                 </div>
@@ -33,7 +45,7 @@ function ColorField({ label, value, onChange }: { label: string; value: string; 
                     onChange={(e) => onChange(e.target.value)}
                     maxLength={7}
                     placeholder="#61ff61"
-                    className="w-full bg-transparent text-xs text-white font-mono outline-none uppercase"
+                    className={`w-full bg-transparent text-xs text-white font-mono outline-none uppercase ${isValid ? '' : 'text-red-400'}`}
                 />
             </div>
         </div>
@@ -52,26 +64,53 @@ function ColorField({ label, value, onChange }: { label: string; value: string; 
 export default function Tier2CosmeticsHub({ tierLevel, ringColor, gradientFrom, gradientTo, onUpdate }: Props) {
     const [isOpen, setIsOpen] = useState(false);
     const [isSaving, setIsSaving] = useState(false);
-    const [ring, setRing] = useState(ringColor ?? "#61ff61");
-    const [from, setFrom] = useState(gradientFrom ?? "#61ff61");
-    const [to, setTo] = useState(gradientTo ?? "#8dff8d");
+    const [ring, setRing] = useState(ringColor ?? DEFAULT_RING_COLOR);
+    const [from, setFrom] = useState(gradientFrom ?? DEFAULT_RING_COLOR);
+    const [to, setTo] = useState(gradientTo ?? DEFAULT_RING_COLOR);
+    
+    // Detectar cambios sin guardar
+    const hasRingChanges = ring !== (ringColor ?? DEFAULT_RING_COLOR);
+    const hasGradientChanges = from !== (gradientFrom ?? DEFAULT_RING_COLOR) || to !== (gradientTo ?? DEFAULT_RING_COLOR);
 
     const handleSaveRing = async () => {
+        if (!esHexColorValido(ring)) {
+            alert("El color del anillo no es válido. Usa un formato #RRGGBB.");
+            return;
+        }
         if (ring === ringColor) return;
         setIsSaving(true);
         const res = await guardarAnilloAction(ring);
         setIsSaving(false);
-        if (res.success) onUpdate();
-        else alert(res.error);
+        if (res.success) {
+            onUpdate();
+        } else {
+            alert(res.error);
+        }
     };
 
     const handleSaveGradient = async () => {
+        if (!esHexColorValido(from) || !esHexColorValido(to)) {
+            alert("Los colores del degradado no son válidos. Usa un formato #RRGGBB.");
+            return;
+        }
         if (from === gradientFrom && to === gradientTo) return;
         setIsSaving(true);
         const res = await guardarDegradadoAction({ from, to });
         setIsSaving(false);
-        if (res.success) onUpdate();
-        else alert(res.error);
+        if (res.success) {
+            onUpdate();
+        } else {
+            alert(res.error);
+        }
+    };
+
+    const handleResetRing = () => {
+        setRing(DEFAULT_RING_COLOR);
+    };
+
+    const handleResetGradient = () => {
+        setFrom(DEFAULT_RING_COLOR);
+        setTo(DEFAULT_RING_COLOR);
     };
 
     return (
@@ -119,17 +158,54 @@ export default function Tier2CosmeticsHub({ tierLevel, ringColor, gradientFrom, 
                             {/* Línea decorativa superior */}
                             <div className="absolute top-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-neon/20 to-transparent" />
 
+                            {/* Preview en tiempo real */}
+                            <section className="flex items-center justify-center py-4">
+                                <div className="relative">
+                                    <div 
+                                        className={`w-20 h-20 rounded-full ${hasRingChanges || hasGradientChanges ? 'motion-safe:animate-[spin_4s_linear_infinite]' : ''}`}
+                                        style={{
+                                            background: hasGradientChanges && tierLevel >= 2 
+                                                ? `linear-gradient(90deg, ${from}, ${to})`
+                                                : hasRingChanges 
+                                                    ? ring 
+                                                    : ringColor ?? DEFAULT_RING_COLOR,
+                                            boxShadow: `0 0 30px ${
+                                                hasGradientChanges && tierLevel >= 2 
+                                                    ? from 
+                                                    : hasRingChanges 
+                                                        ? ring 
+                                                        : ringColor ?? DEFAULT_RING_COLOR
+                                            }80`
+                                        }}
+                                    />
+                                    {(hasRingChanges || hasGradientChanges) && (
+                                        <div className="absolute -top-1 -right-1 w-3 h-3 bg-neon rounded-full animate-pulse" />
+                                    )}
+                                </div>
+                            </section>
+
                             {/* 1. Anillo (Tier 1+) */}
                             <section className="space-y-3">
-                                <h5 className="text-[10px] font-mono text-zinc-500 uppercase tracking-widest flex items-center gap-2">
-                                    <span className="w-4 h-[1px] bg-neon/50" /> Color del anillo
-                                </h5>
+                                <div className="flex items-center justify-between">
+                                    <h5 className="text-[10px] font-mono text-zinc-500 uppercase tracking-widest flex items-center gap-2">
+                                        <span className="w-4 h-[1px] bg-neon/50" /> Color del anillo
+                                    </h5>
+                                    {hasRingChanges && (
+                                        <button
+                                            onClick={handleResetRing}
+                                            disabled={isSaving}
+                                            className="text-[9px] font-mono text-zinc-500 hover:text-neon-bright transition-colors disabled:opacity-50"
+                                        >
+                                            Reset
+                                        </button>
+                                    )}
+                                </div>
                                 <div className="grid grid-cols-1 sm:grid-cols-[1fr_auto] gap-3 items-end">
                                     <ColorField label="Anillo" value={ring} onChange={setRing} />
                                     <button
                                         onClick={handleSaveRing}
-                                        disabled={isSaving}
-                                        className="px-5 py-3 rounded bg-neon/10 hover:bg-neon text-neon hover:text-black font-black text-[10px] uppercase tracking-widest border border-neon/50 transition-colors disabled:opacity-50"
+                                        disabled={isSaving || !esHexColorValido(ring) || !hasRingChanges}
+                                        className="px-5 py-3 rounded bg-neon/10 hover:bg-neon text-neon hover:text-black font-black text-[10px] uppercase tracking-widest border border-neon/50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                                     >
                                         {isSaving ? "Guardando..." : "Aplicar anillo"}
                                     </button>
@@ -139,16 +215,27 @@ export default function Tier2CosmeticsHub({ tierLevel, ringColor, gradientFrom, 
                             {/* 2. Degradado (Tier 2) */}
                             {tierLevel >= 2 && (
                                 <section className="space-y-3">
-                                    <h5 className="text-[10px] font-mono text-zinc-500 uppercase tracking-widest flex items-center gap-2">
-                                        <span className="w-4 h-[1px] bg-neon/50" /> Degradado de nombre (2 colores)
-                                    </h5>
+                                    <div className="flex items-center justify-between">
+                                        <h5 className="text-[10px] font-mono text-zinc-500 uppercase tracking-widest flex items-center gap-2">
+                                            <span className="w-4 h-[1px] bg-neon/50" /> Degradado de nombre (2 colores)
+                                        </h5>
+                                        {hasGradientChanges && (
+                                            <button
+                                                onClick={handleResetGradient}
+                                                disabled={isSaving}
+                                                className="text-[9px] font-mono text-zinc-500 hover:text-neon-bright transition-colors disabled:opacity-50"
+                                            >
+                                                Reset
+                                            </button>
+                                        )}
+                                    </div>
                                     <div className="grid grid-cols-1 sm:grid-cols-[1fr_1fr_auto] gap-3 items-end">
                                         <ColorField label="Desde" value={from} onChange={setFrom} />
                                         <ColorField label="Hasta" value={to} onChange={setTo} />
                                         <button
                                             onClick={handleSaveGradient}
-                                            disabled={isSaving}
-                                            className="px-5 py-3 rounded bg-neon/10 hover:bg-neon text-neon hover:text-black font-black text-[10px] uppercase tracking-widest border border-neon/50 transition-colors disabled:opacity-50"
+                                            disabled={isSaving || !esHexColorValido(from) || !esHexColorValido(to) || !hasGradientChanges}
+                                            className="px-5 py-3 rounded bg-neon/10 hover:bg-neon text-neon hover:text-black font-black text-[10px] uppercase tracking-widest border border-neon/50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                                         >
                                             {isSaving ? "Guardando..." : "Aplicar"}
                                         </button>

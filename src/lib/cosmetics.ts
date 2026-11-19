@@ -49,12 +49,19 @@ export interface CosmeticResolution {
     ringClassName: string;
     /** Estilo inline del anillo (color sólido o degradado). */
     ringStyle?: CSSProperties;
+    /** Sombra (glow) del anillo con el color activo. */
+    ringGlow?: string;
     /** true si hay degradado propio de Tier 2 y debe animarse. */
     animatedGradient: boolean;
 }
 
 function tieneDegradadoPropio(p: CosmeticProfile): boolean {
     return esHexColorValido(p.gradient_from) && esHexColorValido(p.gradient_to);
+}
+
+/** Genera un glow (box-shadow) con el color del anillo. */
+function generarGlow(color: string): string {
+    return `0 0 20px ${color}80, 0 0 40px ${color}40`;
 }
 
 export function resolverCosmeticos(p: CosmeticProfile): CosmeticResolution {
@@ -65,6 +72,7 @@ export function resolverCosmeticos(p: CosmeticProfile): CosmeticResolution {
         return {
             nameClassName: "text-white",
             ringClassName: "from-zinc-800 to-zinc-700",
+            ringGlow: "0 0 15px rgba(113, 113, 122, 0.3)",
             animatedGradient: false,
         };
     }
@@ -77,6 +85,7 @@ export function resolverCosmeticos(p: CosmeticProfile): CosmeticResolution {
             nameStyle: { backgroundImage: gradient },
             ringClassName: "motion-safe:animate-[spin_4s_linear_infinite]",
             ringStyle: { backgroundImage: gradient },
+            ringGlow: generarGlow(p.gradient_from as string),
             animatedGradient: true,
         };
     }
@@ -87,6 +96,7 @@ export function resolverCosmeticos(p: CosmeticProfile): CosmeticResolution {
         nameClassName: "text-white",
         ringClassName: "motion-safe:animate-[spin_4s_linear_infinite]",
         ringStyle: { backgroundColor: ringColor },
+        ringGlow: generarGlow(ringColor),
         animatedGradient: false,
     };
 }
