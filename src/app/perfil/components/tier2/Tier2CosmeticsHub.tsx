@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { guardarAnilloAction, guardarDegradadoAction } from "@/app/perfil/actions";
 import { esHexColorValido, DEFAULT_RING_COLOR } from "@/lib/cosmetics";
@@ -64,9 +64,18 @@ function ColorField({ label, value, onChange }: { label: string; value: string; 
 export default function Tier2CosmeticsHub({ tierLevel, ringColor, gradientFrom, gradientTo, onUpdate }: Props) {
     const [isOpen, setIsOpen] = useState(false);
     const [isSaving, setIsSaving] = useState(false);
+    const [message, setMessage] = useState<{ type: "ok" | "error"; text: string } | null>(null);
     const [ring, setRing] = useState(ringColor ?? DEFAULT_RING_COLOR);
     const [from, setFrom] = useState(gradientFrom ?? DEFAULT_RING_COLOR);
     const [to, setTo] = useState(gradientTo ?? DEFAULT_RING_COLOR);
+
+    // Sincroniza el estado local con los props cuando el perfil se recarga
+    // (evita indicadores/guardados desfasados tras `onUpdate`).
+    useEffect(() => {
+        setRing(ringColor ?? DEFAULT_RING_COLOR);
+        setFrom(gradientFrom ?? DEFAULT_RING_COLOR);
+        setTo(gradientTo ?? DEFAULT_RING_COLOR);
+    }, [ringColor, gradientFrom, gradientTo]);
     
     // Detectar cambios sin guardar
     const hasRingChanges = ring !== (ringColor ?? DEFAULT_RING_COLOR);
@@ -74,33 +83,37 @@ export default function Tier2CosmeticsHub({ tierLevel, ringColor, gradientFrom, 
 
     const handleSaveRing = async () => {
         if (!esHexColorValido(ring)) {
-            alert("El color del anillo no es válido. Usa un formato #RRGGBB.");
+            setMessage({ type: "error", text: "El color del anillo no es válido. Usa un formato #RRGGBB." });
             return;
         }
         if (ring === ringColor) return;
         setIsSaving(true);
+        setMessage(null);
         const res = await guardarAnilloAction(ring);
         setIsSaving(false);
         if (res.success) {
+            setMessage({ type: "ok", text: "Anillo actualizado." });
             onUpdate();
         } else {
-            alert(res.error);
+            setMessage({ type: "error", text: res.error ?? "No se pudo guardar el anillo." });
         }
     };
 
     const handleSaveGradient = async () => {
         if (!esHexColorValido(from) || !esHexColorValido(to)) {
-            alert("Los colores del degradado no son válidos. Usa un formato #RRGGBB.");
+            setMessage({ type: "error", text: "Los colores del degradado no son válidos. Usa un formato #RRGGBB." });
             return;
         }
         if (from === gradientFrom && to === gradientTo) return;
         setIsSaving(true);
+        setMessage(null);
         const res = await guardarDegradadoAction({ from, to });
         setIsSaving(false);
         if (res.success) {
+            setMessage({ type: "ok", text: "Degradado actualizado." });
             onUpdate();
         } else {
-            alert(res.error);
+            setMessage({ type: "error", text: res.error ?? "No se pudo guardar el degradado." });
         }
     };
 
@@ -242,6 +255,20 @@ export default function Tier2CosmeticsHub({ tierLevel, ringColor, gradientFrom, 
                                     </div>
                                     <p className="text-[9px] font-mono text-zinc-600">Si defines un degradado, tu nombre se anima con ese flujo de color.</p>
                                 </section>
+                            )}
+
+                            {/* Feedback inline del guardado */}
+                            {message && (
+                                <div
+                                    role="status"
+                                    className={`px-3 py-2 rounded-md text-[10px] font-mono border ${
+                                        message.type === "ok"
+                                            ? "bg-neon/10 border-neon/40 text-neon-bright"
+                                            : "bg-red-500/10 border-red-500/40 text-red-400"
+                                    }`}
+                                >
+                                    {message.text}
+                                </div>
                             )}
                         </div>
                     </motion.div>

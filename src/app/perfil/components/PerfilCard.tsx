@@ -8,7 +8,7 @@ import Tier2Accordion from "@/components/profile/Tier2Accordion";
 import type { CustomSlide } from "@/types/slides";
 import Tier2CosmeticsHub from "./tier2/Tier2CosmeticsHub"; 
 import { SITE_CONFIG } from "@/config/site.config";
-import { resolverCosmeticos } from "@/lib/cosmetics";
+import { resolverCosmeticos, ringAttrs } from "@/lib/cosmetics";
 import ShareProfileButton from "@/components/ui/ShareProfileButton";
 
 interface Props {
@@ -45,6 +45,7 @@ export default function PerfilCard({
         gradient_from: gradientFrom,
         gradient_to: gradientTo,
     });
+    const ring = ringAttrs(cosmeticos);
 
     const getTierBadge = () => {
         // Fase 2 (B2): roles del hub (sin tier 3 ni "FREE TIER").
@@ -102,7 +103,7 @@ export default function PerfilCard({
                 <button onClick={onSignOut} className="text-[10px] uppercase font-mono tracking-widest text-zinc-500 hover:text-red-400 border border-transparent hover:border-red-500/30 bg-transparent hover:bg-red-500/10 px-4 py-2 transition-all rounded">Cerrar sesión</button>
             </div>
 
-            <div className="overflow-hidden bg-[#050505] border border-white/10 shadow-[0_0_40px_rgba(0,0,0,0.8)] rounded-xl">
+            <div className="overflow-hidden bg-[#050505] border border-white/10 rounded-xl" style={{ boxShadow: cosmeticos.cardGlow }}>
                 <div className="group h-56 w-full relative overflow-hidden bg-zinc-950 flex items-center justify-center">
                     {banner ? (
                         <Image src={banner} alt="Banner" fill priority sizes="(max-width: 896px) 100vw, 896px" unoptimized={esImagenAnimada(banner)} className="object-cover opacity-60 group-hover:opacity-80 transition-opacity duration-500" />
@@ -126,8 +127,8 @@ export default function PerfilCard({
                         {/* 👇 AVATAR CON MARCO DINÁMICO Y HOVER GLOW 👇 */}
                         <div className="relative group/avatar shrink-0">
                             <div 
-                                className={`absolute inset-[-4px] rounded-full ${cosmeticos.ringClassName}`} 
-                                style={{ ...cosmeticos.ringStyle, boxShadow: cosmeticos.ringGlow }} 
+                                className={`absolute inset-[-4px] rounded-full ${ring.className}`} 
+                                style={ring.style} 
                             />
                             <div className="relative h-32 w-32 rounded-full border-4 border-[#050505] bg-[#0a0a0a] overflow-hidden">
                                 <Image src={imagen} fill alt="Perfil" sizes="128px" priority unoptimized={esImagenAnimada(imagen)} className="object-cover" />

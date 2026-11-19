@@ -63,7 +63,7 @@ export default function HeroCreatorsRoster() {
                     <p className="text-[10px] font-mono uppercase tracking-[0.2em] text-neon-bright mb-3 ml-1">
                         Creadores destacados
                     </p>
-                    <div className="flex gap-4 overflow-x-auto pb-2">
+                    <div className="flex gap-4 overflow-x-auto py-4 px-1">
                         {creators.map((creator, index) => (
                             <motion.button
                                 key={creator.id}
@@ -78,10 +78,10 @@ export default function HeroCreatorsRoster() {
                                     const cosmeticos = resolverCosmeticos(mapCreatorToCosmetic(creator));
                                     return (
                                         <div className="relative h-14 w-14 rounded-full">
-                                            {/* Anillo con glow */}
+                                            {/* Anillo con glow sutil (estático, sin recorte) */}
                                             <div 
-                                                className={`absolute inset-[-2px] rounded-full ${cosmeticos.ringClassName} transition-all duration-300 group-hover:scale-110`}
-                                                style={{ ...cosmeticos.ringStyle, boxShadow: cosmeticos.ringGlow }}
+                                                className="absolute inset-[-2px] rounded-full transition-all duration-300 group-hover:scale-110"
+                                                style={{ ...cosmeticos.ringStyle, boxShadow: `0 0 10px ${cosmeticos.accentColor}55` }}
                                             />
                                             {/* Avatar */}
                                             <div className="relative h-14 w-14 rounded-full overflow-hidden bg-[#0a0a0a] border-2 border-black">

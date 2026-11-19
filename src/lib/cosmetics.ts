@@ -2,19 +2,15 @@
 |--------------------------------------------------------------------------
 | Cosméticos de perfil (Fase 3)
 |--------------------------------------------------------------------------
-| Resolución centralizada del nombre y del anillo del avatar para todos los
-| consumidores (PerfilCard, UserProfileModal, /u/[id] y el roster).
+| Resolución centralizada del nombre, el anillo del avatar y el glow para
+| todos los consumidores (PerfilCard, UserProfileModal, /u/[id] y roster).
 |
-| Los presets (`VIP_STYLES`) se eliminaron por completo; ahora solo existen:
-|   - Anillo de color sólido (`ring_color`), Tier 1+.
-|   - Degradado de 2 colores (`gradient_from`/`gradient_to`), Tier 2, animado.
-|
-| Reglas:
-|   - Tier 2 con degradado propio → degradado animado: el nombre "fluye"
-|     (clase `gradient-animate`) y el anillo rota.
-|   - Tier 1+ con `ring_color` → anillo sólido de ese color.
-|   - Tier 1+ sin color → anillo por defecto (verde neón de la marca).
-|   - Tier 0 → nombre blanco y anillo neutro, sin animación.
+| Plan A:
+|   - Anillo del avatar = `ring_color` si existe; si no, el degradado; si no,
+|     el neón por defecto. Así color plano y degradado son independientes.
+|   - Nombre = degradado animado en Tier 2; blanco en Tier 1.
+|   - Glow = combina ambos colores del degradado (o el color del anillo) y
+|     late suavemente.
 |
 | Los colores son hex arbitrarios, así que se devuelven como estilos inline
 | (Tailwind no compila clases dinámicas en runtime).
@@ -33,6 +29,11 @@ export function esHexColorValido(color: unknown): color is string {
     return typeof color === "string" && HEX_COLOR_PATTERN.test(color);
 }
 
+/** Añade un alpha hex de 2 dígitos a un #rrggbb. */
+function withAlpha(hex: string, alpha: string): string {
+    return `${hex}${alpha}`;
+}
+
 export interface CosmeticProfile {
     tier_level: number | null | undefined;
     ring_color?: string | null;
@@ -45,23 +46,34 @@ export interface CosmeticResolution {
     nameClassName: string;
     /** Estilo inline del nombre (degradado animado o estático). */
     nameStyle?: CSSProperties;
-    /** Clases del anillo del avatar. */
+    /** Clases del anillo del avatar (incluye la animación de giro/latido). */
     ringClassName: string;
-    /** Estilo inline del anillo (color sólido o degradado). */
+    /** Estilo inline del anillo (color sólido o degradado cónico). */
     ringStyle?: CSSProperties;
-    /** Sombra (glow) del anillo con el color activo. */
-    ringGlow?: string;
+    /** Variables CSS del glow animado (`--glow` / `--glow-soft`). */
+    glowVars?: Record<string, string>;
+    /** Glow estático de fallback (reduced-motion o antes de animar). */
+    ringGlow: string;
+    /** Glow del contorno exterior de la tarjeta. */
+    cardGlow: string;
+    /** Color base (para el roster del home). */
+    accentColor: string;
+    /** Segundo color del degradado (o igual al base). */
+    accentColor2: string;
     /** true si hay degradado propio de Tier 2 y debe animarse. */
     animatedGradient: boolean;
+    /** true si el perfil tiene degradado propio. */
+    hasGradient: boolean;
+}
+
+/** Atributos listos para el `<div>` del anillo (clases + estilo). */
+export interface RingAttrs {
+    className: string;
+    style: CSSProperties;
 }
 
 function tieneDegradadoPropio(p: CosmeticProfile): boolean {
     return esHexColorValido(p.gradient_from) && esHexColorValido(p.gradient_to);
-}
-
-/** Genera un glow (box-shadow) con el color del anillo. */
-function generarGlow(color: string): string {
-    return `0 0 20px ${color}80, 0 0 40px ${color}40`;
 }
 
 export function resolverCosmeticos(p: CosmeticProfile): CosmeticResolution {
@@ -71,32 +83,66 @@ export function resolverCosmeticos(p: CosmeticProfile): CosmeticResolution {
     if (tier < 1) {
         return {
             nameClassName: "text-white",
-            ringClassName: "from-zinc-800 to-zinc-700",
-            ringGlow: "0 0 15px rgba(113, 113, 122, 0.3)",
+            ringClassName: "",
+            ringGlow: "none",
+            cardGlow: "0 0 30px rgba(0,0,0,0.8)",
+            accentColor: "#71717a",
+            accentColor2: "#71717a",
             animatedGradient: false,
+            hasGradient: false,
         };
     }
 
-    // Tier 2 con degradado propio: nombre y anillo animados con ese degradado.
-    if (tier >= 2 && tieneDegradadoPropio(p)) {
-        const gradient = `linear-gradient(90deg, ${p.gradient_from}, ${p.gradient_to})`;
-        return {
-            nameClassName: "text-transparent bg-clip-text gradient-animate",
-            nameStyle: { backgroundImage: gradient },
-            ringClassName: "motion-safe:animate-[spin_4s_linear_infinite]",
-            ringStyle: { backgroundImage: gradient },
-            ringGlow: generarGlow(p.gradient_from as string),
-            animatedGradient: true,
-        };
-    }
+    const hasGradient = tier >= 2 && tieneDegradadoPropio(p);
+    const hasRingColor = esHexColorValido(p.ring_color);
+    const ringColor = hasRingColor ? (p.ring_color as string) : DEFAULT_RING_COLOR;
 
-    // Anillo sólido (Tier 1+): usa ring_color si es válido, si no el neón.
-    const ringColor = esHexColorValido(p.ring_color) ? p.ring_color : DEFAULT_RING_COLOR;
+    // Plan A: el anillo usa ring_color si existe; si no, el degradado.
+    const ringUsesGradient = !hasRingColor && hasGradient;
+    const accentColor = ringUsesGradient ? (p.gradient_from as string) : ringColor;
+    const accentColor2 = ringUsesGradient ? (p.gradient_to as string) : ringColor;
+
+    // Nombre: degradado animado en Tier 2; blanco en Tier 1.
+    const nameClassName = hasGradient
+        ? "text-transparent bg-clip-text gradient-animate"
+        : "text-white";
+    const nameStyle: CSSProperties | undefined = hasGradient
+        ? { backgroundImage: `linear-gradient(90deg, ${p.gradient_from}, ${p.gradient_to})` }
+        : undefined;
+
+    // Anillo: degradado cónico (flujo al girar) si usa degradado; sólido si no.
+    const ringStyle: CSSProperties = ringUsesGradient
+        ? { backgroundImage: `conic-gradient(from 0deg, ${accentColor}, ${accentColor2}, ${accentColor})` }
+        : { backgroundColor: ringColor };
+
     return {
-        nameClassName: "text-white",
-        ringClassName: "motion-safe:animate-[spin_4s_linear_infinite]",
-        ringStyle: { backgroundColor: ringColor },
-        ringGlow: generarGlow(ringColor),
-        animatedGradient: false,
+        nameClassName,
+        nameStyle,
+        ringClassName: ringUsesGradient ? "ring-spin-glow" : "ring-glow",
+        ringStyle,
+        glowVars: {
+            "--glow": withAlpha(accentColor, "99"),
+            "--glow-soft": withAlpha(accentColor2, "55"),
+        },
+        ringGlow: `0 0 14px ${withAlpha(accentColor, "99")}, 0 0 28px ${withAlpha(accentColor2, "55")}`,
+        cardGlow: hasGradient
+            ? `0 0 40px ${withAlpha(p.gradient_from as string, "40")}, 0 0 70px ${withAlpha(p.gradient_to as string, "26")}`
+            : `0 0 40px ${withAlpha(ringColor, "40")}`,
+        accentColor,
+        accentColor2,
+        animatedGradient: hasGradient,
+        hasGradient,
+    };
+}
+
+/** Combina las clases y el estilo del anillo (incluye glow animado). */
+export function ringAttrs(r: CosmeticResolution): RingAttrs {
+    return {
+        className: r.ringClassName,
+        style: {
+            ...r.ringStyle,
+            boxShadow: r.ringGlow,
+            ...(r.glowVars ?? {}),
+        } as CSSProperties,
     };
 }

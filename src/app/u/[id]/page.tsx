@@ -8,7 +8,7 @@ import { obtenerPerfilPublicoAction } from "@/actions/publicProfile.action";
 import TierBadge from "@/components/profile/TierBadge"; 
 import ProfileSocialNodes from "@/components/profile/ProfileSocialNodes";
 import ShareProfileButton from "@/components/ui/ShareProfileButton"; 
-import { resolverCosmeticos } from "@/lib/cosmetics";
+import { resolverCosmeticos, ringAttrs } from "@/lib/cosmetics";
 import PublicVipCarousel from "@/components/profile/PublicVipCarousel";
 
 // ⚡ OPTIMIZACIÓN NEXT 15: params ahora es una Promesa.
@@ -44,6 +44,7 @@ export default async function PublicProfilePage({ params }: Props) {
         gradient_from: user.gradient_from,
         gradient_to: user.gradient_to,
     });
+    const ring = ringAttrs(cosmeticos);
 
     return (
         <main className="min-h-screen bg-[#020202] text-white pt-24 pb-12 font-sans relative">
@@ -55,7 +56,7 @@ export default async function PublicProfilePage({ params }: Props) {
             <div className="max-w-4xl mx-auto px-4 sm:px-6 relative z-10">
                 
                 {/* 🎴 CARD PRINCIPAL: Con 'group/card' activamos animaciones cuando el mouse entra a la tarjeta */}
-                <div className="group/card relative overflow-hidden bg-[#070707] border border-white/5 hover:border-neon/30 transition-all duration-700 shadow-[0_0_50px_rgba(0,0,0,0.8)] hover:shadow-[0_0_60px_rgba(97,255,97,0.1)] rounded-xl">
+                <div className="group/card relative overflow-hidden bg-[#070707] border border-white/5 hover:border-neon/30 transition-all duration-700 rounded-xl" style={{ boxShadow: cosmeticos.cardGlow }}>
                     
                     {/* ESQUINAS DECORATIVAS: Reaccionan al hover de la tarjeta madre */}
                     <div className="absolute top-0 left-0 w-12 h-12 border-t-2 border-l-2 border-neon/50 group-hover/card:border-neon-bright transition-colors duration-500 z-20 pointer-events-none rounded-tl-xl" />
@@ -93,8 +94,8 @@ export default async function PublicProfilePage({ params }: Props) {
                             <div className="relative group/avatar shrink-0">
                                 {/* Anillo Dinámico VIP */}
                                 <div 
-                                    className={`absolute inset-[-4px] rounded-full ${cosmeticos.ringClassName}`} 
-                                    style={{ ...cosmeticos.ringStyle, boxShadow: cosmeticos.ringGlow }} 
+                                    className={`absolute inset-[-4px] rounded-full ${ring.className}`} 
+                                    style={ring.style} 
                                 />
                                 <div className="relative h-40 w-40 sm:h-48 sm:w-48 rounded-full border-[6px] border-[#070707] bg-[#0a0a0a] shadow-[0_0_30px_rgba(0,0,0,0.8)] overflow-hidden">
                                     <Image src={user.avatar_url || "https://cdn.discordapp.com/embed/avatars/0.png"} alt={profileName} fill sizes="192px" unoptimized={esImagenAnimada(user.avatar_url)} className="object-cover" priority />

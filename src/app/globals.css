@@ -27,22 +27,48 @@
 
 /*
 |--------------------------------------------------------------------------
-| Animación de degradado (Fase 3)
+| Animaciones de cosméticos (Fase 3)
 |--------------------------------------------------------------------------
-| Aplica un "flujo" al degradado de color propio del nombre (Tier 2). Solo se
-| usa cuando el creador define un degradado de 2 colores; los presets y el
-| color puro no lo activan (se conservan los glows y el giro del anillo).
+| - `gradient-animate`: hace fluir el degradado del nombre (Tier 2).
+| - `ring-glow` / `ring-spin-glow`: latido del glow del anillo (Tier 1 y 2).
+| Ambas respetan `prefers-reduced-motion` (override global más abajo).
 |--------------------------------------------------------------------------
 */
 @keyframes gradient-pan {
     0%   { background-position: 0% 50%; }
-    50%  { background-position: 100% 50%; }
-    100% { background-position: 0% 50%; }
+    100% { background-position: 200% 50%; }
 }
 
 .gradient-animate {
-    background-size: 200% 200%;
-    animation: gradient-pan 4s ease infinite;
+    background-size: 200% auto;
+    animation: gradient-pan 4s linear infinite;
+}
+
+@keyframes glow-pulse {
+    0%, 100% {
+        box-shadow: 0 0 10px var(--glow, rgba(97, 255, 97, 0.6)),
+                    0 0 22px var(--glow-soft, rgba(97, 255, 97, 0.35));
+    }
+    50% {
+        box-shadow: 0 0 18px var(--glow, rgba(97, 255, 97, 0.6)),
+                    0 0 38px var(--glow-soft, rgba(97, 255, 97, 0.35));
+    }
+}
+
+@keyframes ring-rotate {
+    to { transform: rotate(360deg); }
+}
+
+/* Anillo sólido: solo latido del glow. */
+.ring-glow {
+    animation: glow-pulse 2.6s ease-in-out infinite;
+}
+
+/* Anillo con degradado cónico: giro + latido combinados. */
+.ring-spin-glow {
+    animation:
+        ring-rotate 6s linear infinite,
+        glow-pulse 2.6s ease-in-out infinite;
 }
 
 :root {

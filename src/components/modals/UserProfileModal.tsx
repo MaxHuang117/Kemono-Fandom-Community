@@ -13,7 +13,7 @@ import { toggleProfileReputationAction, obtenerEstadoReputacionAction } from "@/
 import TierBadge from "@/components/profile/TierBadge"; 
 import Link from "next/link";
 import ShareProfileButton from "@/components/ui/ShareProfileButton"; 
-import { resolverCosmeticos } from "@/lib/cosmetics";
+import { resolverCosmeticos, ringAttrs } from "@/lib/cosmetics";
 
 interface Props {
     user: UserProfile | null;
@@ -63,6 +63,7 @@ export default function UserProfileModal({ user, onClose }: Props) {
         gradient_from: dbData?.gradient_from ?? user?.gradient_from,
         gradient_to: dbData?.gradient_to ?? user?.gradient_to,
     });
+    const ring = ringAttrs(cosmeticos);
 
     // 🔌 SISTEMA DE REPUTACIÓN (Anti-Sybil)
     const handleToggleLike = async (e: React.MouseEvent) => {
@@ -103,7 +104,8 @@ export default function UserProfileModal({ user, onClose }: Props) {
                         initial={{ opacity: 0, scale: 0.95, y: 20 }}
                         animate={{ opacity: 1, scale: 1, y: 0 }}
                         exit={{ opacity: 0, scale: 0.95, y: 20 }}
-                        className="fixed left-1/2 top-1/2 z-[101] w-[95%] max-w-lg -translate-x-1/2 -translate-y-1/2 overflow-hidden bg-[#050505] border border-neon/30 shadow-[0_0_50px_rgba(97,255,97,0.15)] font-sans rounded-xl"
+                        className="fixed left-1/2 top-1/2 z-[101] w-[95%] max-w-lg -translate-x-1/2 -translate-y-1/2 overflow-hidden bg-[#050505] border border-neon/30 font-sans rounded-xl"
+                        style={{ boxShadow: cosmeticos.cardGlow }}
                     >
                         {/* DECORACIÓN CYBERPUNK: Esquinas */}
                         <div className="absolute top-0 left-0 w-6 h-6 border-t-2 border-l-2 border-neon z-20 pointer-events-none rounded-tl-xl" />
@@ -128,8 +130,8 @@ export default function UserProfileModal({ user, onClose }: Props) {
                                 <div className="relative group/avatar shrink-0 mb-3">
                                     {/* Anillo de color (Calculado en resolverCosmeticos) */}
                                     <div 
-                                        className={`absolute inset-[-4px] rounded-full ${cosmeticos.ringClassName}`} 
-                                        style={{ ...cosmeticos.ringStyle, boxShadow: cosmeticos.ringGlow }} 
+                                        className={`absolute inset-[-4px] rounded-full ${ring.className}`} 
+                                        style={ring.style} 
                                     />
                                     <div className="relative h-24 w-24 rounded-full border-[4px] border-[#050505] bg-[#0a0a0a] overflow-hidden">
                                         <Image src={user.avatar} alt={user.username} fill sizes="96px" unoptimized={esImagenAnimada(user.avatar)} className="object-cover" />
