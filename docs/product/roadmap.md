@@ -48,7 +48,7 @@ Este documento define las fases de desarrollo de Kemono Fandom Community. Cada f
 **Objetivo:** retención y participación de creadores y visitantes.
 
 - **Comentarios en perfiles:** el creador activa/desactiva y modera (aprobar/rechazar cada comentario).
-- **Slides Tier 2 reorganizados:** 3 slots con propósito (Portada / Agenda / CTA) y enlace libre.
+- **Slides Tier 2 reorganizados:** ✅ (19 nov 2026) 3 slots con propósito (Portada / Agenda / CTA) y enlace libre (`link_url`). Añadidos en la misma sesión: cosméticos por nivel (anillo de color Tier 1, degradado de 2 colores animado Tier 2) y biografía multi-línea (ver `PLAN_FASE_3.md`).
 - **Notificaciones:** campanita con tipos `application_result`, `profile_comment_received`, `reputation_received`, `news_published`.
 - **Supporters:** muro + badge, automatizado vía webhook (Ko-fi).
 
