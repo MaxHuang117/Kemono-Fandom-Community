@@ -46,7 +46,6 @@ export async function getProfileById(userId: string) {
             tier_level,
             social_links,
             likes_count,
-            name_color_gradient,
             custom_badge,
             allow_gifs,
             custom_slides

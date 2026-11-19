@@ -23,7 +23,6 @@ export function usePerfil() {
     const [tierLevel, setTierLevel] = useState<number>(0);
     const [socialLinks, setSocialLinks] = useState<Record<string, string>>({});
     
-    const [nameColorGradient, setNameColorGradient] = useState<string | null>(null);
     // Fase 3: cosméticos de perfil (anillo Tier 1, degradado Tier 2)
     const [ringColor, setRingColor] = useState<string | null>(null);
     const [gradientFrom, setGradientFrom] = useState<string | null>(null);
@@ -52,7 +51,6 @@ export function usePerfil() {
         const perfilData = perfil as any;
         setDbId(perfilData.id || "");
         
-        setNameColorGradient(perfilData.name_color_gradient ?? null);
         setRingColor(perfilData.ring_color ?? null);
         setGradientFrom(perfilData.gradient_from ?? null);
         setGradientTo(perfilData.gradient_to ?? null);
@@ -123,7 +121,6 @@ export function usePerfil() {
         tierLevel,
         socialLinks,
         customSlides, 
-        nameColorGradient, 
         ringColor,
         gradientFrom,
         gradientTo,

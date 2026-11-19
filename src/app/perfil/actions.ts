@@ -5,7 +5,6 @@
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/lib/auth";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { VIP_STYLES } from "@/config/vipStyles.config";
 import { hasTier } from "@/lib/tier";
 import { esHexColorValido } from "@/lib/cosmetics";
 
@@ -26,9 +25,6 @@ const MAX_SOCIAL_VALUE_LENGTH = 100; // FASE2-09
 const MAX_BANNER_BYTES = 2 * 1024 * 1024; // FASE2-06 (2 MB)
 
 const ALLOWED_BANNER_MIME_TYPES = ["image/jpeg", "image/png", "image/webp"] as const; // FASE2-06
-
-/** Allowlist de cosméticos VIP: las claves de `VIP_STYLES` (FASE2-07). */
-const ALLOWED_VIP_STYLE_IDS: ReadonlySet<string> = new Set(Object.keys(VIP_STYLES));
 
 /** Allowlist de plataformas sociales soportadas por el render (FASE2-09). */
 const ALLOWED_SOCIAL_PLATFORMS: ReadonlySet<string> = new Set(["twitch", "youtube", "x", "github"]);
@@ -360,7 +356,7 @@ export async function obtenerPerfilCompletoAction() {
     // 1. AÑADIMOS "likes_count" al select para que el corazón funcione
     const { data: profile, error: profileError } = await supabaseAdmin
         .from("profiles")
-        .select("id, biografia, tier_level, sub_expires_at, social_links, banner_url, name_color_gradient, ring_color, gradient_from, gradient_to, likes_count, is_online")
+        .select("id, biografia, tier_level, sub_expires_at, social_links, banner_url, ring_color, gradient_from, gradient_to, likes_count, is_online")
         .eq("discord_id", session.user.discordId)
         .maybeSingle();
 
@@ -412,7 +408,6 @@ export async function obtenerPerfilCompletoAction() {
     
     // Si no alcanza el nivel 2 (Creador destacado), bloqueamos la salida de datos VIP (aunque existan guardados en la DB)
     const tier2Activo = hasTier(profile.tier_level, 2);
-    const finalNameColorGradient = tier2Activo ? profile.name_color_gradient : null;
     const finalCustomSlides = tier2Activo ? customSlidesParsed : [];
     // Fase 3: cosméticos filtrados por nivel (anillo → tier 1, degradado → tier 2).
     const finalRingColor = hasTier(profile.tier_level, 1) ? profile.ring_color : null;
@@ -426,7 +421,6 @@ export async function obtenerPerfilCompletoAction() {
         social_links: profile.social_links ?? {},
         banner_url: profile.banner_url ?? null,
         likes_count: profile.likes_count ?? 0,       // Enviamos los likes limpios
-        name_color_gradient: finalNameColorGradient, // Datos VIP filtrados
         ring_color: finalRingColor,                  // Anillo (Tier 1+)
         gradient_from: finalGradientFrom,            // Degradado (Tier 2)
         gradient_to: finalGradientTo,                // Degradado (Tier 2)
@@ -553,48 +547,6 @@ export async function subirBannerAction(formData: FormData) {
     }
 
     return { success: true, banner_url: publicUrl };
-}
-
-/*
-|--------------------------------------------------------------------------
-| Guardar Cosméticos VIP (Tier 2+)
-|--------------------------------------------------------------------------
-*/
-export async function guardarCosmeticosVIPAction(styleId: string) {
-    const session = await getServerSession(authOptions);
-    if (!session?.user?.discordId) return { error: "No autorizado." };
-
-    /* FASE2-07: allowlist de estilos VIP (claves de VIP_STYLES) */
-    if (typeof styleId !== "string" || !ALLOWED_VIP_STYLE_IDS.has(styleId)) {
-        return { error: "Estilo de cosmético no válido." };
-    }
-
-    // Verificamos el nivel por seguridad (roles sin vigencia)
-    const { data: perfil, error: errorTier } = await supabaseAdmin
-        .from("profiles")
-        .select("tier_level, sub_expires_at")
-        .eq("discord_id", session.user.discordId)
-        .single();
-
-    if (errorTier) {
-        console.error("Error verificando tier en guardarCosmeticosVIPAction:", errorTier);
-        return { error: GENERIC_DB_ERROR };
-    }
-
-    if (!perfil || !hasTier(perfil.tier_level, 2)) {
-        return { error: "Requiere el nivel Creador destacado (2) o superior." };
-    }
-
-    const { error } = await supabaseAdmin
-        .from("profiles")
-        .update({ name_color_gradient: styleId, updated_at: new Date().toISOString() })
-        .eq("discord_id", session.user.discordId);
-
-    if (error) {
-        console.error("Error guardando cosméticos VIP:", error);
-        return { error: GENERIC_DB_ERROR };
-    }
-    return { success: true };
 }
 
 /*

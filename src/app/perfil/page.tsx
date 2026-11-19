@@ -39,7 +39,6 @@ export default function PerfilPage() {
         tierLevel,
         socialLinks,
         customSlides,
-        nameColorGradient,
         ringColor,
         gradientFrom,
         gradientTo,
@@ -113,7 +112,6 @@ export default function PerfilPage() {
                 socialLinks={socialLinks}
                 likesCount={likesCount}
                 customSlides={customSlides || []}
-                nameColorGradient={nameColorGradient}
                 ringColor={ringColor}
                 gradientFrom={gradientFrom}
                 gradientTo={gradientTo}

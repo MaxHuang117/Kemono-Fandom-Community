@@ -19,7 +19,6 @@ interface Props {
     tierLevel: number;
     socialLinks: Record<string, string>;
     customSlides: CustomSlide[];
-    nameColorGradient?: string | null;
     ringColor?: string | null;
     gradientFrom?: string | null;
     gradientTo?: string | null;
@@ -31,7 +30,7 @@ interface Props {
 }
 
 export default function PerfilCard({
-    banner, imagen, nombre, discordId, tierLevel, socialLinks, customSlides, nameColorGradient, ringColor, gradientFrom, gradientTo, likesCount: initialLikesCount, isOnline, onTogglePresencia, onSignOut, onUpdate
+    banner, imagen, nombre, discordId, tierLevel, socialLinks, customSlides, ringColor, gradientFrom, gradientTo, likesCount: initialLikesCount, isOnline, onTogglePresencia, onSignOut, onUpdate
 }: Props) {
     const [isUploading, setIsUploading] = useState(false);
     const [copied, setCopied] = useState(false);
@@ -42,7 +41,6 @@ export default function PerfilCard({
     // Fase 3: cosméticos (nombre + anillo) resueltos en un único punto.
     const cosmeticos = resolverCosmeticos({
         tier_level: tierLevel,
-        name_color_gradient: nameColorGradient,
         ring_color: ringColor,
         gradient_from: gradientFrom,
         gradient_to: gradientTo,
@@ -165,7 +163,7 @@ export default function PerfilCard({
                     </div>
 
                     <Tier1NetworkHub tierLevel={tierLevel} socialLinks={socialLinks} onUpdate={onUpdate} />
-                    <Tier2CosmeticsHub tierLevel={tierLevel} currentStyleId={nameColorGradient || "matrix"} ringColor={ringColor ?? null} gradientFrom={gradientFrom ?? null} gradientTo={gradientTo ?? null} onUpdate={onUpdate} />
+                    <Tier2CosmeticsHub tierLevel={tierLevel} ringColor={ringColor ?? null} gradientFrom={gradientFrom ?? null} gradientTo={gradientTo ?? null} onUpdate={onUpdate} />
                     <Tier2Accordion tierLevel={tierLevel} slides={customSlides} onUpdate={onUpdate} />
                 </div>
             </div>

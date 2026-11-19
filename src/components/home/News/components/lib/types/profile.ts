@@ -15,7 +15,6 @@ export interface UserProfile {
     tier_level: number;
     social_links: Record<string, string>;
     custom_slides?: CustomSlide[];
-    name_color_gradient?: string;
     ring_color?: string;
     gradient_from?: string;
     gradient_to?: string;

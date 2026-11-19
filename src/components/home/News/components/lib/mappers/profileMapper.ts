@@ -19,7 +19,6 @@ export interface ProfileDB {
     // De esta manera, evitamos errores de "undefined" en tiempo de ejecución.
     tier_level?: number | null;
     social_links?: any | null; 
-    name_color_gradient?: string | null;
     custom_badge?: string | null;
     allow_gifs?: boolean | null;
     custom_slides?: CustomSlide[] | null;
@@ -42,7 +41,6 @@ export function mapProfile(profile: ProfileDB): UserProfile {
         tier_level: profile.tier_level ?? 0,
         social_links: (profile.social_links as Record<string, string>) || {},
         custom_slides: (profile.custom_slides as CustomSlide[]) || [],
-        name_color_gradient: profile.name_color_gradient ?? undefined,
         custom_badge: profile.custom_badge ?? undefined,
         allow_gifs: profile.allow_gifs ?? false,
     };

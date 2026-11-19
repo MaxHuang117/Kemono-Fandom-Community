@@ -17,7 +17,6 @@ export interface CreatorProfile {
     is_online: boolean;
     streamer_category: string | null;
     tags: string[] | null;
-    name_color_gradient: string | null;
     ring_color: string | null;
     gradient_from: string | null;
     gradient_to: string | null;
@@ -27,7 +26,7 @@ export async function obtenerCreadoresAction(): Promise<{ success: true; data: C
     try {
         const { data, error } = await supabaseAdmin
             .from("profiles")
-            .select("id, discord_id, discord_username, nombre_publico, avatar_url, banner_url, biografia, tier_level, likes_count, is_online, streamer_category, tags, name_color_gradient, ring_color, gradient_from, gradient_to")
+            .select("id, discord_id, discord_username, nombre_publico, avatar_url, banner_url, biografia, tier_level, likes_count, is_online, streamer_category, tags, ring_color, gradient_from, gradient_to")
             .eq("streamer_status", "approved")
             .order("likes_count", { ascending: false });
 

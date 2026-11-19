@@ -36,8 +36,7 @@ export function useCurrentProfile() {
                     banner_url,
                     biografia,
                     tier_level,
-                    social_links,
-                    name_color_gradient
+                    social_links
                 `)
                 .eq("discord_id", session.user.discordId)
                 .single();

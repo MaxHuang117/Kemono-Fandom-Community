@@ -40,7 +40,6 @@ export default async function PublicProfilePage({ params }: Props) {
     // 🎨 Fase 3: cosméticos (nombre + anillo) resueltos en un único punto (servidor).
     const cosmeticos = resolverCosmeticos({
         tier_level: finalTier,
-        name_color_gradient: user.name_color_gradient,
         ring_color: user.ring_color,
         gradient_from: user.gradient_from,
         gradient_to: user.gradient_to,

@@ -2,12 +2,10 @@
 
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { guardarCosmeticosVIPAction, guardarAnilloAction, guardarDegradadoAction } from "@/app/perfil/actions";
-import { VIP_STYLES } from "@/config/vipStyles.config";
+import { guardarAnilloAction, guardarDegradadoAction } from "@/app/perfil/actions";
 
 interface Props {
     tierLevel: number;
-    currentStyleId: string | null;
     ringColor: string | null;
     gradientFrom: string | null;
     gradientTo: string | null;
@@ -46,28 +44,17 @@ function ColorField({ label, value, onChange }: { label: string; value: string; 
 |--------------------------------------------------------------------------
 | Tier2CosmeticsHub (Fase 3)
 |--------------------------------------------------------------------------
-| Rediseñado para los cosméticos por nivel:
+| Cosméticos por nivel (los presets `VIP_STYLES` fueron eliminados):
 |   - Anillo (Tier 1+): color sólido `ring_color`.
-|   - Degradado (Tier 2): dos colores `gradient_from`/`gradient_to`.
-|   - Presets (Tier 2): se conservan como fallback ("predeterminado").
+|   - Degradado (Tier 2): dos colores `gradient_from`/`gradient_to` (animado).
 |--------------------------------------------------------------------------
 */
-export default function Tier2CosmeticsHub({ tierLevel, currentStyleId, ringColor, gradientFrom, gradientTo, onUpdate }: Props) {
+export default function Tier2CosmeticsHub({ tierLevel, ringColor, gradientFrom, gradientTo, onUpdate }: Props) {
     const [isOpen, setIsOpen] = useState(false);
     const [isSaving, setIsSaving] = useState(false);
     const [ring, setRing] = useState(ringColor ?? "#61ff61");
     const [from, setFrom] = useState(gradientFrom ?? "#61ff61");
     const [to, setTo] = useState(gradientTo ?? "#8dff8d");
-    const activeStyle = VIP_STYLES[currentStyleId || "matrix"] || VIP_STYLES.matrix;
-
-    const handleSelectStyle = async (id: string) => {
-        if (id === currentStyleId) return;
-        setIsSaving(true);
-        const res = await guardarCosmeticosVIPAction(id);
-        setIsSaving(false);
-        if (res.success) onUpdate();
-        else alert(res.error);
-    };
 
     const handleSaveRing = async () => {
         if (ring === ringColor) return;
@@ -111,16 +98,6 @@ export default function Tier2CosmeticsHub({ tierLevel, currentStyleId, ringColor
                             Cosméticos
                         </h4>
                     </div>
-
-                    {tierLevel >= 1 && (
-                        <div className="hidden sm:flex items-center gap-2 bg-black/50 px-2 py-1 border border-white/5">
-                            <div className="w-1.5 h-1.5 rounded-full bg-neon motion-safe:animate-pulse" />
-                            <span className="text-[9px] font-mono text-zinc-500 uppercase tracking-widest">Activo:</span>
-                            <span className={`text-[10px] font-bold text-transparent bg-clip-text bg-gradient-to-r ${activeStyle.textClass} tracking-wider`}>
-                                {activeStyle.label}
-                            </span>
-                        </div>
-                    )}
                 </div>
 
                 <div className="flex items-center gap-3 relative z-10">
@@ -176,44 +153,7 @@ export default function Tier2CosmeticsHub({ tierLevel, currentStyleId, ringColor
                                             {isSaving ? "Guardando..." : "Aplicar"}
                                         </button>
                                     </div>
-                                    <p className="text-[9px] font-mono text-zinc-600">Si defines un degradado, tu nombre se anima con ese flujo de color. Si lo dejas en un preset, no se anima.</p>
-                                </section>
-                            )}
-
-                            {/* 3. Presets (Tier 2, fallback / predeterminado) */}
-                            {tierLevel >= 2 && (
-                                <section className="space-y-3">
-                                    <h5 className="text-[10px] font-mono text-zinc-500 uppercase tracking-widest flex items-center gap-2">
-                                        <span className="w-4 h-[1px] bg-neon/50" /> Presets (predeterminado)
-                                    </h5>
-                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                                        {Object.values(VIP_STYLES).map((style) => (
-                                            <button
-                                                key={style.id}
-                                                onClick={() => handleSelectStyle(style.id)}
-                                                disabled={isSaving}
-                                                className={`group relative flex items-center justify-between p-4 border transition-all duration-300 text-left overflow-hidden ${
-                                                    currentStyleId === style.id
-                                                        ? "border-neon/40 bg-neon/[0.03] shadow-[0_0_15px_rgba(97,255,97,0.05)]"
-                                                        : "border-white/5 bg-[#050505] hover:border-white/10 hover:bg-[#080808]"
-                                                }`}
-                                            >
-                                                <div className="flex items-center gap-4 relative z-10">
-                                                    <div className={`w-8 h-8 rounded-full border border-[#050505] shadow-[0_0_10px_rgba(0,0,0,0.5)] bg-gradient-to-r ${style.ringClass} motion-safe:animate-[spin_4s_linear_infinite] opacity-80`} />
-                                                    <div>
-                                                        <h5 className={`font-black text-sm uppercase tracking-wider text-transparent bg-clip-text bg-gradient-to-r ${style.textClass}`}>
-                                                            {style.label}
-                                                        </h5>
-                                                        <p className="text-[9px] text-zinc-500 font-mono mt-0.5">{style.description}</p>
-                                                    </div>
-                                                </div>
-
-                                                {currentStyleId === style.id && (
-                                                    <span className="text-[9px] font-mono text-neon">Activo</span>
-                                                )}
-                                            </button>
-                                        ))}
-                                    </div>
+                                    <p className="text-[9px] font-mono text-zinc-600">Si defines un degradado, tu nombre se anima con ese flujo de color.</p>
                                 </section>
                             )}
                         </div>

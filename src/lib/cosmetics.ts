@@ -5,11 +5,15 @@
 | Resolución centralizada del nombre y del anillo del avatar para todos los
 | consumidores (PerfilCard, UserProfileModal, /u/[id] y el roster).
 |
+| Los presets (`VIP_STYLES`) se eliminaron por completo; ahora solo existen:
+|   - Anillo de color sólido (`ring_color`), Tier 1+.
+|   - Degradado de 2 colores (`gradient_from`/`gradient_to`), Tier 2, animado.
+|
 | Reglas:
-|   - Tier 2 con degradado propio (gradient_from + gradient_to) → degradado
-|     animado: el nombre "fluye" (clase `gradient-animate`) y el anillo rota.
-|   - Tier 2 sin degradado propio → preset (VIP_STYLES) estático (fallback).
-|   - Tier 1 → anillo de color sólido (ring_color) o preset por defecto.
+|   - Tier 2 con degradado propio → degradado animado: el nombre "fluye"
+|     (clase `gradient-animate`) y el anillo rota.
+|   - Tier 1+ con `ring_color` → anillo sólido de ese color.
+|   - Tier 1+ sin color → anillo por defecto (verde neón de la marca).
 |   - Tier 0 → nombre blanco y anillo neutro, sin animación.
 |
 | Los colores son hex arbitrarios, así que se devuelven como estilos inline
@@ -18,9 +22,11 @@
 */
 
 import type { CSSProperties } from "react";
-import { VIP_STYLES, DEFAULT_STYLE } from "@/config/vipStyles.config";
 
 const HEX_COLOR_PATTERN = /^#[\da-f]{6}$/i;
+
+/** Color de anillo por defecto (verde neón de la marca). */
+export const DEFAULT_RING_COLOR = "#61ff61";
 
 /** Valida un color hexadecimal de 6 dígitos (#RRGGBB). */
 export function esHexColorValido(color: unknown): color is string {
@@ -29,7 +35,6 @@ export function esHexColorValido(color: unknown): color is string {
 
 export interface CosmeticProfile {
     tier_level: number | null | undefined;
-    name_color_gradient?: string | null;
     ring_color?: string | null;
     gradient_from?: string | null;
     gradient_to?: string | null;
@@ -64,8 +69,6 @@ export function resolverCosmeticos(p: CosmeticProfile): CosmeticResolution {
         };
     }
 
-    const preset = VIP_STYLES[p.name_color_gradient || "pure"] || DEFAULT_STYLE;
-
     // Tier 2 con degradado propio: nombre y anillo animados con ese degradado.
     if (tier >= 2 && tieneDegradadoPropio(p)) {
         const gradient = `linear-gradient(90deg, ${p.gradient_from}, ${p.gradient_to})`;
@@ -78,27 +81,12 @@ export function resolverCosmeticos(p: CosmeticProfile): CosmeticResolution {
         };
     }
 
-    // Tier 1: anillo de color sólido (si lo definió) y nombre blanco.
-    if (tier === 1) {
-        if (esHexColorValido(p.ring_color)) {
-            return {
-                nameClassName: "text-white",
-                ringClassName: "motion-safe:animate-[spin_4s_linear_infinite]",
-                ringStyle: { backgroundColor: p.ring_color },
-                animatedGradient: false,
-            };
-        }
-        return {
-            nameClassName: "text-white",
-            ringClassName: `bg-gradient-to-r ${preset.ringClass} motion-safe:animate-[spin_4s_linear_infinite]`,
-            animatedGradient: false,
-        };
-    }
-
-    // Tier 2 con preset (fallback): nombre con degradado estático + anillo preset.
+    // Anillo sólido (Tier 1+): usa ring_color si es válido, si no el neón.
+    const ringColor = esHexColorValido(p.ring_color) ? p.ring_color : DEFAULT_RING_COLOR;
     return {
-        nameClassName: `text-transparent bg-clip-text bg-gradient-to-r ${preset.textClass} hover:brightness-125`,
-        ringClassName: `bg-gradient-to-r ${preset.ringClass} motion-safe:animate-[spin_4s_linear_infinite]`,
+        nameClassName: "text-white",
+        ringClassName: "motion-safe:animate-[spin_4s_linear_infinite]",
+        ringStyle: { backgroundColor: ringColor },
         animatedGradient: false,
     };
 }
