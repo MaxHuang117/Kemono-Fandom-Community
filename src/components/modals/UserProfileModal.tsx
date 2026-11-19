@@ -7,10 +7,10 @@ import { esImagenAnimada } from "@/lib/image";
 
 // 🔌 CONEXIÓN AL BACKEND: Importamos las acciones seguras
 import { obtenerPerfilPublicoAction } from "@/actions/publicProfile.action"; 
-import { toggleProfileReputationAction, obtenerEstadoReputacionAction } from "@/app/perfil/actions";
 
 // 🧩 COMPONENTES MODULARES: Reutilizamos piezas para mantener el código limpio
 import TierBadge from "@/components/profile/TierBadge"; 
+import ProfileReputationButton from "@/components/profile/ProfileReputationButton";
 import Link from "next/link";
 import ShareProfileButton from "@/components/ui/ShareProfileButton"; 
 import { resolverCosmeticos, ringAttrs } from "@/lib/cosmetics";
@@ -23,12 +23,6 @@ interface Props {
 export default function UserProfileModal({ user, onClose }: Props) {
     // --- ESTADOS LOCALES ---
     const [dbData, setDbData] = useState<any>(null);
-    
-    // ⚡ OPTIMIZACIÓN (Optimistic UI): Estados para que el corazón reaccione instantáneamente
-    const [isLiking, setIsLiking] = useState(false);
-    const [localLikes, setLocalLikes] = useState<number>(0);
-    const [hasLikedLocal, setHasLikedLocal] = useState(false);
-    const [likeError, setLikeError] = useState<string | null>(null);
 
     // 🔌 FETCH INICIAL: Al abrir el modal, buscamos la info fresca de Supabase
     useEffect(() => {
@@ -37,15 +31,6 @@ export default function UserProfileModal({ user, onClose }: Props) {
             const response = await obtenerPerfilPublicoAction(user.id);
             if (response.success && response.data) {
                 setDbData(response.data);
-                setLocalLikes(response.data.likes_count ?? 0); // Sincronizamos likes con la DB
-                
-                // Verificamos si el usuario actual ya dio like a este perfil
-                if (response.data.discord) {
-                    const reputationResponse = await obtenerEstadoReputacionAction(response.data.discord);
-                    if (reputationResponse && !('error' in reputationResponse)) {
-                        setHasLikedLocal(reputationResponse.hasLiked);
-                    }
-                }
             }
         };
         fetchFullProfile();
@@ -64,29 +49,6 @@ export default function UserProfileModal({ user, onClose }: Props) {
         gradient_to: dbData?.gradient_to ?? user?.gradient_to,
     });
     const ring = ringAttrs(cosmeticos);
-
-    // 🔌 SISTEMA DE REPUTACIÓN (Anti-Sybil)
-    const handleToggleLike = async (e: React.MouseEvent) => {
-        e.stopPropagation(); // Evita que un clic aquí cierre el modal por accidente
-        if (!dbData?.discord) return;
-        
-        setIsLiking(true);
-        setLikeError(null); // Limpiamos errores previos
-        
-        // Actualizamos la UI instantáneamente para el usuario
-        setLocalLikes(prev => hasLikedLocal ? prev - 1 : prev + 1);
-        setHasLikedLocal(!hasLikedLocal);
-
-        // Disparamos la acción segura al backend usando discord_id (más robusto que profiles.id)
-        const res = await toggleProfileReputationAction(dbData.discord);
-        if (res.error) {
-            // Si el backend lo bloquea (por ser cuenta nueva, etc), revertimos la UI
-            setLocalLikes(prev => hasLikedLocal ? prev + 1 : prev - 1);
-            setHasLikedLocal(!hasLikedLocal);
-            setLikeError(res.error);
-        }
-        setIsLiking(false);
-    };
 
     return (
         <AnimatePresence>
@@ -155,27 +117,13 @@ export default function UserProfileModal({ user, onClose }: Props) {
                                             <span className={`h-1.5 w-1.5 rounded-full ${dbData?.is_online ? "bg-neon motion-safe:animate-pulse" : "bg-zinc-600"}`}/>
                                             {dbData?.is_online ? "ONLINE" : "OFFLINE"}
                                         </div>
-                                        {/* BOTÓN DE LIKE: Dispara la función handleToggleLike */}
-                                        <button 
-                                            onClick={handleToggleLike} 
-                                            disabled={isLiking}
-                                            aria-pressed={hasLikedLocal}
-                                            aria-disabled={isLiking}
-                                            aria-label={hasLikedLocal ? "Quitar reputación" : "Dar reputación"}
-                                            className={`group flex items-center gap-1.5 px-2.5 py-0.5 rounded border transition-all duration-300 shadow-[0_0_10px_rgba(239,68,68,0.1)] ${hasLikedLocal ? "bg-red-500/10 border-red-500/50 text-red-400" : "bg-[#0a0a0a] border-white/10 hover:border-red-500/30 text-zinc-400 hover:text-red-400"} ${isLiking ? "opacity-50 cursor-not-allowed" : ""}`} 
-                                            title={hasLikedLocal ? "Quitar reputación" : "Dar reputación"}
-                                        >
-                                            <svg className={`w-3 h-3 transition-transform duration-300 ${hasLikedLocal ? "fill-red-400 scale-110" : "fill-transparent stroke-current stroke-2 group-hover:scale-110"}`} viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12z" /></svg>
-                                            <span className="text-[10px] font-mono font-bold tracking-wider">{localLikes}</span>
-                                        </button>
+                                        {/* BOTÓN DE LIKE: componente reutilizable (misma lógica en /u/[id]) */}
+                                        <ProfileReputationButton
+                                            receiverSelector={dbData?.discord ?? user?.discord ?? ""}
+                                            initialLikes={dbData?.likes_count ?? 0}
+                                            size="sm"
+                                        />
                                     </div>
-                                    
-                                    {/* FEEDBACK INLINE DE ERRORES */}
-                                    {likeError && (
-                                        <div className="w-full mt-2 px-3 py-2 bg-red-500/10 border border-red-500/30 rounded text-[10px] font-mono text-red-400 text-center" role="alert">
-                                            {likeError}
-                                        </div>
-                                    )}
                                 </div>
                             </div>
 

@@ -1,12 +1,15 @@
 // src/app/u/[id]/page.tsx
 import Image from "next/image";
 import { notFound } from "next/navigation";
+import { getServerSession } from "next-auth/next";
 import { esImagenAnimada } from "@/lib/image";
+import { authOptions } from "@/lib/auth";
 
 // 🔌 CONEXIÓN: Importamos la acción de DB y los Componentes. (Sin Hooks porque es un Server Component)
 import { obtenerPerfilPublicoAction } from "@/actions/publicProfile.action"; 
 import TierBadge from "@/components/profile/TierBadge"; 
 import ProfileSocialNodes from "@/components/profile/ProfileSocialNodes";
+import ProfileReputationButton from "@/components/profile/ProfileReputationButton";
 import ShareProfileButton from "@/components/ui/ShareProfileButton"; 
 import { resolverCosmeticos, ringAttrs } from "@/lib/cosmetics";
 import PublicVipCarousel from "@/components/profile/PublicVipCarousel";
@@ -31,6 +34,9 @@ export default async function PublicProfilePage({ params }: Props) {
     }
 
     const user = response.data;
+
+    // Sesión (para el botón de reputación: saber si el visitante puede dar like).
+    const session = await getServerSession(authOptions);
     
     // --- VARIABLES SEGURAS (Fallback si no hay datos) ---
     const profileName = user.discord_username || "Usuario";
@@ -122,11 +128,12 @@ export default async function PublicProfilePage({ params }: Props) {
                                         <span className={`h-1.5 w-1.5 rounded-full ${user.is_online ? "bg-neon motion-safe:animate-pulse" : "bg-zinc-600"}`}/>
                                         {user.is_online ? "ONLINE" : "OFFLINE"}
                                     </div>
-                                    {/* LECTURA DE REPUTACIÓN: Aquí es solo informativo, protegemos la base de datos de spam externo */}
-                                    <div className="flex items-center gap-2 px-4 py-1.5 rounded border border-red-500/30 bg-red-500/10 text-red-400 shadow-[0_0_10px_rgba(239,68,68,0.1)]">
-                                        <svg className="w-4 h-4 fill-red-400 motion-safe:animate-pulse" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12z" /></svg>
-                                        <span className="text-xs font-mono font-bold tracking-wider">{user.likes_count ?? 0} REP</span>
-                                    </div>
+                                    {/* REPUTACIÓN: botón interactivo (misma lógica que el modal del home) */}
+                                    <ProfileReputationButton
+                                        receiverSelector={user.discord || user.discord_username || ""}
+                                        initialLikes={user.likes_count ?? 0}
+                                        isAuthenticated={!!session}
+                                    />
                                 </div>
                             </div>
                         </div>
