@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import type { CustomSlide, SlideStyleConfig, SlideFormat } from "@/types/slides";
 import { VIP_FONTS } from "@/types/slides";
 import { guardarSlideAction } from "@/actions/tier2.actions";
+import { SITE_CONFIG } from "@/config/site.config";
 
 // Importamos nuestros componentes modulares
 import PreviewCanvas from "./editor/PreviewCanvas";
@@ -14,19 +15,21 @@ interface Props {
     isOpen: boolean;
     slotId: number;
     existingSlide?: CustomSlide;
-    activeNetworks: { key: string; label: string }[];
     onClose: () => void;
     onSaved: () => void;
 }
 
-export default function SlidePowerEditorModal({ isOpen, slotId, existingSlide, activeNetworks, onClose, onSaved }: Props) {
+export default function SlidePowerEditorModal({ isOpen, slotId, existingSlide, onClose, onSaved }: Props) {
     const [isSaving, setIsSaving] = useState(false);
     
     // Estados de datos
     const [format, setFormat] = useState<SlideFormat>(existingSlide?.format || "A");
     const [title, setTitle] = useState(existingSlide?.title || "");
     const [description, setDescription] = useState(existingSlide?.description || "");
-    const [networkKey, setNetworkKey] = useState(existingSlide?.network_key || activeNetworks[0]?.key || "");
+    const [linkUrl, setLinkUrl] = useState(existingSlide?.link_url || "");
+    
+    // Propósito del slot (Portada / Agenda / CTA) desde SITE_CONFIG.
+    const slotPurpose = SITE_CONFIG.slides.slotPurposes[slotId as 1 | 2 | 3] ?? `Slot ${slotId}`;
     
     // Estados de imagen
     const [imageFile, setImageFile] = useState<File | null>(null);
@@ -64,13 +67,13 @@ export default function SlidePowerEditorModal({ isOpen, slotId, existingSlide, a
     const handleSave = async () => {
         if (!title) return alert("El título es obligatorio.");
         if (!previewUrl) return alert("Debes subir una imagen de fondo.");
-        if (!networkKey) return alert("Selecciona una red de destino.");
+        if (!linkUrl) return alert("Añade un enlace de destino (http/https).");
 
         setIsSaving(true);
         const formData = new FormData();
         formData.append("slideId", slotId.toString());
         formData.append("format", format);
-        formData.append("networkKey", networkKey);
+        formData.append("linkUrl", linkUrl);
         formData.append("title", title);
         formData.append("description", description);
         if (imageFile) formData.append("image", imageFile);
@@ -117,9 +120,9 @@ export default function SlidePowerEditorModal({ isOpen, slotId, existingSlide, a
                         setTitle={setTitle}
                         description={description}
                         setDescription={setDescription}
-                        networkKey={networkKey}
-                        setNetworkKey={setNetworkKey}
-                        activeNetworks={activeNetworks}
+                        linkUrl={linkUrl}
+                        setLinkUrl={setLinkUrl}
+                        slotPurpose={slotPurpose}
                         styleConfig={styleConfig}
                         onStyleChange={handleStyleChange}
                         onSave={handleSave}

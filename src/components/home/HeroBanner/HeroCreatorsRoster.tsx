@@ -22,6 +22,9 @@ function mapCreatorToUserProfile(creator: CreatorProfile): UserProfile {
         tier_level: creator.tier_level ?? 0,
         social_links: {},
         name_color_gradient: creator.name_color_gradient ?? undefined,
+        ring_color: creator.ring_color ?? undefined,
+        gradient_from: creator.gradient_from ?? undefined,
+        gradient_to: creator.gradient_to ?? undefined,
     };
 }
 

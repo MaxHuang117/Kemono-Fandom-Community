@@ -25,6 +25,26 @@
     font-family: var(--font-oswald), 'Oswald', sans-serif;
 }
 
+/*
+|--------------------------------------------------------------------------
+| Animación de degradado (Fase 3)
+|--------------------------------------------------------------------------
+| Aplica un "flujo" al degradado de color propio del nombre (Tier 2). Solo se
+| usa cuando el creador define un degradado de 2 colores; los presets y el
+| color puro no lo activan (se conservan los glows y el giro del anillo).
+|--------------------------------------------------------------------------
+*/
+@keyframes gradient-pan {
+    0%   { background-position: 0% 50%; }
+    50%  { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
+
+.gradient-animate {
+    background-size: 200% 200%;
+    animation: gradient-pan 4s ease infinite;
+}
+
 :root {
     /* Paleta definida para estética gaming profesional */
     --bg-color: #0a0a0a;

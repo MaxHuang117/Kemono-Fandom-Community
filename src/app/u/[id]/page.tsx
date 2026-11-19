@@ -8,7 +8,7 @@ import { obtenerPerfilPublicoAction } from "@/actions/publicProfile.action";
 import TierBadge from "@/components/profile/TierBadge"; 
 import ProfileSocialNodes from "@/components/profile/ProfileSocialNodes";
 import ShareProfileButton from "@/components/ui/ShareProfileButton"; 
-import { VIP_STYLES, DEFAULT_STYLE } from "@/config/vipStyles.config";
+import { resolverCosmeticos } from "@/lib/cosmetics";
 import PublicVipCarousel from "@/components/profile/PublicVipCarousel";
 
 // ⚡ OPTIMIZACIÓN NEXT 15: params ahora es una Promesa.
@@ -37,14 +37,14 @@ export default async function PublicProfilePage({ params }: Props) {
     const finalTier = user.tier_level ?? 0;
     const finalLinks = (user.social_links as Record<string, string>) ?? {};
     
-    // 🎨 LÓGICA VIP CENTRALIZADA (Ejecutada del lado del servidor)
-    const styleId = user.name_color_gradient;
-    const activeStyle = VIP_STYLES[styleId || "pure"] || DEFAULT_STYLE;
-    
-    const isPremium = finalTier >= 1;
-    // Si no es VIP (Tier 0), inyecta clases blancas y grises estándar.
-    const renderTextClass = isPremium ? `text-transparent bg-clip-text bg-gradient-to-r ${activeStyle.textClass} hover:brightness-125` : "text-white";
-    const renderRingClass = isPremium ? `bg-gradient-to-r ${activeStyle.ringClass} motion-safe:animate-[spin_4s_linear_infinite]` : "from-zinc-800 to-zinc-700";
+    // 🎨 Fase 3: cosméticos (nombre + anillo) resueltos en un único punto (servidor).
+    const cosmeticos = resolverCosmeticos({
+        tier_level: finalTier,
+        name_color_gradient: user.name_color_gradient,
+        ring_color: user.ring_color,
+        gradient_from: user.gradient_from,
+        gradient_to: user.gradient_to,
+    });
 
     return (
         <main className="min-h-screen bg-[#020202] text-white pt-24 pb-12 font-sans relative">
@@ -93,7 +93,7 @@ export default async function PublicProfilePage({ params }: Props) {
                             {/* AVATAR + EFECTO VIP */}
                             <div className="relative group/avatar shrink-0">
                                 {/* Anillo Dinámico VIP */}
-                                <div className={`absolute inset-[-4px] rounded-full ${renderRingClass}`} />
+                                <div className={`absolute inset-[-4px] rounded-full ${cosmeticos.ringClassName}`} style={cosmeticos.ringStyle} />
                                 <div className="relative h-40 w-40 sm:h-48 sm:w-48 rounded-full border-[6px] border-[#070707] bg-[#0a0a0a] shadow-[0_0_30px_rgba(0,0,0,0.8)] overflow-hidden">
                                     <Image src={user.avatar_url || "https://cdn.discordapp.com/embed/avatars/0.png"} alt={profileName} fill sizes="192px" unoptimized={esImagenAnimada(user.avatar_url)} className="object-cover" priority />
                                 </div>
@@ -101,7 +101,7 @@ export default async function PublicProfilePage({ params }: Props) {
 
                             <div className="flex flex-col items-center sm:items-start pb-2 w-full text-center sm:text-left">
                                 {/* NOMBRE VIP DINÁMICO */}
-                                <h1 className={`text-4xl sm:text-6xl font-black uppercase tracking-wider drop-shadow-[0_5px_5px_rgba(0,0,0,0.8)] mb-3 transition-all duration-300 ${renderTextClass}`}>
+                                <h1 className={`text-4xl sm:text-6xl font-black uppercase tracking-wider drop-shadow-[0_5px_5px_rgba(0,0,0,0.8)] mb-3 transition-all duration-300 ${cosmeticos.nameClassName}`} style={cosmeticos.nameStyle}>
                                     {profileName}
                                 </h1>
                                 
@@ -146,7 +146,7 @@ export default async function PublicProfilePage({ params }: Props) {
                             <div className="lg:col-span-2 space-y-6">
                                 <div className="w-full bg-[#050505] border border-white/5 p-6 sm:p-8 text-base font-mono text-zinc-300 leading-relaxed min-h-[160px] rounded-lg shadow-inner relative overflow-hidden group/bio">
                                     <div className="absolute top-0 left-0 w-1 h-full bg-gradient-to-b from-neon/50 to-transparent opacity-50 group-hover/bio:opacity-100 transition-opacity" />
-                                    {user.biografia ? <p className="relative z-10">{user.biografia}</p> : <span className="text-zinc-500 italic relative z-10">Sin biografía.</span>}
+                                    {user.biografia ? <p className="relative z-10 whitespace-pre-line">{user.biografia}</p> : <span className="text-zinc-500 italic relative z-10">Sin biografía.</span>}
                                 </div>
                             </div>
                         </div>

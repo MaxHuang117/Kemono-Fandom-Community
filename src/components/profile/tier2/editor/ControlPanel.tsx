@@ -2,6 +2,7 @@
 
 import type { SlideFormat, SlideStyleConfig } from "@/types/slides";
 import { VIP_FONTS } from "@/types/slides";
+import { SITE_CONFIG } from "@/config/site.config";
 
 interface Props {
     format: SlideFormat;
@@ -10,9 +11,9 @@ interface Props {
     setTitle: (t: string) => void;
     description: string;
     setDescription: (d: string) => void;
-    networkKey: string;
-    setNetworkKey: (k: string) => void;
-    activeNetworks: { key: string; label: string }[];
+    linkUrl: string;
+    setLinkUrl: (u: string) => void;
+    slotPurpose: string;
     styleConfig: SlideStyleConfig;
     onStyleChange: (updates: Partial<SlideStyleConfig>) => void;
     onSave: () => void;
@@ -53,7 +54,7 @@ export default function ControlPanel(props: Props) {
                 <div className="flex items-center gap-3">
                     <div className="w-2 h-2 rounded-full bg-neon motion-safe:animate-pulse" />
                     <h3 className="text-white font-mono font-bold tracking-widest text-xs uppercase">
-                        Tarjeta {props.slotId} <span className="text-zinc-500 font-normal">/ Editar</span>
+                        Tarjeta {props.slotId} <span className="text-zinc-500 font-normal">/ {props.slotPurpose}</span>
                     </h3>
                 </div>
                 <button onClick={props.onClose} type="button" disabled={props.isSaving} aria-label="Cerrar editor" className="text-zinc-500 hover:text-red-400 font-mono text-[10px] tracking-widest uppercase transition-colors px-2 py-1 border border-transparent hover:border-red-900/50 rounded">Cerrar</button>
@@ -101,19 +102,21 @@ export default function ControlPanel(props: Props) {
                 {/* 2. CONTENIDO */}
                 <div className="space-y-4">
                     <label className="flex items-center gap-1 text-[10px] font-mono text-zinc-500 tracking-widest uppercase">
-                        <span className="text-neon/50">02.</span> Redirección & Datos
+                        <span className="text-neon/50">02.</span> Enlace & Datos
                     </label>
                     
-                    <div className="flex flex-wrap gap-2 mb-4">
-                        {props.activeNetworks.length === 0 ? (
-                            <span className="text-xs font-mono text-red-400 bg-red-500/10 px-3 py-1.5 rounded border border-red-500/20">No hay redes conectadas</span>
-                        ) : (
-                            props.activeNetworks.map(net => (
-                                <button key={net.key} onClick={() => props.setNetworkKey(net.key)} className={`px-4 py-2 rounded-full text-[10px] font-bold tracking-widest uppercase transition-all duration-300 ${props.networkKey === net.key ? "bg-neon text-black shadow-[0_0_10px_rgba(97,255,97,0.4)]" : "bg-[#111] text-zinc-400 border border-white/5 hover:border-white/20"}`}>
-                                    {net.label}
-                                </button>
-                            ))
-                        )}
+                    <div className="space-y-2">
+                        <div className="relative group">
+                            <span className="absolute left-4 top-4 text-neon font-mono text-sm opacity-50 group-focus-within:opacity-100 transition-opacity">&gt;</span>
+                            <input
+                                type="url"
+                                value={props.linkUrl}
+                                onChange={(e) => props.setLinkUrl(e.target.value)}
+                                placeholder="https://ejemplo.com"
+                                className="w-full bg-black border border-white/5 focus:border-neon/50 focus:bg-neon-deep/10 pl-9 pr-4 py-4 text-xs text-white font-mono outline-none transition-all rounded-lg"
+                            />
+                        </div>
+                        <p className="text-[9px] font-mono text-zinc-600">Enlace de destino (http:// o https://). Abre al hacer clic en la tarjeta.</p>
                     </div>
 
                     <div className="space-y-3">
@@ -122,14 +125,14 @@ export default function ControlPanel(props: Props) {
                             <textarea 
                                 value={props.title} 
                                 onChange={(e) => props.setTitle(e.target.value)} 
-                                maxLength={20} // Límite: 20 caracteres
+                                maxLength={SITE_CONFIG.slides.titleMax}
                                 placeholder="Título de la tarjeta" 
                                 rows={2} 
                                 className="w-full bg-black border border-white/5 focus:border-neon/50 focus:bg-neon-deep/10 pl-9 pr-4 py-4 text-xs text-white font-mono outline-none transition-all rounded-lg resize-y min-h-[60px]" 
                             />
                             {/* Contador Visual Título */}
-                            <span className={`absolute right-4 bottom-3 text-[9px] font-mono transition-colors ${props.title.length >= 20 ? 'text-red-400' : 'text-zinc-500'}`}>
-                                {props.title.length}/20
+                            <span className={`absolute right-4 bottom-3 text-[9px] font-mono transition-colors ${props.title.length >= SITE_CONFIG.slides.titleMax ? 'text-red-400' : 'text-zinc-500'}`}>
+                                {props.title.length}/{SITE_CONFIG.slides.titleMax}
                             </span>
                         </div>
 
@@ -139,14 +142,14 @@ export default function ControlPanel(props: Props) {
                                 <textarea 
                                     value={props.description} 
                                     onChange={(e) => props.setDescription(e.target.value)} 
-                                    maxLength={30} // LÍMITE: 30 Caracteres
+                                    maxLength={SITE_CONFIG.slides.descriptionMax}
                                     placeholder="Descripción breve..." 
                                     rows={3} 
                                     className="w-full bg-black border border-white/5 focus:border-neon/50 focus:bg-neon-deep/10 pl-9 pr-4 py-4 text-xs text-white font-mono outline-none transition-all rounded-lg resize-y min-h-[80px]" 
                                 />
                                 {/* Contador Visual Descripción */}
-                                <span className={`absolute right-4 bottom-3 text-[9px] font-mono transition-colors ${props.description.length >= 30 ? 'text-red-400' : 'text-zinc-500'}`}>
-                                    {props.description.length}/30
+                                <span className={`absolute right-4 bottom-3 text-[9px] font-mono transition-colors ${props.description.length >= SITE_CONFIG.slides.descriptionMax ? 'text-red-400' : 'text-zinc-500'}`}>
+                                    {props.description.length}/{SITE_CONFIG.slides.descriptionMax}
                                 </span>
                             </div>
                         )}

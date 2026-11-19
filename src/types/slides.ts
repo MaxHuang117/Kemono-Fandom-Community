@@ -14,7 +14,7 @@ export interface CustomSlide {
     id: number;
     format: SlideFormat;
     image_url: string;
-    network_key: string;
+    link_url: string;    // URL libre http/https (Fase 3: antes `network_key`)
     title: string;       // Máx 25 caracteres
     description?: string; // Máx 80 caracteres (Solo formato B)
     style_config: SlideStyleConfig; // NUEVO: Configuración estética in-line

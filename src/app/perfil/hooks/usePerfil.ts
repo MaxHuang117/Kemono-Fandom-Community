@@ -24,6 +24,10 @@ export function usePerfil() {
     const [socialLinks, setSocialLinks] = useState<Record<string, string>>({});
     
     const [nameColorGradient, setNameColorGradient] = useState<string | null>(null);
+    // Fase 3: cosméticos de perfil (anillo Tier 1, degradado Tier 2)
+    const [ringColor, setRingColor] = useState<string | null>(null);
+    const [gradientFrom, setGradientFrom] = useState<string | null>(null);
+    const [gradientTo, setGradientTo] = useState<string | null>(null);
     // AÑADIDO: Estado para el contador de likes
     const [likesCount, setLikesCount] = useState<number>(0);
     // FASE 1.5: Estado de presencia ONLINE
@@ -49,6 +53,9 @@ export function usePerfil() {
         setDbId(perfilData.id || "");
         
         setNameColorGradient(perfilData.name_color_gradient ?? null);
+        setRingColor(perfilData.ring_color ?? null);
+        setGradientFrom(perfilData.gradient_from ?? null);
+        setGradientTo(perfilData.gradient_to ?? null);
         // AÑADIDO: Guardamos el contador de likes que viene de Supabase
         setLikesCount(perfilData.likes_count ?? 0);
         // FASE 1.5: Guardamos el estado de presencia
@@ -117,6 +124,9 @@ export function usePerfil() {
         socialLinks,
         customSlides, 
         nameColorGradient, 
+        ringColor,
+        gradientFrom,
+        gradientTo,
         likesCount, // AÑADIDO: Lo exportamos
         isOnline, // FASE 1.5: Estado de presencia
         setBiografia,

@@ -13,9 +13,7 @@ import { toggleProfileReputationAction, obtenerEstadoReputacionAction } from "@/
 import TierBadge from "@/components/profile/TierBadge"; 
 import Link from "next/link";
 import ShareProfileButton from "@/components/ui/ShareProfileButton"; 
-
-// 🎨 SISTEMA VIP: Importamos la configuración global de estilos (Single Source of Truth)
-import { VIP_STYLES, DEFAULT_STYLE } from "@/config/vipStyles.config";
+import { resolverCosmeticos } from "@/lib/cosmetics";
 
 interface Props {
     user: UserProfile | null;
@@ -58,16 +56,14 @@ export default function UserProfileModal({ user, onClose }: Props) {
     const finalBanner = dbData?.banner_url ?? user?.banner;
     const finalBio = dbData?.biografia ?? user?.biografia;
 
-    // 🎨 LÓGICA DE COSMÉTICOS VIP (Seguridad Frontend)
-    // 1. Obtenemos el ID del color desde la DB
-    const styleId = dbData?.name_color_gradient ?? user?.name_color_gradient;
-    // 2. Buscamos el estilo en config. Si no existe, usamos el DEFAULT_STYLE ("pure" / blanco)
-    const activeStyle = VIP_STYLES[styleId || "pure"] || DEFAULT_STYLE;
-    
-    // 3. Evaluamos si tiene permiso (Tier 1+). Si es Free, forzamos texto blanco y anillo gris.
-    const isPremium = finalTier >= 1;
-    const renderTextClass = isPremium ? `text-transparent bg-clip-text bg-gradient-to-r ${activeStyle.textClass} hover:brightness-125` : "text-white";
-    const renderRingClass = isPremium ? `bg-gradient-to-r ${activeStyle.ringClass} motion-safe:animate-[spin_4s_linear_infinite]` : "from-zinc-800 to-zinc-700";
+    // 🎨 Fase 3: cosméticos (nombre + anillo) resueltos en un único punto.
+    const cosmeticos = resolverCosmeticos({
+        tier_level: finalTier,
+        name_color_gradient: dbData?.name_color_gradient ?? user?.name_color_gradient,
+        ring_color: dbData?.ring_color ?? user?.ring_color,
+        gradient_from: dbData?.gradient_from ?? user?.gradient_from,
+        gradient_to: dbData?.gradient_to ?? user?.gradient_to,
+    });
 
     // 🔌 SISTEMA DE REPUTACIÓN (Anti-Sybil)
     const handleToggleLike = async (e: React.MouseEvent) => {
@@ -131,16 +127,16 @@ export default function UserProfileModal({ user, onClose }: Props) {
                                 
                                 {/* AVATAR + EFECTO VIP */}
                                 <div className="relative group/avatar shrink-0 mb-3">
-                                    {/* Anillo de color (Calculado en la variable renderRingClass) */}
-                                    <div className={`absolute inset-[-4px] rounded-full ${renderRingClass}`} />
+                                    {/* Anillo de color (Calculado en resolverCosmeticos) */}
+                                    <div className={`absolute inset-[-4px] rounded-full ${cosmeticos.ringClassName}`} style={cosmeticos.ringStyle} />
                                     <div className="relative h-24 w-24 rounded-full border-[4px] border-[#050505] bg-[#0a0a0a] shadow-[0_0_20px_rgba(97,255,97,0.2)] overflow-hidden">
                                         <Image src={user.avatar} alt={user.username} fill sizes="96px" unoptimized={esImagenAnimada(user.avatar)} className="object-cover" />
                                     </div>
                                 </div>
 
                                 <div className="flex flex-col items-center text-center w-full">
-                                    {/* NOMBRE VIP (Calculado en la variable renderTextClass) */}
-                                    <h2 className={`text-2xl font-black uppercase tracking-wider drop-shadow-md leading-none transition-all duration-300 ${renderTextClass}`}>
+                                    {/* NOMBRE VIP (Calculado en resolverCosmeticos) */}
+                                    <h2 className={`text-2xl font-black uppercase tracking-wider drop-shadow-md leading-none transition-all duration-300 ${cosmeticos.nameClassName}`} style={cosmeticos.nameStyle}>
                                         {user.username}
                                     </h2>
                                     
@@ -181,7 +177,7 @@ export default function UserProfileModal({ user, onClose }: Props) {
 
                             {/* BIO UX: Usamos 'line-clamp-2' para truncar textos largos y obligar a visitar el perfil */}
                             <div className="w-full text-center text-xs font-mono text-zinc-400 leading-relaxed mb-6 px-4 line-clamp-2">
-                                {finalBio ? <p>{finalBio}</p> : <span className="italic opacity-50">Sin biografía...</span>}
+                                {finalBio ? <p className="whitespace-pre-line">{finalBio}</p> : <span className="italic opacity-50">Sin biografía...</span>}
                             </div>
                             
                             {/* NAVEGACIÓN Y COMPARTIR: Conectamos hacia /u/[discord_id] (Más seguro que username) */}

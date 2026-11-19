@@ -16,6 +16,9 @@ export interface UserProfile {
     social_links: Record<string, string>;
     custom_slides?: CustomSlide[];
     name_color_gradient?: string;
+    ring_color?: string;
+    gradient_from?: string;
+    gradient_to?: string;
     custom_badge?: string;
     allow_gifs?: boolean;
 }

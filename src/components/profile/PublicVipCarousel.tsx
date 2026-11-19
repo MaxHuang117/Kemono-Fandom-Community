@@ -6,6 +6,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
 import type { CustomSlide } from "@/types/slides";
 import { esImagenAnimada } from "@/lib/image";
+import { esUrlSegura } from "@/lib/url";
 
 interface Props {
     slides: CustomSlide[];
@@ -63,6 +64,9 @@ export default function PublicVipCarousel({ slides }: Props) {
 
                     const isCenter = offset === 0;
                     const style = slide.style_config || {};
+                    // Fase 3: solo enlazamos si link_url es http/https válida
+                    // (los valores antiguos como "twitch" no renderizan enlace).
+                    const slideLink = esUrlSegura(slide.link_url) ? slide.link_url : null;
 
                     // Contenido del Slide (Renderiza el Formato A o B según corresponda)
                     const SlideContent = (
@@ -107,7 +111,7 @@ export default function PublicVipCarousel({ slides }: Props) {
                             )}
 
                             {/* 🔗 ICONO DE REDIRECCIÓN EXTERNA */}
-                            {slide.network_key && isCenter && (
+                            {slideLink && isCenter && (
                                 <div className="absolute top-3 right-3 bg-black/60 backdrop-blur-md border border-white/10 p-2 rounded shadow-lg opacity-0 group-hover/slide:opacity-100 transition-opacity duration-300 flex items-center gap-2">
                                     <span className="text-[9px] font-mono font-bold text-neon-bright uppercase tracking-widest">IR AL ENLACE</span>
                                     <svg className="w-4 h-4 text-neon-bright" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" /></svg>
@@ -137,8 +141,8 @@ export default function PublicVipCarousel({ slides }: Props) {
                             onClick={() => !isCenter && setCurrentIndex(index)} // Si haces clic en uno de los lados, se centra automáticamente
                         >
                             {/* Si es el centro y tiene enlace, envuelve todo en un <Link>. Si no, renderiza el div. */}
-                            {isCenter && slide.network_key ? (
-                                <Link href={slide.network_key} target="_blank" rel="noopener noreferrer" className="w-full h-full block">
+                            {isCenter && slideLink ? (
+                                <Link href={slideLink} target="_blank" rel="noopener noreferrer" className="w-full h-full block">
                                     {SlideContent}
                                 </Link>
                             ) : (

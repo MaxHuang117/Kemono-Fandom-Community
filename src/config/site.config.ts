@@ -32,6 +32,15 @@ export const SITE_CONFIG = {
   slides: {
     maxSlides: 3,
     maxImageMB: 2,
+    /** Límites de texto de cada slide (unificados servidor + editor). */
+    titleMax: 25,
+    descriptionMax: 80,
+    /** Propósito de cada slot (1 = Portada, 2 = Agenda, 3 = CTA). */
+    slotPurposes: {
+      1: "Portada",
+      2: "Agenda",
+      3: "CTA",
+    },
   },
 
   /** Descubrimiento: top creadores y pesos del "Sorpréndeme". */

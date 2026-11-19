@@ -40,6 +40,9 @@ export default function PerfilPage() {
         socialLinks,
         customSlides,
         nameColorGradient,
+        ringColor,
+        gradientFrom,
+        gradientTo,
         banner,
         biografia,
         guardando,
@@ -111,6 +114,9 @@ export default function PerfilPage() {
                 likesCount={likesCount}
                 customSlides={customSlides || []}
                 nameColorGradient={nameColorGradient}
+                ringColor={ringColor}
+                gradientFrom={gradientFrom}
+                gradientTo={gradientTo}
                 isOnline={isOnline}
                 onTogglePresencia={cambiarPresencia}
                 onUpdate={cargarDatos}

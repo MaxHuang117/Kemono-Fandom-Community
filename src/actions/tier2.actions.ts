@@ -7,6 +7,8 @@ import { hasTier } from "@/lib/tier";
 import type { Json } from "@/lib/supabase/database.types";
 import type { SlideFormat, SlideStyleConfig } from "@/types/slides";
 import { VIP_FONTS } from "@/types/slides";
+import { SITE_CONFIG } from "@/config/site.config";
+import { esUrlSegura } from "@/lib/url";
 
 const MAX_IMAGE_SIZE = 2 * 1024 * 1024;
 const ALLOWED_IMAGE_TYPES: Record<string, string> = {
@@ -34,7 +36,7 @@ async function getAuthorizedTier2Profile() {
     const supabase = createAdminClient();
     const { data: profile, error } = await supabase
         .from("profiles")
-        .select("id, tier_level, sub_expires_at, social_links")
+        .select("id, tier_level")
         .eq("discord_id", discordId)
         .single();
 
@@ -86,23 +88,41 @@ function parseStyleConfig(rawValue: string): SlideStyleConfig | null {
     }
 }
 
+/**
+ * Valida un enlace libre de slide (Fase 3). Solo acepta http/https, sin
+ * credenciales empotradas, con longitud máxima de 2048. Rechaza esquemas
+ * peligrosos como `javascript:` o `data:`. Devuelve la URL recortada o null.
+ */
+function validarLinkUrl(raw: string): string | null {
+    if (typeof raw !== "string") return null;
+    const url = raw.trim();
+    if (!url || url.length > 2048) return null;
+    return esUrlSegura(url) ? url : null;
+}
+
 export async function guardarSlideAction(formData: FormData) {
     const slideId = Number(getText(formData, "slideId"));
     const format = getText(formData, "format");
-    const networkKey = getText(formData, "networkKey");
+    const linkUrlRaw = getText(formData, "linkUrl");
     const title = getText(formData, "title").trim();
     const description = getText(formData, "description").trim();
     const styleConfig = parseStyleConfig(getText(formData, "styleConfig"));
     const imageValue = formData.get("image");
     const imageFile = imageValue instanceof File && imageValue.size > 0 ? imageValue : null;
 
-    if (!Number.isInteger(slideId) || slideId < 1 || slideId > 3) {
+    if (!Number.isInteger(slideId) || slideId < 1 || slideId > SITE_CONFIG.slides.maxSlides) {
         return { success: false, error: "El slot del slide no es válido." };
     }
     if (format !== "A" && format !== "B") {
         return { success: false, error: "El formato del slide no es válido." };
     }
-    if (!networkKey || !title || title.length > 25 || (format === "B" && description.length > 80)) {
+
+    const linkUrl = validarLinkUrl(linkUrlRaw);
+    if (!linkUrl) {
+        return { success: false, error: "El enlace del slide debe ser una URL http:// o https:// válida." };
+    }
+
+    if (!title || title.length > SITE_CONFIG.slides.titleMax || (format === "B" && description.length > SITE_CONFIG.slides.descriptionMax)) {
         return { success: false, error: "Revisa los datos del slide antes de guardarlo." };
     }
     if (!styleConfig) {
@@ -115,17 +135,6 @@ export async function guardarSlideAction(formData: FormData) {
     try {
         const { profile, error: authorizationError } = await getAuthorizedTier2Profile();
         if (!profile) return { success: false, error: authorizationError };
-
-        const socialLinks = profile.social_links;
-        const hasNetwork =
-            socialLinks !== null &&
-            typeof socialLinks === "object" &&
-            !Array.isArray(socialLinks) &&
-            Boolean((socialLinks as Record<string, unknown>)[networkKey]);
-
-        if (!hasNetwork) {
-            return { success: false, error: "La red seleccionada no está vinculada a tu perfil." };
-        }
 
         const supabase = createAdminClient();
         const { data: existingSlide, error: existingSlideError } = await supabase
@@ -165,7 +174,7 @@ export async function guardarSlideAction(formData: FormData) {
                     slot_number: slideId,
                     format: format as SlideFormat,
                     image_url: imageUrlToSave,
-                    target_network: networkKey,
+                    link_url: linkUrl,
                     title,
                     description: format === "B" ? description : null,
                     style_config: styleConfig as unknown as Json,

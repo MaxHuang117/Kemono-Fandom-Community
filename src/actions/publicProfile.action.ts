@@ -25,7 +25,7 @@ export async function obtenerPerfilPublicoAction(identifier: string) {
         // (Supabase escapa el valor; nunca interpolar en cadenas de filtro — FASE2-02).
         let query = supabasePublic
             .from("profiles")
-            .select("id, discord_username, biografia, tier_level, social_links, banner_url, name_color_gradient, likes_count, avatar_url, discord_id, is_online");
+            .select("id, discord_username, biografia, tier_level, social_links, banner_url, name_color_gradient, ring_color, gradient_from, gradient_to, likes_count, avatar_url, discord_id, is_online");
 
         if (SNOWFLAKE_PATTERN.test(identifier)) {
             // Identificador numérico → buscar por discord_id.
@@ -71,7 +71,7 @@ export async function obtenerPerfilPublicoAction(identifier: string) {
                         id: slide.slot_number,
                         format: slide.format,
                         image_url: slide.image_url,
-                        network_key: slide.target_network,
+                        link_url: slide.link_url,
                         title: slide.title,
                         description: slide.description,
                         style_config: styleConfig || {}
@@ -82,6 +82,10 @@ export async function obtenerPerfilPublicoAction(identifier: string) {
 
         // 3. Filtro de Seguridad (Downgrade)
         const finalNameColorGradient = currentTier >= 2 ? profile.name_color_gradient : null;
+        // Fase 3: cosméticos filtrados por nivel (anillo → tier 1, degradado → tier 2).
+        const finalRingColor = currentTier >= 1 ? profile.ring_color : null;
+        const finalGradientFrom = currentTier >= 2 ? profile.gradient_from : null;
+        const finalGradientTo = currentTier >= 2 ? profile.gradient_to : null;
         
         // 4. Formateamos los datos para tu página y modal
         const finalData = {
@@ -97,6 +101,9 @@ export async function obtenerPerfilPublicoAction(identifier: string) {
             banner_url: profile.banner_url ?? null,
             likes_count: profile.likes_count ?? 0,
             name_color_gradient: finalNameColorGradient,
+            ring_color: finalRingColor,
+            gradient_from: finalGradientFrom,
+            gradient_to: finalGradientTo,
             custom_slides: customSlidesParsed,
             is_online: profile.is_online ?? false
         };

@@ -9,32 +9,14 @@ import { eliminarSlideAction } from "@/actions/tier2.actions";
 
 interface Props {
     tierLevel: number;
-    socialLinks: Record<string, string>;
     slides: CustomSlide[];
     onUpdate: () => void;
 }
 
-const NETWORK_LABELS: Record<string, string> = {
-    twitch: "TWITCH",
-    youtube: "YOUTUBE",
-    x: "X (TWITTER)",
-    github: "GITHUB"
-};
-
-export default function Tier2Accordion({ tierLevel, socialLinks = {}, slides = [], onUpdate }: Props) {
+export default function Tier2Accordion({ tierLevel, slides = [], onUpdate }: Props) {
     const [isOpen, setIsOpen] = useState(false);
     const [selectedSlot, setSelectedSlot] = useState<number | null>(null);
     const [isDeletingSlot, setIsDeletingSlot] = useState<number | null>(null);
-
-    const activeNetworks = useMemo(() => {
-        if (!socialLinks) return [];
-        return Object.entries(socialLinks)
-            .filter(([_, value]) => Boolean(value))
-            .map(([key]) => ({
-                key,
-                label: NETWORK_LABELS[key] || key.toUpperCase()
-            }));
-    }, [socialLinks]);
 
     const sortedSlides = useMemo(() => {
         return [...slides].sort((a, b) => a.id - b.id);
@@ -152,7 +134,6 @@ export default function Tier2Accordion({ tierLevel, socialLinks = {}, slides = [
                     isOpen={true}
                     slotId={selectedSlot}
                     existingSlide={slides.find(s => s.id === selectedSlot)}
-                    activeNetworks={activeNetworks}
                     onClose={() => setSelectedSlot(null)}
                     onSaved={() => {
                         setSelectedSlot(null);

@@ -7,9 +7,8 @@ import Tier1NetworkHub from "./Tier1NetworkHub";
 import Tier2Accordion from "@/components/profile/Tier2Accordion"; 
 import type { CustomSlide } from "@/types/slides";
 import Tier2CosmeticsHub from "./tier2/Tier2CosmeticsHub"; 
-// 👇 IMPORTAMOS LOS ESTILOS VIP
-import { VIP_STYLES, DEFAULT_STYLE } from "@/config/vipStyles.config";
 import { SITE_CONFIG } from "@/config/site.config";
+import { resolverCosmeticos } from "@/lib/cosmetics";
 import ShareProfileButton from "@/components/ui/ShareProfileButton";
 
 interface Props {
@@ -21,6 +20,9 @@ interface Props {
     socialLinks: Record<string, string>;
     customSlides: CustomSlide[];
     nameColorGradient?: string | null;
+    ringColor?: string | null;
+    gradientFrom?: string | null;
+    gradientTo?: string | null;
     likesCount: number;
     isOnline: boolean;
     onTogglePresencia: (next: boolean) => void;
@@ -29,7 +31,7 @@ interface Props {
 }
 
 export default function PerfilCard({
-    banner, imagen, nombre, discordId, tierLevel, socialLinks, customSlides, nameColorGradient, likesCount: initialLikesCount, isOnline, onTogglePresencia, onSignOut, onUpdate
+    banner, imagen, nombre, discordId, tierLevel, socialLinks, customSlides, nameColorGradient, ringColor, gradientFrom, gradientTo, likesCount: initialLikesCount, isOnline, onTogglePresencia, onSignOut, onUpdate
 }: Props) {
     const [isUploading, setIsUploading] = useState(false);
     const [copied, setCopied] = useState(false);
@@ -37,12 +39,14 @@ export default function PerfilCard({
 
     const displayName = nombre.length > 20 ? nombre.slice(0, 20) + "..." : nombre;
     
-    // 👇 LÓGICA DE ESTILOS VIP CENTRALIZADA 👇
-    const activeStyle = VIP_STYLES[nameColorGradient || "pure"] || DEFAULT_STYLE;
-    
-    const isPremium = tierLevel >= 1;
-    const renderTextClass = isPremium ? `text-transparent bg-clip-text bg-gradient-to-r ${activeStyle.textClass} hover:brightness-125` : "text-white";
-    const renderRingClass = isPremium ? `bg-gradient-to-r ${activeStyle.ringClass} motion-safe:animate-[spin_4s_linear_infinite]` : "from-zinc-800 to-zinc-700";
+    // Fase 3: cosméticos (nombre + anillo) resueltos en un único punto.
+    const cosmeticos = resolverCosmeticos({
+        tier_level: tierLevel,
+        name_color_gradient: nameColorGradient,
+        ring_color: ringColor,
+        gradient_from: gradientFrom,
+        gradient_to: gradientTo,
+    });
 
     const getTierBadge = () => {
         // Fase 2 (B2): roles del hub (sin tier 3 ni "FREE TIER").
@@ -123,7 +127,7 @@ export default function PerfilCard({
                         
                         {/* 👇 AVATAR CON MARCO DINÁMICO Y HOVER GLOW 👇 */}
                         <div className="relative group/avatar shrink-0">
-                            <div className={`absolute inset-[-4px] rounded-full ${renderRingClass}`} />
+                            <div className={`absolute inset-[-4px] rounded-full ${cosmeticos.ringClassName}`} style={cosmeticos.ringStyle} />
                             <div className="relative h-32 w-32 rounded-full border-4 border-[#050505] bg-[#0a0a0a] overflow-hidden">
                                 <Image src={imagen} fill alt="Perfil" sizes="128px" priority unoptimized={esImagenAnimada(imagen)} className="object-cover" />
                             </div>
@@ -131,7 +135,7 @@ export default function PerfilCard({
 
                         <div className="flex flex-col items-center sm:items-start pb-2">
                             {/* 👇 NOMBRE CON COLOR DINÁMICO 👇 */}
-                            <h3 className={`font-black text-3xl sm:text-4xl uppercase tracking-wider drop-shadow-[0_4px_4px_rgba(0,0,0,0.8)] mb-2 transition-all duration-300 ${renderTextClass}`} title={nombre.length > 20 ? nombre : undefined}>
+                            <h3 className={`font-black text-3xl sm:text-4xl uppercase tracking-wider drop-shadow-[0_4px_4px_rgba(0,0,0,0.8)] mb-2 transition-all duration-300 ${cosmeticos.nameClassName}`} style={cosmeticos.nameStyle} title={nombre.length > 20 ? nombre : undefined}>
                                 {displayName}
                             </h3>
                             
@@ -161,8 +165,8 @@ export default function PerfilCard({
                     </div>
 
                     <Tier1NetworkHub tierLevel={tierLevel} socialLinks={socialLinks} onUpdate={onUpdate} />
-                    <Tier2CosmeticsHub tierLevel={tierLevel} currentStyleId={nameColorGradient || "matrix"} onUpdate={onUpdate} />
-                    <Tier2Accordion tierLevel={tierLevel} slides={customSlides} socialLinks={socialLinks} onUpdate={onUpdate} />
+                    <Tier2CosmeticsHub tierLevel={tierLevel} currentStyleId={nameColorGradient || "matrix"} ringColor={ringColor ?? null} gradientFrom={gradientFrom ?? null} gradientTo={gradientTo ?? null} onUpdate={onUpdate} />
+                    <Tier2Accordion tierLevel={tierLevel} slides={customSlides} onUpdate={onUpdate} />
                 </div>
             </div>
         </div>

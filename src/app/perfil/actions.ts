@@ -7,6 +7,7 @@ import { authOptions } from "@/lib/auth";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { VIP_STYLES } from "@/config/vipStyles.config";
 import { hasTier } from "@/lib/tier";
+import { esHexColorValido } from "@/lib/cosmetics";
 
 const supabaseAdmin = createAdminClient();
 
@@ -359,7 +360,7 @@ export async function obtenerPerfilCompletoAction() {
     // 1. AÑADIMOS "likes_count" al select para que el corazón funcione
     const { data: profile, error: profileError } = await supabaseAdmin
         .from("profiles")
-        .select("id, biografia, tier_level, sub_expires_at, social_links, banner_url, name_color_gradient, likes_count, is_online")
+        .select("id, biografia, tier_level, sub_expires_at, social_links, banner_url, name_color_gradient, ring_color, gradient_from, gradient_to, likes_count, is_online")
         .eq("discord_id", session.user.discordId)
         .maybeSingle();
 
@@ -381,7 +382,7 @@ export async function obtenerPerfilCompletoAction() {
         id: number;
         format: string | null;
         image_url: string | null;
-        network_key: string | null;
+        link_url: string | null;
         title: string | null;
         description: string | null;
         style_config: Record<string, unknown>;
@@ -398,7 +399,7 @@ export async function obtenerPerfilCompletoAction() {
                 id: slide.slot_number,
                 format: slide.format,
                 image_url: slide.image_url,
-                network_key: slide.target_network,
+                link_url: slide.link_url,
                 title: slide.title,
                 description: slide.description,
                 style_config: styleConfig || {}
@@ -413,6 +414,10 @@ export async function obtenerPerfilCompletoAction() {
     const tier2Activo = hasTier(profile.tier_level, 2);
     const finalNameColorGradient = tier2Activo ? profile.name_color_gradient : null;
     const finalCustomSlides = tier2Activo ? customSlidesParsed : [];
+    // Fase 3: cosméticos filtrados por nivel (anillo → tier 1, degradado → tier 2).
+    const finalRingColor = hasTier(profile.tier_level, 1) ? profile.ring_color : null;
+    const finalGradientFrom = tier2Activo ? profile.gradient_from : null;
+    const finalGradientTo = tier2Activo ? profile.gradient_to : null;
 
     return {
         id: profile.id,
@@ -422,6 +427,9 @@ export async function obtenerPerfilCompletoAction() {
         banner_url: profile.banner_url ?? null,
         likes_count: profile.likes_count ?? 0,       // Enviamos los likes limpios
         name_color_gradient: finalNameColorGradient, // Datos VIP filtrados
+        ring_color: finalRingColor,                  // Anillo (Tier 1+)
+        gradient_from: finalGradientFrom,            // Degradado (Tier 2)
+        gradient_to: finalGradientTo,                // Degradado (Tier 2)
         custom_slides: finalCustomSlides,            // Slides VIP filtrados
         is_online: profile.is_online ?? false
     };
@@ -584,6 +592,88 @@ export async function guardarCosmeticosVIPAction(styleId: string) {
 
     if (error) {
         console.error("Error guardando cosméticos VIP:", error);
+        return { error: GENERIC_DB_ERROR };
+    }
+    return { success: true };
+}
+
+/*
+|--------------------------------------------------------------------------
+| Guardar color de anillo (Tier 1+)
+|--------------------------------------------------------------------------
+*/
+export async function guardarAnilloAction(colorHex: string) {
+    const session = await getServerSession(authOptions);
+    if (!session?.user?.discordId) return { error: "No autorizado." };
+
+    /* Fase 3: validación de hex server-side. */
+    if (!esHexColorValido(colorHex)) {
+        return { error: "Color de anillo no válido." };
+    }
+
+    const { data: perfil, error: errorTier } = await supabaseAdmin
+        .from("profiles")
+        .select("tier_level")
+        .eq("discord_id", session.user.discordId)
+        .single();
+
+    if (errorTier) {
+        console.error("Error verificando tier en guardarAnilloAction:", errorTier);
+        return { error: GENERIC_DB_ERROR };
+    }
+
+    if (!perfil || !hasTier(perfil.tier_level, 1)) {
+        return { error: "Requiere el nivel Creador aprobado (1) o superior." };
+    }
+
+    const { error } = await supabaseAdmin
+        .from("profiles")
+        .update({ ring_color: colorHex, updated_at: new Date().toISOString() })
+        .eq("discord_id", session.user.discordId);
+
+    if (error) {
+        console.error("Error guardando color de anillo:", error);
+        return { error: GENERIC_DB_ERROR };
+    }
+    return { success: true };
+}
+
+/*
+|--------------------------------------------------------------------------
+| Guardar degradado de nombre (Tier 2)
+|--------------------------------------------------------------------------
+*/
+export async function guardarDegradadoAction({ from, to }: { from: string; to: string }) {
+    const session = await getServerSession(authOptions);
+    if (!session?.user?.discordId) return { error: "No autorizado." };
+
+    /* Fase 3: validación de ambos hex server-side. */
+    if (!esHexColorValido(from) || !esHexColorValido(to)) {
+        return { error: "Los colores del degradado no son válidos." };
+    }
+
+    const { data: perfil, error: errorTier } = await supabaseAdmin
+        .from("profiles")
+        .select("tier_level")
+        .eq("discord_id", session.user.discordId)
+        .single();
+
+    if (errorTier) {
+        console.error("Error verificando tier en guardarDegradadoAction:", errorTier);
+        return { error: GENERIC_DB_ERROR };
+    }
+
+    if (!perfil || !hasTier(perfil.tier_level, 2)) {
+        return { error: "Requiere el nivel Creador destacado (2) o superior." };
+    }
+
+    const { error } = await supabaseAdmin
+        .from("profiles")
+        .update({ gradient_from: from, gradient_to: to, updated_at: new Date().toISOString() })
+        .eq("discord_id", session.user.discordId);
+
+    if (error) {
+        console.error("Error guardando degradado:", error);
         return { error: GENERIC_DB_ERROR };
     }
     return { success: true };
