@@ -1,6 +1,16 @@
 // max-hub/src/app/admin/news/components/NewsManager.tsx
 "use client";
 
+/*
+|--------------------------------------------------------------------------
+| NewsManager (administración)
+|--------------------------------------------------------------------------
+| Lista, crea, edita y elimina noticias desde /admin/news. Mantiene el
+| estado local de la lista y delega el acceso a datos en
+| lib/services/news.service. El formulario reutilizable es NewsForm.
+|--------------------------------------------------------------------------
+*/
+
 import { useState, useEffect } from "react";
 import { News, NewsInsert } from "./lib/types/news";
 import { getNews, createNews, updateNews, deleteNews } from "./lib/services/news.service";

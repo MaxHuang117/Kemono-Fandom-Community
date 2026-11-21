@@ -1,5 +1,15 @@
 "use client";
 
+/*
+|--------------------------------------------------------------------------
+| HeartButton
+|--------------------------------------------------------------------------
+| Botón de "me gusta" de un comentario. Recibe el conteo, el estado del
+| like del usuario y el estado de carga; la persistencia vive en
+| useCommentLikes. La animación solo se activa cuando el like está activo.
+|--------------------------------------------------------------------------
+*/
+
 import { motion } from "framer-motion";
 
 interface Props {
